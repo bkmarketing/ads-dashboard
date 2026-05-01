@@ -1233,12 +1233,19 @@
             <span id="status-text">Não conectado</span>
           </div>
 
+          <select class="select-pill" id="range-preset" onchange="applyDatePreset(this.value, true)">
+            <option value="last7" selected>Últimos 7 dias</option>
+            <option value="last30">Últimos 30 dias</option>
+            <option value="thisMonth">Este mês</option>
+            <option value="custom">Personalizado</option>
+          </select>
+
           <select class="select-pill" id="account-select" onchange="selectAccount(this.value)" style="display:none">
             <option value="">Conta</option>
           </select>
 
-          <input type="date" id="date-start" onchange="loadData()">
-          <input type="date" id="date-end" onchange="loadData()">
+          <input type="date" id="date-start" onchange="handleManualDateChange()">
+          <input type="date" id="date-end" onchange="handleManualDateChange()">
 
           <div class="btn-icon" onclick="exportData()" title="Exportar">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1531,9 +1538,15 @@
 
     <div class="share-field">
       <label>Período padrão</label>
+      <select class="select-pill" id="share-range-preset" onchange="applyShareDatePreset(this.value)" style="width:100%;margin-bottom:8px;">
+        <option value="last7" selected>Últimos 7 dias</option>
+        <option value="last30">Últimos 30 dias</option>
+        <option value="thisMonth">Este mês</option>
+        <option value="custom">Personalizado</option>
+      </select>
       <div style="display:flex;gap:8px">
-        <input type="date" id="share-date-start" style="flex:1">
-        <input type="date" id="share-date-end" style="flex:1">
+        <input type="date" id="share-date-start" style="flex:1" onchange="handleManualShareDateChange()">
+        <input type="date" id="share-date-end" style="flex:1" onchange="handleManualShareDateChange()">
       </div>
     </div>
 
@@ -1611,6 +1624,60 @@ function formatDate(d) {
 
 function formatBR(d) {
   return new Intl.DateTimeFormat('pt-BR').format(new Date(d + 'T12:00:00'));
+}
+
+function getPresetRange(preset) {
+  const end = new Date();
+  end.setHours(12, 0, 0, 0);
+  const start = new Date(end);
+
+  if (preset === 'last30') {
+    start.setDate(end.getDate() - 29);
+    return { start, end };
+  }
+
+  if (preset === 'thisMonth') {
+    return {
+      start: new Date(end.getFullYear(), end.getMonth(), 1, 12, 0, 0, 0),
+      end,
+    };
+  }
+
+  start.setDate(end.getDate() - 6);
+  return { start, end };
+}
+
+function setDateRange(startId, endId, start, end) {
+  document.getElementById(startId).value = formatDate(start);
+  document.getElementById(endId).value = formatDate(end);
+}
+
+function applyDatePreset(preset, shouldLoad = false) {
+  if (preset === 'custom') {
+    if (shouldLoad) loadData();
+    return;
+  }
+
+  const { start, end } = getPresetRange(preset);
+  setDateRange('date-start', 'date-end', start, end);
+
+  if (shouldLoad) loadData();
+}
+
+function applyShareDatePreset(preset) {
+  if (preset === 'custom') return;
+
+  const { start, end } = getPresetRange(preset);
+  setDateRange('share-date-start', 'share-date-end', start, end);
+}
+
+function handleManualDateChange() {
+  document.getElementById('range-preset').value = 'custom';
+  loadData();
+}
+
+function handleManualShareDateChange() {
+  document.getElementById('share-range-preset').value = 'custom';
 }
 
 // ============================================================
@@ -1691,13 +1758,8 @@ function connectMeta() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
   // Default dates
-  const now = new Date();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastDay  = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  document.getElementById('date-start').value       = formatDate(firstDay);
-  document.getElementById('date-end').value         = formatDate(lastDay);
-  document.getElementById('share-date-start').value = formatDate(firstDay);
-  document.getElementById('share-date-end').value   = formatDate(lastDay);
+  applyDatePreset('last7');
+  applyShareDatePreset('last7');
 
   // Enter key on login screen
   document.addEventListener('keydown', (e) => {
@@ -1780,6 +1842,7 @@ function showClientView(params) {
   // Set dates
   if (params.dateStart) document.getElementById('date-start').value = params.dateStart;
   if (params.dateEnd) document.getElementById('date-end').value = params.dateEnd;
+  document.getElementById('range-preset').value = 'custom';
 
   // If token provided
   if (params.token) {
@@ -1831,7 +1894,8 @@ async function fetchAdAccounts() {
     state.adAccounts = data.data || [];
     populateAccountSelects();
     if (state.adAccounts.length > 0) {
-      selectAccount(state.adAccounts[0].id);
+      const sharedAccountStillExists = state.selectedAccount && state.adAccounts.some(acc => acc.id === state.selectedAccount);
+      selectAccount(sharedAccountStillExists ? state.selectedAccount : state.adAccounts[0].id);
     }
   } catch(e) {
     console.error(e);
@@ -1851,7 +1915,7 @@ function populateAccountSelects() {
     sel2.add(opt);
   });
 
-  sel1.style.display = 'block';
+  sel1.style.display = state.isClientView ? 'none' : 'block';
   populateAccountCards();
 }
 
@@ -1881,7 +1945,7 @@ function selectAccount(accountId) {
   if (acc) {
     document.getElementById('header-client-name').textContent = acc.name;
     document.getElementById('header-account').textContent = acc.account_id;
-    document.getElementById('share-btn').style.display = 'flex';
+    document.getElementById('share-btn').style.display = state.isAdmin ? 'flex' : 'none';
   }
 
   populateAccountCards();
@@ -2379,8 +2443,7 @@ function generateClientLink() {
     accountId,
     dateStart,
     dateEnd,
-    // Note: don't include access_token in sharable link for security
-    // Implement server-side token management for production
+    token: state.accessToken || '',
   };
 
   const encoded = encodeClientParams(params);
