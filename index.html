@@ -1677,9 +1677,8 @@ function doLogout() {
 // META OAUTH
 // ============================================================
 function connectMeta() {
-  if (CONFIG.META_APP_ID === '1901334877231371') {
+  if (!CONFIG.META_APP_ID || CONFIG.META_APP_ID === 'SEU_APP_ID_AQUI') {
     showToast('⚠️ Configure seu META_APP_ID no código!');
-    alert('Para conectar o Meta:\n\n1. Acesse https://developers.facebook.com\n2. Crie um app do tipo Business\n3. Copie o App ID\n4. Cole em CONFIG.META_APP_ID no código HTML\n5. Adicione o domínio do seu site nos "Valid OAuth Redirect URIs"');
     return;
   }
   const redirectUri = encodeURIComponent(window.location.href.split('#')[0]);
