@@ -124,6 +124,31 @@
 
   .field input:focus { border-color: var(--accent); }
 
+  .password-field {
+    position: relative;
+  }
+
+  .password-field input {
+    padding-right: 62px;
+  }
+
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+  }
+
+  .password-toggle:hover { color: var(--accent); }
+
   .btn-primary {
     width: 100%;
     background: var(--accent);
@@ -1115,7 +1140,10 @@
       </div>
       <div class="field">
         <label>Senha</label>
-        <input type="password" id="login-pass" placeholder="Jesus@123" autocomplete="current-password">
+        <div class="password-field">
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="password-toggle" id="toggle-password-btn" onclick="togglePasswordVisibility()">ver</button>
+        </div>
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar</button>
 
@@ -1176,7 +1204,7 @@
         <span>Cria­tivos</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('contas')" id="tab-contas" id="admin-nav">
+      <button class="nav-item" onclick="switchTab('contas')" id="tab-contas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -1530,12 +1558,17 @@
 // ============================================================
 const CONFIG = {
   ADMIN_USER: 'admin',          // Usuário admin
-  ADMIN_PASS: 'adsdash2026',    // Senha admin (MUDE ISSO!)
+  ADMIN_PASS: 'Jesus@123',      // Senha admin (MUDE ISSO!)
   // Para Meta API, insira seu App ID do Facebook
   // Obtenha em: https://developers.facebook.com
   META_APP_ID: 'SEU_APP_ID_AQUI',
   META_API_VERSION: 'v21.0',
   META_PERMISSIONS: 'ads_read,ads_management,business_management',
+};
+
+const ADMIN_CREDENTIALS = {
+  user: CONFIG.ADMIN_USER,
+  pass: CONFIG.ADMIN_PASS,
 };
 
 // ============================================================
@@ -1570,39 +1603,8 @@ function encodeClientParams(params) {
 }
 
 // ============================================================
-// INIT
+// UTILS
 // ============================================================
-window.onload = function() {
-  // Set default dates
-  const now = new Date();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-  document.getElementById('date-start').value = formatDate(firstDay);
-  document.getElementById('date-end').value = formatDate(lastDay);
-  document.getElementById('share-date-start').value = formatDate(firstDay);
-  document.getElementById('share-date-end').value = formatDate(lastDay);
-
-  // Check if client view
-  const params = getUrlParams();
-  if (params && params.type === 'client') {
-    showClientView(params);
-    return;
-  }
-
-  // Check saved session
-  const savedToken = sessionStorage.getItem('meta_token');
-  const savedAdmin = sessionStorage.getItem('is_admin');
-  if (savedAdmin === 'true') {
-    state.isAdmin = true;
-    if (savedToken) {
-      state.accessToken = savedToken;
-    }
-    showApp();
-    return;
-  }
-};
-
 function formatDate(d) {
   return d.toISOString().split('T')[0];
 }
@@ -1615,24 +1617,52 @@ function formatBR(d) {
 // AUTH
 // ============================================================
 function doLogin() {
-  const user = document.getElementById('login-user').value;
+  const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
 
-  if (user === CONFIG.ADMIN_USER && pass === CONFIG.ADMIN_PASS) {
+  if (!user && !pass) {
+    err.textContent = 'Informe usuário e senha.';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+    return;
+  }
+
+  if (!user) {
+    err.textContent = 'Informe o usuário.';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+    return;
+  }
+
+  if (!pass) {
+    err.textContent = 'Informe a senha.';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+    return;
+  }
+
+  if (user === ADMIN_CREDENTIALS.user && pass === ADMIN_CREDENTIALS.pass) {
     state.isAdmin = true;
     sessionStorage.setItem('is_admin', 'true');
     showApp();
   } else {
-    document.getElementById('login-error').style.display = 'block';
-    setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000);
+    err.textContent = user !== ADMIN_CREDENTIALS.user
+      ? 'Usuário incorreto.'
+      : 'Senha incorreta.';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
   }
 }
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
-    doLogin();
-  }
-});
+function togglePasswordVisibility() {
+  const input = document.getElementById('login-pass');
+  const button = document.getElementById('toggle-password-btn');
+  const isHidden = input.type === 'password';
+
+  input.type = isHidden ? 'text' : 'password';
+  button.textContent = isHidden ? 'ocultar' : 'ver';
+}
 
 function doLogout() {
   if (!confirm('Sair do dashboard?')) return;
@@ -1647,36 +1677,74 @@ function doLogout() {
 // META OAUTH
 // ============================================================
 function connectMeta() {
-  if (CONFIG.META_APP_ID === 'SEU_APP_ID_AQUI') {
+  if (CONFIG.META_APP_ID === '1901334877231371') {
     showToast('⚠️ Configure seu META_APP_ID no código!');
     alert('Para conectar o Meta:\n\n1. Acesse https://developers.facebook.com\n2. Crie um app do tipo Business\n3. Copie o App ID\n4. Cole em CONFIG.META_APP_ID no código HTML\n5. Adicione o domínio do seu site nos "Valid OAuth Redirect URIs"');
     return;
   }
-
-  const scope = CONFIG.META_PERMISSIONS;
   const redirectUri = encodeURIComponent(window.location.href.split('#')[0]);
-  const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${CONFIG.META_APP_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=token`;
+  const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${CONFIG.META_APP_ID}&redirect_uri=${redirectUri}&scope=${CONFIG.META_PERMISSIONS}&response_type=token`;
   window.location.href = authUrl;
 }
 
-// Check for OAuth callback
-(function() {
-  const hash = window.location.hash;
-  if (hash.includes('access_token=')) {
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const token = params.get('access_token');
+// ============================================================
+// INIT — single entry point after DOM is ready
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  // Default dates
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDay  = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  document.getElementById('date-start').value       = formatDate(firstDay);
+  document.getElementById('date-end').value         = formatDate(lastDay);
+  document.getElementById('share-date-start').value = formatDate(firstDay);
+  document.getElementById('share-date-end').value   = formatDate(lastDay);
+
+  // Enter key on login screen
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !state.isAdmin && !state.isClientView) doLogin();
+  });
+
+  // 1. OAuth callback? (hash contains access_token)
+  const rawHash = window.location.hash;
+  if (rawHash.includes('access_token=')) {
+    const oauthParams = new URLSearchParams(rawHash.replace('#', ''));
+    const token = oauthParams.get('access_token');
     if (token) {
       state.accessToken = token;
       sessionStorage.setItem('meta_token', token);
-      window.location.hash = '';
+      history.replaceState(null, '', window.location.pathname + window.location.search);
       if (sessionStorage.getItem('is_admin') === 'true') {
         state.isAdmin = true;
         showApp();
-        fetchAdAccounts();
+      } else {
+        // Token arrived but admin session gone — ask to re-login
+        sessionStorage.setItem('pending_token', token);
+        // Show login screen (already visible by default)
       }
+      return;
     }
   }
-})();
+
+  // 2. Client view? (hash is base64 JSON)
+  const clientParams = getUrlParams();
+  if (clientParams && clientParams.type === 'client') {
+    showClientView(clientParams);
+    return;
+  }
+
+  // 3. Saved admin session?
+  const savedAdmin = sessionStorage.getItem('is_admin');
+  if (savedAdmin === 'true') {
+    state.isAdmin = true;
+    const savedToken = sessionStorage.getItem('meta_token');
+    if (savedToken) state.accessToken = savedToken;
+    showApp();
+    return;
+  }
+
+  // 4. Default: show login screen (already visible via CSS)
+});
 
 // ============================================================
 // SHOW APP
@@ -1961,7 +2029,7 @@ function renderEmptyState() {
   });
 
   // Funnel
-  document.getElementById('funnel-wrap').innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px 10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Conecte sua conta<br>Meta para ver o funil</div>';
+  document.getElementById('funnel-wrap').innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px 10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Conecte sua conta<br>Meta para ver o funil</div>`;
 
   // Metrics
   ['bm-cac','bm-cpp','bm-cpm','mm-video','mm-roas','mm-conv','mm-hook','mm-ctr','mm-post'].forEach(id => {
@@ -1977,13 +2045,13 @@ function renderEmptyState() {
   renderImpressionsChart([], []);
 
   // Tables
-  document.getElementById('campaigns-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Conecte sua conta Meta para ver as campanhas</td></tr>';
+  document.getElementById('campaigns-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Conecte sua conta Meta para ver as campanhas</td></tr>`;
   document.getElementById('campaigns-badge').textContent = '0 campanhas';
 
   // Creatives
-  document.getElementById('creatives-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">Conecte sua conta Meta para visualizar os criativos</div>';
+  document.getElementById('creatives-grid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">Conecte sua conta Meta para visualizar os criativos</div>`;
   document.getElementById('creatives-badge').textContent = '0 criativos';
-  document.getElementById('creatives-tbody-detail').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>';
+  document.getElementById('creatives-tbody-detail').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>`;
 
   // Detail tab
   document.getElementById('d-followers').textContent = '—';
@@ -1992,7 +2060,7 @@ function renderEmptyState() {
 
   // Donut charts — clear
   destroyChart('donut'); destroyChart('gender'); destroyChart('addcart');
-  document.getElementById('donut-legend').innerHTML = '<div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>';
+  document.getElementById('donut-legend').innerHTML = `<div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>`;
   document.getElementById('gender-legend').innerHTML = '';
   document.getElementById('add-cart-legend').innerHTML = '';
 
