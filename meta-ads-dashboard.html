@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Ads Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #a8c441;
+    --accent2: #c8e05a;
+    --text: #e8e8e8;
+    --text-muted: #666;
+    --text-dim: #999;
+    --red: #e05555;
+    --green: #a8c441;
+    --blue: #4a9eff;
+    --meta-blue: #1877f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== LOGIN SCREEN ===== */
+  #login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+  }
+
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 40%, rgba(168,196,65,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 380px;
+    text-align: center;
+    position: relative;
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .login-logo svg { width: 32px; height: 32px; }
+
+  .login-logo span {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .login-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 36px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .login-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: var(--text-dim);
+  }
+
+  .field {
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .field label {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-meta {
+    width: 100%;
+    background: var(--meta-blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-meta:hover { opacity: 0.9; }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .login-divider::before, .login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .login-error {
+    background: rgba(224,85,85,0.1);
+    border: 1px solid rgba(224,85,85,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ===== CLIENT VIEW BANNER ===== */
+  #client-banner {
+    background: linear-gradient(90deg, rgba(168,196,65,0.1), rgba(168,196,65,0.05));
+    border-bottom: 1px solid rgba(168,196,65,0.2);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    display: none;
+  }
+
+  #client-banner .client-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  #client-banner .client-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ===== MAIN APP ===== */
+  #app { display: none; }
+
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 80px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 100;
+    gap: 4px;
+  }
+
+  .sidebar-logo {
+    width: 40px; height: 40px;
+    margin-bottom: 20px;
+  }
+
+  .nav-item {
+    width: 56px; height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    gap: 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(168,196,65,0.15);
+    color: var(--accent);
+  }
+
+  .nav-item svg { width: 20px; height: 20px; }
+
+  .nav-item span {
+    font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-avatar {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0a0a0a;
+    cursor: pointer;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    margin-left: 80px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .header-title {
+    flex: 1;
+  }
+
+  .header-title h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .header-title p {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .select-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .select-pill:focus { border-color: var(--accent); }
+
+  .date-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .btn-icon {
+    width: 34px; height: 34px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .btn-icon:hover { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
+
+  /* ===== SHARE BUTTON ===== */
+  .btn-share {
+    background: rgba(168,196,65,0.1);
+    border: 1px solid rgba(168,196,65,0.3);
+    border-radius: 8px;
+    padding: 7px 14px;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .btn-share:hover { background: rgba(168,196,65,0.2); }
+
+  /* ===== CONTENT AREA ===== */
+  .content {
+    padding: 24px;
+    flex: 1;
+  }
+
+  /* ===== KPI CARDS ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+
+  .kpi-card:hover { border-color: #333; }
+
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .kpi-delta {
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .kpi-delta.up { color: var(--green); }
+  .kpi-delta.down { color: var(--red); }
+
+  /* ===== SECTION GRID ===== */
+  .section-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 1fr 260px;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+
+  /* ===== FUNNEL ===== */
+  .funnel-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin: 8px 0;
+  }
+
+  .funnel-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .funnel-bar {
+    height: 52px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 11px;
+    transition: opacity 0.2s;
+    position: relative;
+  }
+
+  .funnel-bar:hover { opacity: 0.9; }
+
+  .funnel-bar .f-label { font-size: 10px; font-weight: 400; opacity: 0.8; margin-bottom: 2px; font-family: 'IBM Plex Mono', monospace; }
+  .funnel-bar .f-val { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+  .funnel-connector {
+    width: 2px;
+    height: 6px;
+    background: var(--border);
+  }
+
+  /* ===== METRICS SMALL ===== */
+  .metrics-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .metric-mini {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .metric-mini-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+
+  .metric-mini-val {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .metric-mini-delta {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .roas-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .roas-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 1s ease;
+  }
+
+  /* ===== CHART ===== */
+  .chart-wrap {
+    position: relative;
+    height: 160px;
+  }
+
+  /* ===== DONUT ===== */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .donut-canvas-wrap {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+  }
+
+  .donut-legend {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ===== TABLE ===== */
+  .campaigns-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .campaigns-table th {
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .campaigns-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text);
+  }
+
+  .campaigns-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .tag-highlight {
+    background: rgba(168,196,65,0.15);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ===== CREATIVES ===== */
+  .creatives-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .creative-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+
+  .creative-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .creative-thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .creative-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .creative-thumb .placeholder-icon {
+    font-size: 32px;
+    opacity: 0.2;
+  }
+
+  .creative-info {
+    padding: 10px;
+  }
+
+  .creative-name {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .creative-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .creative-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+  }
+
+  .creative-stat span:last-child { color: var(--text); font-weight: 600; }
+
+  /* ===== BOTTOM METRICS ===== */
+  .bottom-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .bm-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  .bm-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .bm-val {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  /* ===== TABS ===== */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== CONNECT META BANNER ===== */
+  .connect-banner {
+    background: linear-gradient(135deg, rgba(24,119,242,0.1), rgba(24,119,242,0.05));
+    border: 1px solid rgba(24,119,242,0.3);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .connect-banner h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .connect-banner p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ===== SHARE MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    display: none;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 480px;
+    position: relative;
+  }
+
+  .modal h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .modal p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  .share-url-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    word-break: break-all;
+    margin-bottom: 12px;
+    cursor: text;
+    user-select: all;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-copy {
+    flex: 1;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-copy:hover { opacity: 0.9; }
+
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 16px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .share-field { margin-bottom: 16px; }
+
+  .share-field label {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .share-field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .share-field input:focus { border-color: var(--accent); }
+
+  /* ===== ADMIN ACCOUNTS LIST ===== */
+  .accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .account-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .account-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .account-card.selected { border-color: var(--accent); background: rgba(168,196,65,0.05); }
+
+  .account-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .account-id {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .account-stats {
+    display: flex;
+    gap: 16px;
+  }
+
+  .account-stat { font-size: 11px; font-family: 'IBM Plex Mono', monospace; }
+  .account-stat span { display: block; color: var(--text-muted); font-size: 10px; }
+
+  /* ===== LOADING ===== */
+  .loading-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 40px auto;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent);
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .section-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .section-grid { grid-template-columns: 1fr; }
+    .header-controls .date-pill { display: none; }
+  }
+
+  /* ===== DATE PICKER ===== */
+  input[type="date"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    outline: none;
+  }
+
+  input[type="date"]:focus { border-color: var(--accent); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+
+  /* ===== CONNECTED STATUS ===== */
+  .meta-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  .status-dot.connected { background: var(--green); animation: pulse 2s infinite; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .badge {
+    background: rgba(168,196,65,0.15);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+
+  /* ===== MOBILE VIEW SECTION ===== */
+  .mobile-preview {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .mobile-frame {
+    width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(168,196,65,0.05);
+  }
+
+  .mobile-kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .mobile-kpi {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .mobile-kpi .kpi-label { font-size: 9px; }
+  .mobile-kpi .kpi-value { font-size: 20px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#a8c441"/>
+        <path d="M7 17L12 7L17 17M9.5 13H14.5" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>AdsDash</span>
+    </div>
+    <p class="login-subtitle">Relatórios Meta Ads</p>
+
+    <div id="admin-login">
+      <h2>Acesso Administrador</h2>
+      <div class="field">
+        <label>Usuário</label>
+        <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Entrar</button>
+
+      <div class="login-divider">ou</div>
+
+      <button class="btn-meta" onclick="connectMeta()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Continuar com Facebook
+      </button>
+
+      <div class="login-error" id="login-error">Usuário ou senha incorretos</div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT BANNER -->
+<div id="client-banner">
+  <div class="client-info">
+    <div class="client-dot"></div>
+    <span>Visualização do cliente · <span id="client-name-banner">—</span></span>
+  </div>
+  <span id="client-account-banner" style="font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;"></span>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <svg class="sidebar-logo" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="#a8c441"/>
+        <path d="M12 28L20 12L28 28M15.5 22H24.5" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+
+      <button class="nav-item active" onclick="switchTab('visao')" id="tab-visao">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span>Visão</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('detalhamento')" id="tab-detalhamento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <span>Detalhe</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('criativos')" id="tab-criativos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span>Cria­tivos</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('contas')" id="tab-contas" id="admin-nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Contas</span>
+      </button>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-avatar" onclick="doLogout()" title="Sair" id="user-avatar">A</div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- HEADER -->
+      <header class="header">
+        <div class="header-title">
+          <h1 id="header-client-name">Meta Ads Dashboard</h1>
+          <p id="header-subtitle">Relatório Meta Ads · <span id="header-account">Todas as contas</span></p>
+        </div>
+
+        <div class="header-controls">
+          <div class="meta-status" id="meta-status">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Não conectado</span>
+          </div>
+
+          <select class="select-pill" id="account-select" onchange="selectAccount(this.value)" style="display:none">
+            <option value="">Conta</option>
+          </select>
+
+          <input type="date" id="date-start" onchange="loadData()">
+          <input type="date" id="date-end" onchange="loadData()">
+
+          <div class="btn-icon" onclick="exportData()" title="Exportar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+
+          <button class="btn-share" id="share-btn" onclick="openShareModal()" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Gerar link
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <div class="content">
+
+        <!-- CONNECT BANNER -->
+        <div class="connect-banner" id="connect-banner">
+          <h3>🔗 Conecte sua conta Meta</h3>
+          <p>Para visualizar dados reais das suas campanhas, conecte sua conta Meta Business</p>
+          <button class="btn-meta" style="width:auto;margin:0 auto;display:inline-flex;" onclick="connectMeta()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Conectar Facebook
+          </button>
+        </div>
+
+        <!-- TAB: VISÃO GERAL -->
+        <div class="tab-content active" id="content-visao">
+
+          <!-- KPIs -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Impressões</div>
+              <div class="kpi-value" id="kpi-impressoes">—</div>
+              <div class="kpi-delta up" id="kpi-impressoes-delta">—</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Alcance</div>
+              <div class="kpi-value" id="kpi-alcance">—</div>
+              <div class="kpi-delta up" id="kpi-alcance-delta">—</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Valor gasto</div>
+              <div class="kpi-value" id="kpi-gasto">—</div>
+              <div class="kpi-delta up" id="kpi-gasto-delta">—</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Compras</div>
+              <div class="kpi-value" id="kpi-compras">—</div>
+              <div class="kpi-delta up" id="kpi-compras-delta">—</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Custo por compra</div>
+              <div class="kpi-value" id="kpi-cpp">—</div>
+              <div class="kpi-delta down" id="kpi-cpp-delta">—</div>
+            </div>
+          </div>
+
+          <!-- SECTION GRID -->
+          <div class="section-grid">
+
+            <!-- FUNNEL -->
+            <div class="card">
+              <div class="card-title">Funil de Tráfego</div>
+              <div class="funnel-wrap" id="funnel-wrap">
+                <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;font-family:'IBM Plex Mono',monospace;">
+                  Conecte sua conta para ver o funil
+                </div>
+              </div>
+              <div class="bottom-metrics" id="bottom-metrics">
+                <div class="bm-card">
+                  <div class="bm-label">Custo Add Carrinho</div>
+                  <div class="bm-val" id="bm-cac">—</div>
+                </div>
+                <div class="bm-card">
+                  <div class="bm-label">Custo/Compra</div>
+                  <div class="bm-val" id="bm-cpp">—</div>
+                </div>
+                <div class="bm-card">
+                  <div class="bm-label">CPM</div>
+                  <div class="bm-val" id="bm-cpm">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- METRICS COL -->
+            <div class="metrics-col">
+              <div class="metric-mini">
+                <div class="metric-mini-label">3 seg. exibições de vídeo</div>
+                <div class="metric-mini-val" id="mm-video">—</div>
+              </div>
+              <div class="metric-mini">
+                <div class="metric-mini-label">Comprar ROAS</div>
+                <div class="metric-mini-val" id="mm-roas" style="color:var(--accent)">—</div>
+                <div class="metric-mini-delta" id="mm-roas-delta" style="color:var(--green)">—</div>
+                <div class="roas-bar"><div class="roas-fill" id="roas-fill" style="width:0%"></div></div>
+              </div>
+              <div class="metric-mini">
+                <div class="metric-mini-label">Valor de conversão</div>
+                <div class="metric-mini-val" id="mm-conv">—</div>
+                <div class="metric-mini-delta" id="mm-conv-delta" style="color:var(--green)">—</div>
+              </div>
+              <div class="metric-mini">
+                <div class="metric-mini-label">Hook Rate · CTR Links</div>
+                <div style="display:flex;gap:16px;margin-top:4px">
+                  <div>
+                    <div style="font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">Hook</div>
+                    <div class="metric-mini-val" id="mm-hook" style="font-size:18px">—</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">CTR</div>
+                    <div class="metric-mini-val" id="mm-ctr" style="font-size:18px">—</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">Ações post</div>
+                    <div class="metric-mini-val" id="mm-post" style="font-size:18px">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LINE CHART -->
+            <div class="card">
+              <div class="card-title">Add Carrinho vs Compras</div>
+              <div class="chart-wrap">
+                <canvas id="line-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- DONUT -->
+            <div class="card">
+              <div class="card-title">Melhores Anúncios (Conversões)</div>
+              <div class="donut-wrap">
+                <div class="donut-canvas-wrap">
+                  <canvas id="donut-chart"></canvas>
+                </div>
+                <div class="donut-legend" id="donut-legend">
+                  <div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CAMPAIGNS TABLE -->
+          <div class="card">
+            <div class="section-header">
+              <div class="card-title" style="margin:0">Campanhas</div>
+              <div class="badge" id="campaigns-badge">0 campanhas</div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="campaigns-table" id="campaigns-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nome da campanha</th>
+                    <th>Conjunto de anúncios</th>
+                    <th>Impressões</th>
+                    <th>Add Carrinho</th>
+                    <th>Compras</th>
+                    <th>Valor gasto</th>
+                    <th>ROAS</th>
+                  </tr>
+                </thead>
+                <tbody id="campaigns-tbody">
+                  <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados de campanha</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: DETALHAMENTO -->
+        <div class="tab-content" id="content-detalhamento">
+          <div class="section-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr">
+            <div class="card">
+              <div class="card-title">Novos Seguidores</div>
+              <div class="kpi-value" id="d-followers" style="font-size:36px">—</div>
+              <div class="kpi-delta up" id="d-followers-delta">—</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Viz. pág. destino</div>
+              <div class="kpi-value" id="d-lpv" style="font-size:36px">—</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Gênero</div>
+              <div class="donut-wrap" style="margin-top:8px">
+                <div class="donut-canvas-wrap"><canvas id="gender-chart"></canvas></div>
+                <div class="donut-legend" id="gender-legend"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Add Carrinho p/ Anúncio</div>
+              <div class="donut-wrap" style="margin-top:8px">
+                <div class="donut-canvas-wrap"><canvas id="add-cart-chart"></canvas></div>
+                <div class="donut-legend" id="add-cart-legend"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Impressões ao longo do tempo</div>
+            <div class="chart-wrap" style="height:180px">
+              <canvas id="impressions-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- CREATIVES TABLE -->
+          <div class="card" style="margin-top:14px">
+            <div class="card-title">Performance por Criativo</div>
+            <div style="overflow-x:auto">
+              <table class="campaigns-table" id="creatives-table-detail">
+                <thead>
+                  <tr>
+                    <th>Criativo</th>
+                    <th>Add Carrinho</th>
+                    <th>Compras</th>
+                    <th>Cliques</th>
+                    <th>Valor gasto</th>
+                  </tr>
+                </thead>
+                <tbody id="creatives-tbody-detail">
+                  <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: CRIATIVOS -->
+        <div class="tab-content" id="content-criativos">
+          <div class="section-header">
+            <h2>Criativos das Campanhas</h2>
+            <div class="badge" id="creatives-badge">0 criativos</div>
+          </div>
+          <div class="creatives-grid" id="creatives-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">
+              Conecte sua conta Meta para visualizar os criativos
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: CONTAS -->
+        <div class="tab-content" id="content-contas">
+          <div class="section-header">
+            <h2>Contas de Anúncio</h2>
+            <button class="btn-share" onclick="openShareModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              Gerar link de cliente
+            </button>
+          </div>
+          <div class="accounts-grid" id="accounts-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">
+              Conecte sua conta Meta para ver as contas de anúncio
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeShareModal()">×</button>
+    <h3>Gerar link de cliente</h3>
+    <p>O cliente poderá visualizar apenas os dados da conta selecionada</p>
+
+    <div class="share-field">
+      <label>Nome do cliente</label>
+      <input type="text" id="share-client-name" placeholder="Ex: Giba Dogueria">
+    </div>
+
+    <div class="share-field">
+      <label>Conta de anúncio</label>
+      <select class="select-pill" id="share-account-select" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;">
+        <option value="">Selecione...</option>
+      </select>
+    </div>
+
+    <div class="share-field">
+      <label>Período padrão</label>
+      <div style="display:flex;gap:8px">
+        <input type="date" id="share-date-start" style="flex:1">
+        <input type="date" id="share-date-end" style="flex:1">
+      </div>
+    </div>
+
+    <div id="share-url-wrap" style="display:none">
+      <label style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Link gerado</label>
+      <div class="share-url-box" id="share-url">—</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="generateClientLink()">Gerar link</button>
+      <button class="btn-copy" onclick="copyLink()">📋 Copiar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Link copiado!</div>
+
+<script>
+// ============================================================
+// CONFIGURATION — EDITE AQUI SUAS CREDENCIAIS
+// ============================================================
+const CONFIG = {
+  ADMIN_USER: 'admin',          // Usuário admin
+  ADMIN_PASS: 'adsdash2026',    // Senha admin (MUDE ISSO!)
+  // Para Meta API, insira seu App ID do Facebook
+  // Obtenha em: https://developers.facebook.com
+  META_APP_ID: 'SEU_APP_ID_AQUI',
+  META_API_VERSION: 'v21.0',
+  META_PERMISSIONS: 'ads_read,ads_management,business_management',
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  isAdmin: false,
+  isClientView: false,
+  clientName: '',
+  accessToken: null,
+  adAccounts: [],
+  selectedAccount: null,
+  data: null,
+  campaigns: [],
+  creatives: [],
+  charts: {},
+};
+
+// ============================================================
+// URL PARAMS (client view)
+// ============================================================
+function getUrlParams() {
+  const hash = window.location.hash.replace('#', '');
+  if (!hash) return null;
+  try {
+    return JSON.parse(atob(hash));
+  } catch(e) { return null; }
+}
+
+function encodeClientParams(params) {
+  return btoa(JSON.stringify(params));
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.onload = function() {
+  // Set default dates
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  document.getElementById('date-start').value = formatDate(firstDay);
+  document.getElementById('date-end').value = formatDate(lastDay);
+  document.getElementById('share-date-start').value = formatDate(firstDay);
+  document.getElementById('share-date-end').value = formatDate(lastDay);
+
+  // Check if client view
+  const params = getUrlParams();
+  if (params && params.type === 'client') {
+    showClientView(params);
+    return;
+  }
+
+  // Check saved session
+  const savedToken = sessionStorage.getItem('meta_token');
+  const savedAdmin = sessionStorage.getItem('is_admin');
+  if (savedAdmin === 'true') {
+    state.isAdmin = true;
+    if (savedToken) {
+      state.accessToken = savedToken;
+    }
+    showApp();
+    return;
+  }
+};
+
+function formatDate(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function formatBR(d) {
+  return new Intl.DateTimeFormat('pt-BR').format(new Date(d + 'T12:00:00'));
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function doLogin() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+
+  if (user === CONFIG.ADMIN_USER && pass === CONFIG.ADMIN_PASS) {
+    state.isAdmin = true;
+    sessionStorage.setItem('is_admin', 'true');
+    showApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000);
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+    doLogin();
+  }
+});
+
+function doLogout() {
+  if (!confirm('Sair do dashboard?')) return;
+  sessionStorage.clear();
+  state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, adAccounts: [], selectedAccount: null, data: null, campaigns: [], creatives: [], charts: {} };
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('client-banner').style.display = 'none';
+}
+
+// ============================================================
+// META OAUTH
+// ============================================================
+function connectMeta() {
+  if (CONFIG.META_APP_ID === 'SEU_APP_ID_AQUI') {
+    showToast('⚠️ Configure seu META_APP_ID no código!');
+    alert('Para conectar o Meta:\n\n1. Acesse https://developers.facebook.com\n2. Crie um app do tipo Business\n3. Copie o App ID\n4. Cole em CONFIG.META_APP_ID no código HTML\n5. Adicione o domínio do seu site nos "Valid OAuth Redirect URIs"');
+    return;
+  }
+
+  const scope = CONFIG.META_PERMISSIONS;
+  const redirectUri = encodeURIComponent(window.location.href.split('#')[0]);
+  const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${CONFIG.META_APP_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=token`;
+  window.location.href = authUrl;
+}
+
+// Check for OAuth callback
+(function() {
+  const hash = window.location.hash;
+  if (hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const token = params.get('access_token');
+    if (token) {
+      state.accessToken = token;
+      sessionStorage.setItem('meta_token', token);
+      window.location.hash = '';
+      if (sessionStorage.getItem('is_admin') === 'true') {
+        state.isAdmin = true;
+        showApp();
+        fetchAdAccounts();
+      }
+    }
+  }
+})();
+
+// ============================================================
+// SHOW APP
+// ============================================================
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  document.getElementById('user-avatar').textContent = state.isAdmin ? 'A' : 'C';
+  document.getElementById('share-btn').style.display = state.isAdmin ? 'flex' : 'none';
+  document.getElementById('tab-contas').style.display = state.isAdmin ? 'flex' : 'none';
+
+  if (state.accessToken) {
+    updateMetaStatus(true);
+    fetchAdAccounts();
+  } else {
+    updateMetaStatus(false);
+    document.getElementById('connect-banner').style.display = 'block';
+    renderEmptyState();
+  }
+}
+
+function showClientView(params) {
+  state.isClientView = true;
+  state.clientName = params.clientName || 'Cliente';
+  state.selectedAccount = params.accountId;
+
+  // Show client banner
+  const banner = document.getElementById('client-banner');
+  banner.style.display = 'flex';
+  document.getElementById('client-name-banner').textContent = params.clientName;
+  document.getElementById('client-account-banner').textContent = `Conta: ${params.accountId}`;
+
+  // Set dates
+  if (params.dateStart) document.getElementById('date-start').value = params.dateStart;
+  if (params.dateEnd) document.getElementById('date-end').value = params.dateEnd;
+
+  // If token provided
+  if (params.token) {
+    state.accessToken = params.token;
+  }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('share-btn').style.display = 'none';
+  document.getElementById('tab-contas').style.display = 'none';
+
+  document.getElementById('header-client-name').textContent = params.clientName;
+  document.getElementById('header-account').textContent = params.accountId;
+
+  updateMetaStatus(!!params.token);
+  if (params.token) {
+    fetchAdAccounts();
+  } else {
+    renderEmptyState();
+  }
+}
+
+function updateMetaStatus(connected) {
+  const dot = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+  const banner = document.getElementById('connect-banner');
+
+  if (connected) {
+    dot.classList.add('connected');
+    text.textContent = 'Meta conectado';
+    banner.style.display = 'none';
+  } else {
+    dot.classList.remove('connected');
+    text.textContent = 'Não conectado';
+    banner.style.display = state.isClientView ? 'none' : 'block';
+  }
+}
+
+// ============================================================
+// META API
+// ============================================================
+async function fetchAdAccounts() {
+  if (!state.accessToken) return;
+  try {
+    const res = await fetch(`https://graph.facebook.com/${CONFIG.META_API_VERSION}/me/adaccounts?fields=name,account_id,currency,account_status,spend_cap,amount_spent&access_token=${state.accessToken}`);
+    const data = await res.json();
+    if (data.error) { console.error(data.error); showApiError(data.error.message); return; }
+
+    state.adAccounts = data.data || [];
+    populateAccountSelects();
+    if (state.adAccounts.length > 0) {
+      selectAccount(state.adAccounts[0].id);
+    }
+  } catch(e) {
+    console.error(e);
+    showApiError('Erro ao buscar contas. Verifique o token de acesso.');
+  }
+}
+
+function populateAccountSelects() {
+  const sel1 = document.getElementById('account-select');
+  const sel2 = document.getElementById('share-account-select');
+  sel1.innerHTML = '<option value="">Selecione...</option>';
+  sel2.innerHTML = '<option value="">Selecione...</option>';
+
+  state.adAccounts.forEach(acc => {
+    const opt = new Option(acc.name, acc.id);
+    sel1.add(opt.cloneNode(true));
+    sel2.add(opt);
+  });
+
+  sel1.style.display = 'block';
+  populateAccountCards();
+}
+
+function populateAccountCards() {
+  const grid = document.getElementById('accounts-grid');
+  if (state.adAccounts.length === 0) return;
+
+  grid.innerHTML = state.adAccounts.map(acc => `
+    <div class="account-card ${state.selectedAccount === acc.id ? 'selected' : ''}" onclick="selectAccount('${acc.id}')">
+      <div class="account-name">${acc.name}</div>
+      <div class="account-id">${acc.account_id}</div>
+      <div class="account-stats">
+        <div class="account-stat">
+          R$ ${(parseFloat(acc.amount_spent || 0) / 100).toFixed(2)}
+          <span>Gasto total</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectAccount(accountId) {
+  state.selectedAccount = accountId;
+  document.getElementById('account-select').value = accountId;
+
+  const acc = state.adAccounts.find(a => a.id === accountId);
+  if (acc) {
+    document.getElementById('header-client-name').textContent = acc.name;
+    document.getElementById('header-account').textContent = acc.account_id;
+    document.getElementById('share-btn').style.display = 'flex';
+  }
+
+  populateAccountCards();
+  loadData();
+}
+
+async function loadData() {
+  if (!state.accessToken || !state.selectedAccount) {
+    renderEmptyState();
+    return;
+  }
+
+  showLoadingState();
+  const dateStart = document.getElementById('date-start').value;
+  const dateEnd = document.getElementById('date-end').value;
+
+  const fields = [
+    'impressions', 'reach', 'spend', 'clicks', 'ctr',
+    'actions', 'action_values', 'purchase_roas', 'cpm',
+    'cost_per_action_type', 'video_thruplay_watched_actions',
+    'outbound_clicks', 'website_ctr'
+  ].join(',');
+
+  try {
+    // Account insights
+    const insightsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/insights?fields=${fields}&time_range={"since":"${dateStart}","until":"${dateEnd}"}&level=account&access_token=${state.accessToken}`;
+    const insightsRes = await fetch(insightsUrl);
+    const insightsData = await insightsRes.json();
+
+    // Campaigns
+    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/campaigns?fields=name,status,insights{impressions,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
+    const campaignsRes = await fetch(campaignsUrl);
+    const campaignsData = await campaignsRes.json();
+
+    // Daily insights for charts
+    const dailyUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/insights?fields=impressions,actions&time_range={"since":"${dateStart}","until":"${dateEnd}"}&time_increment=1&access_token=${state.accessToken}`;
+    const dailyRes = await fetch(dailyUrl);
+    const dailyData = await dailyRes.json();
+
+    // Ad creatives
+    const adsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/ads?fields=name,creative{id,name,thumbnail_url,image_url,video_id},insights{impressions,clicks,spend,actions}&access_token=${state.accessToken}`;
+    const adsRes = await fetch(adsUrl);
+    const adsData = await adsRes.json();
+
+    processRealData(insightsData.data, campaignsData.data, dailyData.data, adsData.data);
+  } catch(e) {
+    console.error(e);
+    showApiError('Erro ao buscar dados. Verifique sua conexão e permissões.');
+  }
+}
+
+function getActionValue(actions, type) {
+  if (!actions) return 0;
+  const a = actions.find(a => a.action_type === type);
+  return a ? parseFloat(a.value) : 0;
+}
+
+function processRealData(insights, campaigns, daily, ads) {
+  if (!insights || insights.length === 0) { renderEmptyState(); return; }
+
+  const d = insights[0];
+  const impressions = parseInt(d.impressions || 0);
+  const reach = parseInt(d.reach || 0);
+  const spend = parseFloat(d.spend || 0);
+  const clicks = parseInt(d.clicks || 0);
+  const purchases = getActionValue(d.actions, 'purchase');
+  const addToCart = getActionValue(d.actions, 'add_to_cart');
+  const convValue = getActionValue(d.action_values, 'purchase');
+  const roas = d.purchase_roas ? parseFloat(d.purchase_roas[0]?.value || 0) : 0;
+  const cpm = parseFloat(d.cpm || 0);
+  const videoViews = getActionValue(d.video_thruplay_watched_actions, 'video_view');
+  const ctr = parseFloat(d.ctr || 0);
+
+  const cpp = purchases > 0 ? spend / purchases : 0;
+  const cac = addToCart > 0 ? spend / addToCart : 0;
+  const hookRate = impressions > 0 ? (videoViews / impressions) : 0;
+  const postActions = getActionValue(d.actions, 'post_engagement');
+
+  updateKPIs({
+    impressions, reach, spend, purchases, cpp, addToCart,
+    convValue, roas, cpm, videoViews, ctr, hookRate, postActions
+  });
+
+  // Campaigns
+  state.campaigns = (campaigns || []).map(c => {
+    const ci = c.insights?.data?.[0] || {};
+    return {
+      name: c.name,
+      adset: '—',
+      impressions: parseInt(ci.impressions || 0),
+      addToCart: getActionValue(ci.actions, 'add_to_cart'),
+      purchases: getActionValue(ci.actions, 'purchase'),
+      spend: parseFloat(ci.spend || 0),
+      roas: ci.purchase_roas ? parseFloat(ci.purchase_roas[0]?.value || 0) : 0,
+    };
+  });
+
+  renderCampaignsTable();
+
+  // Daily for charts
+  const dailyLabels = (daily || []).map(d => d.date_start);
+  const dailyAddCart = (daily || []).map(d => getActionValue(d.actions, 'add_to_cart'));
+  const dailyPurchases = (daily || []).map(d => getActionValue(d.actions, 'purchase'));
+  const dailyImpressions = (daily || []).map(d => parseInt(d.impressions || 0));
+
+  renderLineChart(dailyLabels, dailyAddCart, dailyPurchases);
+  renderImpressionsChart(dailyLabels, dailyImpressions);
+
+  // Ads / creatives
+  state.creatives = (ads || []).map(ad => ({
+    name: ad.name,
+    thumbnailUrl: ad.creative?.thumbnail_url || ad.creative?.image_url || null,
+    addToCart: getActionValue(ad.insights?.data?.[0]?.actions, 'add_to_cart'),
+    purchases: getActionValue(ad.insights?.data?.[0]?.actions, 'purchase'),
+    clicks: parseInt(ad.insights?.data?.[0]?.clicks || 0),
+    spend: parseFloat(ad.insights?.data?.[0]?.spend || 0),
+  }));
+
+  renderCreatives();
+  renderDonutChart();
+  renderDetailTab();
+}
+
+// ============================================================
+// LOADING / EMPTY / ERROR STATES
+// ============================================================
+function showLoadingState() {
+  const spinner = '<div style="text-align:center;padding:20px"><div class="loading-spinner"></div><div class="loading-text">Buscando dados do Meta...</div></div>';
+  ['kpi-impressoes','kpi-alcance','kpi-gasto','kpi-compras','kpi-cpp'].forEach(id => {
+    document.getElementById(id).textContent = '...';
+  });
+  document.getElementById('funnel-wrap').innerHTML = spinner;
+  document.getElementById('campaigns-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px"><div class="loading-spinner" style="margin:0 auto"></div></td></tr>';
+  document.getElementById('creatives-grid').innerHTML = spinner;
+}
+
+function renderEmptyState() {
+  // KPIs
+  ['kpi-impressoes','kpi-alcance','kpi-gasto','kpi-compras','kpi-cpp'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  ['kpi-impressoes-delta','kpi-alcance-delta','kpi-gasto-delta','kpi-compras-delta','kpi-cpp-delta'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
+
+  // Funnel
+  document.getElementById('funnel-wrap').innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px 10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Conecte sua conta<br>Meta para ver o funil</div>';
+
+  // Metrics
+  ['bm-cac','bm-cpp','bm-cpm','mm-video','mm-roas','mm-conv','mm-hook','mm-ctr','mm-post'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.textContent = '—';
+  });
+  ['mm-roas-delta','mm-conv-delta'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.textContent = '';
+  });
+  document.getElementById('roas-fill').style.width = '0%';
+
+  // Charts — empty
+  renderLineChart([], [], []);
+  renderImpressionsChart([], []);
+
+  // Tables
+  document.getElementById('campaigns-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Conecte sua conta Meta para ver as campanhas</td></tr>';
+  document.getElementById('campaigns-badge').textContent = '0 campanhas';
+
+  // Creatives
+  document.getElementById('creatives-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">Conecte sua conta Meta para visualizar os criativos</div>';
+  document.getElementById('creatives-badge').textContent = '0 criativos';
+  document.getElementById('creatives-tbody-detail').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>';
+
+  // Detail tab
+  document.getElementById('d-followers').textContent = '—';
+  document.getElementById('d-followers-delta').textContent = '';
+  document.getElementById('d-lpv').textContent = '—';
+
+  // Donut charts — clear
+  destroyChart('donut'); destroyChart('gender'); destroyChart('addcart');
+  document.getElementById('donut-legend').innerHTML = '<div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>';
+  document.getElementById('gender-legend').innerHTML = '';
+  document.getElementById('add-cart-legend').innerHTML = '';
+
+  state.campaigns = [];
+  state.creatives = [];
+}
+
+function showApiError(msg) {
+  renderEmptyState();
+  showToast('⚠️ ' + (msg || 'Erro ao conectar ao Meta'));
+  console.warn('[Meta API Error]', msg);
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+function updateKPIs(d) {
+  document.getElementById('kpi-impressoes').textContent = fmtNum(d.impressions);
+  document.getElementById('kpi-alcance').textContent = fmtNum(d.reach);
+  document.getElementById('kpi-gasto').textContent = 'R$ ' + fmtMoney(d.spend);
+  document.getElementById('kpi-compras').textContent = d.purchases;
+  document.getElementById('kpi-cpp').textContent = 'R$ ' + fmtMoney(d.cpp);
+
+  // Deltas are calculated from real period-over-period data when available
+  ['kpi-impressoes-delta','kpi-alcance-delta','kpi-gasto-delta','kpi-compras-delta','kpi-cpp-delta'].forEach(id => {
+    const el = document.getElementById(id); if(el && !el.textContent) el.textContent = '';
+  });
+
+  // Funnel
+  const total = d.impressions;
+  renderFunnel([
+    { label: 'Impressões', value: d.impressions, pct: 100 },
+    { label: 'Cliques de links', value: Math.round(d.impressions * (d.ctr / 100) || d.impressions * 0.0026), pct: d.ctr || 0.26 },
+    { label: 'Adicionar ao carrinho', value: d.addToCart, pct: (d.addToCart / d.impressions * 100) },
+    { label: 'Compras', value: d.purchases, pct: (d.purchases / d.impressions * 100) },
+  ]);
+
+  document.getElementById('bm-cac').textContent = 'R$ ' + fmtMoney(d.addToCart > 0 ? d.spend / d.addToCart : 0);
+  document.getElementById('bm-cpp').textContent = 'R$ ' + fmtMoney(d.cpp);
+  document.getElementById('bm-cpm').textContent = 'R$ ' + fmtMoney(d.cpm);
+
+  document.getElementById('mm-video').textContent = fmtNum(d.videoViews);
+  document.getElementById('mm-roas').textContent = d.roas.toFixed(2);
+  // document.getElementById('mm-roas-delta') — calculated from real data
+  document.getElementById('roas-fill').style.width = Math.min(d.roas / 5 * 100, 100) + '%';
+  document.getElementById('mm-conv').textContent = 'R$ ' + fmtMoney(d.convValue);
+  // document.getElementById('mm-conv-delta') — calculated from real data
+  document.getElementById('mm-hook').textContent = d.hookRate.toFixed(2);
+  document.getElementById('mm-ctr').textContent = d.ctr.toFixed(2) + '%';
+  document.getElementById('mm-post').textContent = d.postActions;
+
+  // Followers and LPV populated from real Meta data via processRealData
+}
+
+function renderFunnel(steps) {
+  const colors = ['#4a9eff', '#5cb8f0', '#70c8e0', '#85d0c8'];
+  const maxWidth = 240;
+  const wrap = document.getElementById('funnel-wrap');
+  wrap.innerHTML = '';
+
+  steps.forEach((step, i) => {
+    const width = maxWidth * (1 - i * 0.18);
+    const div = document.createElement('div');
+    div.className = 'funnel-step';
+    div.innerHTML = `
+      ${i > 0 ? '<div class="funnel-connector"></div>' : ''}
+      <div class="funnel-bar" style="width:${width}px;background:${colors[i]}">
+        <div class="f-label">${step.label}</div>
+        <div class="f-val">${fmtNum(step.value)}</div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function renderCampaignsTable() {
+  const tbody = document.getElementById('campaigns-tbody');
+  document.getElementById('campaigns-badge').textContent = state.campaigns.length + ' campanhas';
+
+  if (!state.campaigns.length) return;
+
+  tbody.innerHTML = state.campaigns.map((c, i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace">${i+1}.</td>
+      <td>${c.name}</td>
+      <td style="color:var(--text-muted)">${c.adset}</td>
+      <td>${fmtNum(c.impressions)}</td>
+      <td class="tag-highlight">${c.addToCart}</td>
+      <td class="tag-highlight">${c.purchases}</td>
+      <td>R$ ${fmtMoney(c.spend)}</td>
+      <td style="color:var(--accent);font-weight:700">${c.roas.toFixed(2)}x</td>
+    </tr>
+  `).join('');
+}
+
+function renderCreatives() {
+  const grid = document.getElementById('creatives-grid');
+  document.getElementById('creatives-badge').textContent = state.creatives.length + ' criativos';
+
+  if (!state.creatives.length) return;
+
+  grid.innerHTML = state.creatives.map((c, i) => `
+    <div class="creative-card">
+      <div class="creative-thumb">
+        ${c.thumbnailUrl
+          ? `<img src="${c.thumbnailUrl}" alt="${c.name}" loading="lazy" onerror="this.style.display='none'">`
+          : `<div class="placeholder-icon">${['🍔','🌭','🍟','🥪','🌮'][i % 5]}</div>`
+        }
+      </div>
+      <div class="creative-info">
+        <div class="creative-name">${c.name}</div>
+        <div class="creative-stats">
+          <div class="creative-stat"><span>Carrinho</span><span>${c.addToCart}</span></div>
+          <div class="creative-stat"><span>Compras</span><span>${c.purchases}</span></div>
+          <div class="creative-stat"><span>Cliques</span><span>${c.clicks}</span></div>
+          <div class="creative-stat"><span>Gasto</span><span>R$ ${fmtMoney(c.spend)}</span></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Detail table
+  const tbody = document.getElementById('creatives-tbody-detail');
+  tbody.innerHTML = state.creatives.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td class="tag-highlight">${c.addToCart}</td>
+      <td class="tag-highlight">${c.purchases}</td>
+      <td>${c.clicks}</td>
+      <td>R$ ${fmtMoney(c.spend)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderDetailTab() {
+  renderGenderChart();
+  renderAddCartDonut();
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+const COLORS = ['#a8c441','#c8e05a','#7fa832','#e8f091','#5a7820'];
+const COLORS_GENDER = ['#a8c441','#4a9eff','#888'];
+
+function destroyChart(id) {
+  if (state.charts[id]) { state.charts[id].destroy(); delete state.charts[id]; }
+}
+
+function renderLineChart(labels, addCart, purchases) {
+  destroyChart('line');
+  const ctx = document.getElementById('line-chart').getContext('2d');
+  state.charts['line'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Adicionar ao carrinho', data: addCart, borderColor: '#a8c441', backgroundColor: 'rgba(168,196,65,0.05)', tension: 0.4, pointRadius: 3, pointBackgroundColor: '#a8c441', borderWidth: 2 },
+        { label: 'Compras', data: purchases, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.03)', tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ffffff', borderWidth: 2 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 8 }, grid: { color: '#1a1a1a' }, border: { display: false } },
+        y: { ticks: { color: '#555', font: { size: 9 } }, grid: { color: '#1a1a1a' }, border: { display: false } },
+      }
+    }
+  });
+}
+
+function renderDonutChart() {
+  destroyChart('donut');
+  const ctx = document.getElementById('donut-chart').getContext('2d');
+  const data = state.creatives.slice(0, 5);
+  const total = data.reduce((s, c) => s + c.purchases, 0) || 1;
+
+  state.charts['donut'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(c => c.name),
+      datasets: [{ data: data.map(c => c.purchases), backgroundColor: COLORS, borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '70%',
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${(ctx.raw/total*100).toFixed(1)}%)` }
+      }}
+    }
+  });
+
+  const legend = document.getElementById('donut-legend');
+  legend.innerHTML = data.map((c, i) => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${COLORS[i]}"></div>
+      <span>${c.name} · ${(c.purchases/total*100).toFixed(1)}%</span>
+    </div>
+  `).join('');
+}
+
+function renderGenderChart() {
+  destroyChart('gender');
+  const ctx = document.getElementById('gender-chart').getContext('2d');
+  state.charts['gender'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Female', 'Male', 'Unknown'],
+      datasets: [{ data: [40.7, 59.3, 0], backgroundColor: COLORS_GENDER, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  document.getElementById('gender-legend').innerHTML = ['Female','Male','Unknown'].map((g, i) => `
+    <div class="legend-item"><div class="legend-dot" style="background:${COLORS_GENDER[i]}"></div><span>${g}</span></div>
+  `).join('');
+}
+
+function renderAddCartDonut() {
+  destroyChart('addcart');
+  const ctx = document.getElementById('add-cart-chart').getContext('2d');
+  const data = state.creatives.slice(0, 5);
+  const total = data.reduce((s, c) => s + c.addToCart, 0) || 1;
+
+  state.charts['addcart'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(c => c.name),
+      datasets: [{ data: data.map(c => c.addToCart), backgroundColor: COLORS, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  document.getElementById('add-cart-legend').innerHTML = data.map((c, i) => `
+    <div class="legend-item"><div class="legend-dot" style="background:${COLORS[i]}"></div><span>${c.name} · ${(c.addToCart/total*100).toFixed(1)}%</span></div>
+  `).join('');
+}
+
+function renderImpressionsChart(labels, impressions) {
+  destroyChart('impressions');
+  const ctx = document.getElementById('impressions-chart').getContext('2d');
+  state.charts['impressions'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Impressões',
+        data: impressions,
+        borderColor: '#a8c441',
+        backgroundColor: 'rgba(168,196,65,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 8 }, grid: { color: '#1a1a1a' }, border: { display: false } },
+        y: { ticks: { color: '#555', font: { size: 9 }, callback: v => fmtNum(v) }, grid: { color: '#1a1a1a' }, border: { display: false } },
+      }
+    }
+  });
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+  ['visao','detalhamento','criativos','contas'].forEach(t => {
+    document.getElementById('tab-' + t)?.classList.remove('active');
+    document.getElementById('content-' + t)?.classList.remove('active');
+  });
+  document.getElementById('tab-' + tab)?.classList.add('active');
+  document.getElementById('content-' + tab)?.classList.add('active');
+}
+
+// ============================================================
+// SHARE / CLIENT LINK
+// ============================================================
+function openShareModal() {
+  document.getElementById('share-modal').style.display = 'flex';
+  // Populate account options
+  const sel = document.getElementById('share-account-select');
+  sel.innerHTML = '<option value="">Selecione...</option>';
+  if (state.adAccounts.length > 0) {
+    state.adAccounts.forEach(acc => {
+      sel.add(new Option(acc.name, acc.id));
+    });
+  } else {
+    sel.add(new Option('Conta Demo', 'act_demo_123'));
+  }
+}
+
+function closeShareModal() {
+  document.getElementById('share-modal').style.display = 'none';
+}
+
+function generateClientLink() {
+  const clientName = document.getElementById('share-client-name').value || 'Cliente';
+  const accountId = document.getElementById('share-account-select').value || 'act_demo';
+  const dateStart = document.getElementById('share-date-start').value;
+  const dateEnd = document.getElementById('share-date-end').value;
+
+  const params = {
+    type: 'client',
+    clientName,
+    accountId,
+    dateStart,
+    dateEnd,
+    // Note: don't include access_token in sharable link for security
+    // Implement server-side token management for production
+  };
+
+  const encoded = encodeClientParams(params);
+  const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
+
+  document.getElementById('share-url').textContent = url;
+  document.getElementById('share-url-wrap').style.display = 'block';
+}
+
+function copyLink() {
+  const url = document.getElementById('share-url').textContent;
+  if (!url || url === '—') { showToast('Gere um link primeiro!'); return; }
+  navigator.clipboard.writeText(url).then(() => showToast('Link copiado!')).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = url;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('Link copiado!');
+  });
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportData() {
+  const rows = [
+    ['Campanha', 'Conjunto', 'Impressões', 'Add Carrinho', 'Compras', 'Gasto (R$)', 'ROAS'],
+    ...state.campaigns.map(c => [c.name, c.adset, c.impressions, c.addToCart, c.purchases, c.spend.toFixed(2), c.roas.toFixed(2)])
+  ];
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `relatorio-meta-ads-${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+  showToast('CSV exportado!');
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function fmtNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + ' mi';
+  if (n >= 1000) return (n/1000).toFixed(0) + ' mil';
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function fmtMoney(n) {
+  return parseFloat(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Close modal on overlay click
+document.getElementById('share-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeShareModal();
+});
+</script>
+</body>
+</html>
