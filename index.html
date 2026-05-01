@@ -33,6 +33,10 @@
     overflow-x: hidden;
   }
 
+  body.client-view {
+    font-family: 'Manrope', sans-serif;
+  }
+
   /* ===== LOGIN SCREEN ===== */
   #login-screen {
     display: flex;
@@ -227,6 +231,49 @@
     justify-content: space-between;
     font-size: 13px;
     display: none;
+  }
+
+  body.client-view #client-banner {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 10px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 140;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  body.client-view #client-banner .client-info {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  body.client-view #client-account-banner {
+    position: absolute;
+    right: 24px;
+  }
+
+  body.client-view #client-banner .client-info,
+  body.client-view #client-account-banner {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+  }
+
+  body.client-view #client-name-banner {
+    font-weight: 700;
+  }
+
+  body.client-view #account-select,
+  body.client-view #tab-contas,
+  body.client-view #share-btn {
+    display: none !important;
+  }
+
+  body.client-view .header {
+    top: 44px;
   }
 
   #client-banner .client-info {
@@ -1594,6 +1641,7 @@ let state = {
   accessToken: null,
   adAccounts: [],
   selectedAccount: null,
+  lockedAccountId: null,
   data: null,
   campaigns: [],
   creatives: [],
@@ -1734,7 +1782,8 @@ function togglePasswordVisibility() {
 function doLogout() {
   if (!confirm('Sair do dashboard?')) return;
   sessionStorage.clear();
-  state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, adAccounts: [], selectedAccount: null, data: null, campaigns: [], creatives: [], charts: {} };
+  document.body.classList.remove('client-view');
+  state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, adAccounts: [], selectedAccount: null, lockedAccountId: null, data: null, campaigns: [], creatives: [], charts: {} };
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('client-banner').style.display = 'none';
@@ -1811,6 +1860,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // SHOW APP
 // ============================================================
 function showApp() {
+  document.body.classList.remove('client-view');
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
@@ -1829,9 +1879,11 @@ function showApp() {
 }
 
 function showClientView(params) {
+  document.body.classList.add('client-view');
   state.isClientView = true;
   state.clientName = params.clientName || 'Cliente';
   state.selectedAccount = params.accountId;
+  state.lockedAccountId = params.accountId;
 
   // Show client banner
   const banner = document.getElementById('client-banner');
@@ -1938,6 +1990,12 @@ function populateAccountCards() {
 }
 
 function selectAccount(accountId) {
+  if (state.isClientView && state.lockedAccountId && accountId !== state.lockedAccountId) {
+    document.getElementById('account-select').value = state.lockedAccountId;
+    showToast('A conta compartilhada está bloqueada para o cliente.');
+    return;
+  }
+
   state.selectedAccount = accountId;
   document.getElementById('account-select').value = accountId;
 
