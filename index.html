@@ -1391,7 +1391,7 @@
                 <div class="metric-mini-val" id="mm-video">—</div>
               </div>
               <div class="metric-mini">
-                <div class="metric-mini-label">Comprar ROAS</div>
+                <div class="metric-mini-label">ROAS TOTAL</div>
                 <div class="metric-mini-val" id="mm-roas" style="color:var(--accent)">—</div>
                 <div class="metric-mini-delta" id="mm-roas-delta" style="color:var(--green)">—</div>
                 <div class="roas-bar"><div class="roas-fill" id="roas-fill" style="width:0%"></div></div>
@@ -2044,7 +2044,7 @@ async function loadData() {
     const dailyData = await dailyRes.json();
 
     // Ad creatives
-    const adsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/ads?fields=name,creative{id,name,thumbnail_url,image_url,video_id},insights{impressions,clicks,spend,actions}&access_token=${state.accessToken}`;
+    const adsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/ads?fields=name,creative{id,name,thumbnail_url,image_url,video_id},insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){impressions,clicks,spend,actions}&access_token=${state.accessToken}`;
     const adsRes = await fetch(adsUrl);
     const adsData = await adsRes.json();
 
@@ -2113,14 +2113,24 @@ function processRealData(insights, campaigns, daily, ads) {
   renderImpressionsChart(dailyLabels, dailyImpressions);
 
   // Ads / creatives
-  state.creatives = (ads || []).map(ad => ({
-    name: ad.name,
-    thumbnailUrl: ad.creative?.thumbnail_url || ad.creative?.image_url || null,
-    addToCart: getActionValue(ad.insights?.data?.[0]?.actions, 'add_to_cart'),
-    purchases: getActionValue(ad.insights?.data?.[0]?.actions, 'purchase'),
-    clicks: parseInt(ad.insights?.data?.[0]?.clicks || 0),
-    spend: parseFloat(ad.insights?.data?.[0]?.spend || 0),
-  }));
+  state.creatives = (ads || []).map(ad => {
+    const adInsight = ad.insights?.data?.[0] || {};
+    return {
+      name: ad.name,
+      thumbnailUrl: ad.creative?.thumbnail_url || ad.creative?.image_url || null,
+      impressions: parseInt(adInsight.impressions || 0),
+      addToCart: getActionValue(adInsight.actions, 'add_to_cart'),
+      purchases: getActionValue(adInsight.actions, 'purchase'),
+      clicks: parseInt(adInsight.clicks || 0),
+      spend: parseFloat(adInsight.spend || 0),
+    };
+  }).filter(ad =>
+    ad.impressions > 0 ||
+    ad.clicks > 0 ||
+    ad.spend > 0 ||
+    ad.addToCart > 0 ||
+    ad.purchases > 0
+  );
 
   renderCreatives();
   renderDonutChart();
