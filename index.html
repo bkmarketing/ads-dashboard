@@ -1599,7 +1599,7 @@
     .mobile-client-logo {
       display: block;
       position: absolute;
-      top: 12px;
+      top: 6px;
       right: 14px;
       width: 44px;
       height: 44px;
@@ -2199,6 +2199,34 @@
     flex: 1 1 160px;
   }
 
+  #profile-edit-btn {
+    flex: 0 0 auto;
+    min-width: 220px;
+    margin-inline: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(168,196,65,0.12);
+    border-color: rgba(168,196,65,0.35);
+    color: var(--accent);
+  }
+
+  #profile-save-btn {
+    flex: 0 0 auto;
+    min-width: 220px;
+    margin-inline: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #profile-edit-btn:hover {
+    background: rgba(168,196,65,0.2);
+    border-color: rgba(168,196,65,0.5);
+  }
+
   .connect-banner.profile-footer {
     margin-bottom: 0;
     text-align: left;
@@ -2222,7 +2250,7 @@
     <div id="admin-login">
       <div class="field">
         <label>Usuário</label>
-        <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+        <input type="text" id="login-user" placeholder="user" autocomplete="username">
       </div>
       <div class="field">
         <label>Senha</label>
@@ -2614,7 +2642,8 @@
               </div>
 
               <div class="profile-actions">
-                <button class="btn-copy" onclick="saveAdminProfileDetails()">Salvar informações</button>
+                <button class="btn-copy" id="profile-save-btn" onclick="saveAdminProfileDetails()">Salvar informações</button>
+                <button class="btn-secondary" id="profile-edit-btn" onclick="editAdminProfileDetails()" style="display:none">Editar informações</button>
               </div>
             </div>
 
@@ -2848,6 +2877,7 @@ function createInitialState() {
     isClientView: false,
     clientName: '',
     adminUser: '',
+    isEditingAdminProfile: true,
     accessToken: null,
     profiles: [],
     activeProfileId: null,
@@ -2897,25 +2927,97 @@ function formatBR(d) {
   return new Intl.DateTimeFormat('pt-BR').format(new Date(d + 'T12:00:00'));
 }
 
+function getStorageScopeUser() {
+  return state.adminUser || CONFIG.ADMIN_USER;
+}
+
+function getScopedStorageMap(key) {
+  const parsed = readJsonStorage(key, null);
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    return parsed;
+  }
+  return {};
+}
+
+function readScopedStringStorage(key) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return '';
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed[getStorageScopeUser()] || '';
+    }
+  } catch (e) {
+    const scoped = getScopedStorageMap(key);
+    scoped[getStorageScopeUser()] = raw;
+    writeJsonStorage(key, scoped);
+    return raw;
+  }
+
+  return '';
+}
+
+function writeScopedStringStorage(key, value) {
+  const scoped = getScopedStorageMap(key);
+  const userKey = getStorageScopeUser();
+
+  if (value) {
+    scoped[userKey] = value;
+  } else {
+    delete scoped[userKey];
+  }
+
+  writeJsonStorage(key, scoped);
+}
+
+function readScopedArrayStorage(key) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      const scoped = getScopedStorageMap(key);
+      scoped[getStorageScopeUser()] = parsed;
+      writeJsonStorage(key, scoped);
+      return parsed;
+    }
+
+    if (parsed && typeof parsed === 'object') {
+      return Array.isArray(parsed[getStorageScopeUser()]) ? parsed[getStorageScopeUser()] : [];
+    }
+  } catch (e) {
+    return [];
+  }
+
+  return [];
+}
+
+function writeScopedArrayStorage(key, value) {
+  const scoped = getScopedStorageMap(key);
+  scoped[getStorageScopeUser()] = Array.isArray(value) ? value : [];
+  writeJsonStorage(key, scoped);
+}
+
 function getSavedMetaAppId() {
-  return localStorage.getItem(STORAGE_KEYS.metaAppId)?.trim() || '';
+  return readScopedStringStorage(STORAGE_KEYS.metaAppId).trim();
 }
 
 function getMetaAppId() {
-  return getActiveProfile()?.appId || getSavedMetaAppId() || CONFIG.META_APP_ID || '';
+  return getActiveProfile()?.appId || getSavedMetaAppId() || '';
 }
 
 function getSavedMetaToken() {
-  return localStorage.getItem(STORAGE_KEYS.metaToken) || '';
+  return readScopedStringStorage(STORAGE_KEYS.metaToken);
 }
 
 function saveMetaToken(token) {
-  if (!token) return;
-  localStorage.setItem(STORAGE_KEYS.metaToken, token);
+  writeScopedStringStorage(STORAGE_KEYS.metaToken, token || '');
 }
 
 function clearMetaToken() {
-  localStorage.removeItem(STORAGE_KEYS.metaToken);
+  writeScopedStringStorage(STORAGE_KEYS.metaToken, '');
 }
 
 function readJsonStorage(key, fallback) {
@@ -2936,20 +3038,20 @@ function createId(prefix) {
 }
 
 function getProfiles() {
-  return readJsonStorage(STORAGE_KEYS.profiles, []);
+  return readScopedArrayStorage(STORAGE_KEYS.profiles);
 }
 
 function saveProfiles(profiles) {
-  writeJsonStorage(STORAGE_KEYS.profiles, profiles);
+  writeScopedArrayStorage(STORAGE_KEYS.profiles, profiles);
   state.profiles = profiles;
 }
 
 function getClients() {
-  return readJsonStorage(STORAGE_KEYS.clients, []);
+  return readScopedArrayStorage(STORAGE_KEYS.clients);
 }
 
 function saveClients(clients) {
-  writeJsonStorage(STORAGE_KEYS.clients, clients);
+  writeScopedArrayStorage(STORAGE_KEYS.clients, clients);
   state.clients = clients;
 }
 
@@ -2997,15 +3099,11 @@ function clearAdminSession() {
 }
 
 function getActiveProfileId() {
-  return localStorage.getItem(STORAGE_KEYS.activeProfileId) || '';
+  return readScopedStringStorage(STORAGE_KEYS.activeProfileId);
 }
 
 function setActiveProfileId(profileId) {
-  if (profileId) {
-    localStorage.setItem(STORAGE_KEYS.activeProfileId, profileId);
-  } else {
-    localStorage.removeItem(STORAGE_KEYS.activeProfileId);
-  }
+  writeScopedStringStorage(STORAGE_KEYS.activeProfileId, profileId || '');
   state.activeProfileId = profileId || null;
 }
 
@@ -3079,17 +3177,17 @@ function reconnectMetaToken() {
 }
 
 function syncLegacyStorage() {
+  const profiles = getProfiles();
   const legacyAppId = getSavedMetaAppId();
   const legacyToken = getSavedMetaToken();
-  const profiles = getProfiles();
 
   if (profiles.length > 0) return profiles;
-  if (!legacyAppId && !legacyToken && !CONFIG.META_APP_ID) return profiles;
+  if (!legacyAppId && !legacyToken) return profiles;
 
   const defaultProfile = {
     id: createId('profile'),
     name: 'Perfil principal',
-    appId: legacyAppId || (CONFIG.META_APP_ID !== 'SEU_APP_ID_AQUI' ? CONFIG.META_APP_ID : ''),
+    appId: legacyAppId || '',
     token: legacyToken || '',
     tokenUpdatedAt: legacyToken ? new Date().toISOString() : '',
     tokenInvalid: false,
@@ -3101,26 +3199,38 @@ function syncLegacyStorage() {
 }
 
 function initializeSavedData() {
+  state.adminUsers = getAdminUsers();
+  state.adminProfiles = getAdminProfiles();
+  state.profiles = [];
+  state.clients = [];
+  state.activeProfileId = null;
+}
+
+function loadScopedDashboardData() {
   const profiles = syncLegacyStorage();
   state.profiles = profiles.length ? profiles : getProfiles();
   state.clients = getClients();
-  state.adminUsers = getAdminUsers();
-  state.adminProfiles = getAdminProfiles();
 
-  if (!state.activeProfileId) {
-    const activeId = getActiveProfileId();
-    const existingActive = state.profiles.find(profile => profile.id === activeId);
-    if (existingActive) {
-      state.activeProfileId = existingActive.id;
-    } else if (state.profiles[0]) {
-      setActiveProfileId(state.profiles[0].id);
-    }
+  const activeId = getActiveProfileId();
+  const existingActive = state.profiles.find(profile => profile.id === activeId);
+  if (existingActive) {
+    state.activeProfileId = existingActive.id;
+  } else if (state.profiles[0]) {
+    setActiveProfileId(state.profiles[0].id);
+  } else {
+    setActiveProfileId('');
   }
 
+  state.selectedAccount = null;
+  state.lockedAccountId = null;
+  state.adAccounts = [];
   const activeProfile = getActiveProfile();
   if (activeProfile?.token) {
     state.accessToken = activeProfile.token;
     sessionStorage.setItem('meta_token', activeProfile.token);
+  } else {
+    state.accessToken = null;
+    sessionStorage.removeItem('meta_token');
   }
 }
 
@@ -3161,7 +3271,7 @@ function saveProfileSettings() {
   saveProfiles(profiles);
   setActiveProfileId(profileId);
   state.accessToken = nextProfile.token || null;
-  localStorage.setItem(STORAGE_KEYS.metaAppId, appId);
+  writeScopedStringStorage(STORAGE_KEYS.metaAppId, appId);
   if (nextProfile.token) {
     saveMetaToken(nextProfile.token);
   }
@@ -3298,6 +3408,31 @@ function getCurrentAdminProfile() {
   };
 }
 
+function hasSavedAdminProfile(profile = getCurrentAdminProfile()) {
+  return Boolean(profile.company || profile.name || profile.phone || profile.email);
+}
+
+function updateAdminProfileFormState() {
+  const fields = ['profile-company', 'profile-display-name', 'profile-phone', 'profile-email']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+  const saveButton = document.getElementById('profile-save-btn');
+  const editButton = document.getElementById('profile-edit-btn');
+  const hasSavedProfile = hasSavedAdminProfile();
+
+  fields.forEach(field => {
+    field.disabled = hasSavedProfile && !state.isEditingAdminProfile;
+  });
+
+  if (saveButton) {
+    saveButton.style.display = state.isEditingAdminProfile || !hasSavedProfile ? 'inline-flex' : 'none';
+  }
+
+  if (editButton) {
+    editButton.style.display = hasSavedProfile && !state.isEditingAdminProfile ? 'inline-flex' : 'none';
+  }
+}
+
 function loadAdminProfileDetails() {
   const profile = getCurrentAdminProfile();
   const companyInput = document.getElementById('profile-company');
@@ -3309,6 +3444,13 @@ function loadAdminProfileDetails() {
   if (nameInput) nameInput.value = profile.name || '';
   if (phoneInput) phoneInput.value = profile.phone || '';
   if (emailInput) emailInput.value = profile.email || '';
+  state.isEditingAdminProfile = !hasSavedAdminProfile(profile);
+  updateAdminProfileFormState();
+}
+
+function editAdminProfileDetails() {
+  state.isEditingAdminProfile = true;
+  updateAdminProfileFormState();
 }
 
 function saveAdminProfileDetails() {
@@ -3321,6 +3463,8 @@ function saveAdminProfileDetails() {
     email: document.getElementById('profile-email')?.value.trim() || '',
   };
   saveAdminProfiles(nextProfiles);
+  state.isEditingAdminProfile = false;
+  updateAdminProfileFormState();
   showToast('Informações do perfil salvas.');
 }
 
@@ -3891,6 +4035,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const oauthParams = new URLSearchParams(rawHash.replace('#', ''));
     const token = oauthParams.get('access_token');
     if (token) {
+      const oauthSession = getAdminSession();
+      if (!applyAdminSession(oauthSession)) {
+        clearAdminSession();
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        return;
+      }
+
+      loadScopedDashboardData();
       state.accessToken = token;
       sessionStorage.setItem('meta_token', token);
       saveMetaToken(token);
@@ -3911,11 +4063,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       sessionStorage.removeItem('pending_profile_id');
       history.replaceState(null, '', window.location.pathname + window.location.search);
-      if (applyAdminSession(getAdminSession())) {
-        showApp();
-      } else {
-        clearAdminSession();
-      }
+      showApp();
       return;
     }
   }
@@ -3930,6 +4078,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 3. Saved admin session?
   const savedAdminSession = getAdminSession();
   if (applyAdminSession(savedAdminSession)) {
+    loadScopedDashboardData();
     const savedToken = sessionStorage.getItem('meta_token') || getActiveProfile()?.token || getSavedMetaToken();
     if (savedToken) state.accessToken = savedToken;
     showApp();
@@ -3947,6 +4096,8 @@ function showApp() {
   document.body.classList.remove('client-banner-hidden');
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+
+  loadScopedDashboardData();
 
   document.getElementById('user-avatar').textContent = state.isAdmin ? 'A' : 'C';
   document.getElementById('share-btn').style.display = state.isAdmin ? 'flex' : 'none';
