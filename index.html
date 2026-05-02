@@ -444,6 +444,10 @@
     font-family: 'IBM Plex Mono', monospace;
   }
 
+  .mobile-client-logo {
+    display: none;
+  }
+
   #header-subtitle .subtitle-separator,
   #header-subtitle #header-account {
     display: none;
@@ -1592,6 +1596,17 @@
       display: none;
     }
 
+    .mobile-client-logo {
+      display: block;
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
     .layout {
       min-height: 100dvh;
     }
@@ -2312,6 +2327,8 @@
           <h1 id="header-client-name">Meta Ads Dashboard</h1>
           <p id="header-subtitle"><span class="subtitle-label">Relatório Meta Ads</span><span class="subtitle-separator"> · </span><span id="header-account">Todas as contas</span></p>
         </div>
+
+        <img class="mobile-client-logo" src="./adsdash-icon.svg" alt="AdsDash">
 
         <div class="header-controls">
           <div class="meta-status" id="meta-status">
