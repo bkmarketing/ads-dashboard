@@ -590,10 +590,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 4px;
+    gap: 0;
     margin: 4px 0 0;
     padding: 0;
     flex: 1;
+    position: relative;
   }
 
   .funnel-step {
@@ -606,43 +607,69 @@
   }
 
   .funnel-bar {
-    height: 40px;
-    border-radius: 6px;
+    height: 44px;
+    border-radius: 0 0 18px 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #0a0a0a;
+    color: #f4fbff;
     font-weight: 700;
     font-size: 11px;
     transition: opacity 0.2s;
     position: relative;
-    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08);
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.1);
+    clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
   }
 
   .funnel-bar:hover { opacity: 0.9; }
 
+  .funnel-top-cap {
+    width: 292px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #3f9eff 0%, #1f7fdb 100%);
+    position: relative;
+    margin-bottom: -6px;
+    box-shadow: inset 0 -3px 0 rgba(255,255,255,0.08);
+  }
+
+  .funnel-top-cap::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 5px;
+    transform: translateX(-50%);
+    width: 170px;
+    height: 11px;
+    border-radius: 50%;
+    background: rgba(5, 52, 93, 0.65);
+  }
+
   .funnel-bar .f-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    opacity: 0.85;
+    opacity: 0.96;
     margin-bottom: 2px;
     font-family: 'IBM Plex Mono', monospace;
-    letter-spacing: 0.2px;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.12);
+    letter-spacing: 0;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.16);
   }
   .funnel-bar .f-val {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 800;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.4px;
     line-height: 1;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.14);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.18);
   }
 
   .funnel-connector {
-    width: 2px;
-    height: 12px;
-    background: var(--border);
+    width: 62%;
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    clip-path: polygon(4% 0, 96% 0, 88% 100%, 12% 100%);
+    margin-top: -1px;
+    margin-bottom: -1px;
   }
 
   /* ===== METRICS SMALL ===== */
@@ -3128,18 +3155,21 @@ function updateKPIs(d) {
 }
 
 function renderFunnel(steps) {
-  const colors = ['#4a9eff', '#5cb8f0', '#70c8e0', '#85d0c8'];
-  const maxWidth = 240;
+  const colors = ['#3f98f5', '#3590eb', '#2e88e3', '#267ed7'];
+  const widths = [270, 210, 160, 120];
   const wrap = document.getElementById('funnel-wrap');
   wrap.innerHTML = '';
 
+  const topCap = document.createElement('div');
+  topCap.className = 'funnel-top-cap';
+  wrap.appendChild(topCap);
+
   steps.forEach((step, i) => {
-    const width = maxWidth * (1 - i * 0.18);
     const div = document.createElement('div');
     div.className = 'funnel-step';
     div.innerHTML = `
       ${i > 0 ? '<div class="funnel-connector"></div>' : ''}
-      <div class="funnel-bar" style="width:${width}px;background:${colors[i]}">
+      <div class="funnel-bar" style="width:${widths[i] || widths[widths.length - 1]}px;background:${colors[i]}">
         <div class="f-label">${step.label}</div>
         <div class="f-val">${fmtNum(step.value)}</div>
       </div>
@@ -3248,8 +3278,17 @@ function renderLineChart(labels, addCart, purchases) {
 function renderDonutChart() {
   destroyChart('donut');
   const ctx = document.getElementById('donut-chart').getContext('2d');
-  const data = state.creatives.slice(0, 5);
-  const total = data.reduce((s, c) => s + c.purchases, 0) || 1;
+  const data = state.creatives
+    .filter(c => c.purchases > 0)
+    .sort((a, b) => b.purchases - a.purchases)
+    .slice(0, 5);
+  const total = data.reduce((s, c) => s + c.purchases, 0);
+
+  if (!data.length || total <= 0) {
+    destroyChart('donut');
+    document.getElementById('donut-legend').innerHTML = `<div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>`;
+    return;
+  }
 
   state.charts['donut'] = new Chart(ctx, {
     type: 'doughnut',
