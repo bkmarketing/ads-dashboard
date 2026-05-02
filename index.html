@@ -241,19 +241,23 @@
     top: 0;
     z-index: 140;
     min-height: 44px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
   }
 
   body.client-view #client-banner .client-info {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    position: static;
+    transform: none;
     white-space: nowrap;
+    grid-column: 2;
+    justify-self: center;
   }
 
   body.client-view #client-account-banner {
-    position: absolute;
-    right: 24px;
+    position: static;
+    grid-column: 3;
+    justify-self: end;
   }
 
   body.client-view #client-banner .client-info,
@@ -376,6 +380,14 @@
     font-weight: 700;
     color: #0a0a0a;
     cursor: pointer;
+  }
+
+  .profile-hint {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
   }
 
   /* ===== MAIN CONTENT ===== */
@@ -981,6 +993,177 @@
 
   .share-field input:focus { border-color: var(--accent); }
 
+  .stack-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .profile-card,
+  .saved-list-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .profile-meta strong {
+    font-size: 14px;
+  }
+
+  .profile-meta span {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .saved-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .saved-list-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .saved-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .saved-item.active {
+    border-color: rgba(168,196,65,0.45);
+    background: rgba(168,196,65,0.06);
+  }
+
+  .saved-item-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .saved-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .saved-item-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    word-break: break-word;
+  }
+
+  .saved-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .btn-inline {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-inline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    width: fit-content;
+  }
+
+  .status-chip.ok {
+    background: rgba(168,196,65,0.12);
+    color: var(--accent);
+  }
+
+  .status-chip.warn {
+    background: rgba(224,85,85,0.12);
+    color: var(--red);
+  }
+
+  .profile-note {
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1.5;
+  }
+
+  .profile-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .profile-meta {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .profile-meta strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .profile-meta span {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
   /* ===== ADMIN ACCOUNTS LIST ===== */
   .accounts-grid {
     display: grid;
@@ -1260,7 +1443,8 @@
       </button>
 
       <div class="sidebar-bottom">
-        <div class="sidebar-avatar" onclick="doLogout()" title="Sair" id="user-avatar">A</div>
+        <div class="sidebar-avatar" onclick="openProfileModal()" title="Perfil" id="user-avatar">A</div>
+        <div class="profile-hint">perfil</div>
       </div>
     </nav>
 
@@ -1564,47 +1748,125 @@
   </div>
 </div>
 
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProfileModal()">×</button>
+    <h3>Perfil e Configurações</h3>
+    <p>Gerencie perfis Meta, tokens conectados e o perfil ativo do dashboard.</p>
+
+    <div class="stack-fields">
+      <div class="profile-card">
+        <div class="profile-meta">
+          <strong id="profile-user-label">Administrador</strong>
+          <span id="profile-user-subtitle">Gerencie integração e sessão do dashboard</span>
+        </div>
+
+        <div class="share-field">
+          <label>Nome do perfil</label>
+          <input type="text" id="profile-name" placeholder="Ex: BK Marketing">
+        </div>
+
+        <div class="share-field">
+          <label>Meta App ID</label>
+          <input type="text" id="profile-meta-app-id" placeholder="Ex: 123456789012345">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="doLogout()">Sair</button>
+          <button class="btn-secondary" onclick="resetProfileForm()">Novo perfil</button>
+          <button class="btn-copy" onclick="saveProfileSettings()">Salvar perfil</button>
+        </div>
+
+        <div class="profile-note">
+          O token continua sendo obtido via Facebook Login. Quando ele expirar, este perfil será marcado para reconexão e você poderá renovar sem perder a configuração.
+        </div>
+      </div>
+
+      <div class="saved-list-card">
+        <div class="saved-list-header">
+          <div class="saved-list-title">Perfis Meta salvos</div>
+          <button class="btn-inline" type="button" onclick="connectMeta()">Conectar / renovar token</button>
+        </div>
+        <div class="saved-list" id="profiles-list">
+          <div class="saved-item">
+            <div class="saved-item-main">
+              <div class="saved-item-title">Nenhum perfil salvo</div>
+              <div class="saved-item-subtitle">Crie um perfil e conecte sua conta Meta.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SHARE MODAL -->
 <div class="modal-overlay" id="share-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeShareModal()">×</button>
     <h3>Gerar link de cliente</h3>
-    <p>O cliente poderá visualizar apenas os dados da conta selecionada</p>
+    <p>Salve clientes por perfil e gere links com a conta e o período já definidos.</p>
 
-    <div class="share-field">
-      <label>Nome do cliente</label>
-      <input type="text" id="share-client-name" placeholder="Ex: Giba Dogueria">
-    </div>
-
-    <div class="share-field">
-      <label>Conta de anúncio</label>
-      <select class="select-pill" id="share-account-select" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;">
-        <option value="">Selecione...</option>
-      </select>
-    </div>
-
-    <div class="share-field">
-      <label>Período padrão</label>
-      <select class="select-pill" id="share-range-preset" onchange="applyShareDatePreset(this.value)" style="width:100%;margin-bottom:8px;">
-        <option value="last7" selected>Últimos 7 dias</option>
-        <option value="last30">Últimos 30 dias</option>
-        <option value="thisMonth">Este mês</option>
-        <option value="custom">Personalizado</option>
-      </select>
-      <div style="display:flex;gap:8px">
-        <input type="date" id="share-date-start" style="flex:1" onchange="handleManualShareDateChange()">
-        <input type="date" id="share-date-end" style="flex:1" onchange="handleManualShareDateChange()">
+    <div class="stack-fields">
+      <div class="saved-list-card">
+        <div class="saved-list-header">
+          <div class="saved-list-title">Clientes salvos</div>
+          <button class="btn-inline" type="button" onclick="resetClientForm()">Novo cliente</button>
+        </div>
+        <div class="saved-list" id="saved-clients-list">
+          <div class="saved-item">
+            <div class="saved-item-main">
+              <div class="saved-item-title">Nenhum cliente salvo</div>
+              <div class="saved-item-subtitle">Cadastre um cliente para reutilizar conta e período padrão.</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div id="share-url-wrap" style="display:none">
-      <label style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Link gerado</label>
-      <div class="share-url-box" id="share-url">—</div>
-    </div>
+      <div class="profile-card">
+        <div class="profile-meta">
+          <strong>Configuração do cliente</strong>
+          <span id="share-profile-summary">Vinculado ao perfil ativo do dashboard</span>
+        </div>
 
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="generateClientLink()">Gerar link</button>
-      <button class="btn-copy" onclick="copyLink()">📋 Copiar link</button>
+        <div class="share-field">
+          <label>Nome do cliente</label>
+          <input type="text" id="share-client-name" placeholder="Ex: Giba Dogueria">
+        </div>
+
+        <div class="share-field">
+          <label>Conta de anúncio</label>
+          <select class="select-pill" id="share-account-select" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+
+        <div class="share-field">
+          <label>Período padrão</label>
+          <select class="select-pill" id="share-range-preset" onchange="applyShareDatePreset(this.value)" style="width:100%;margin-bottom:8px;">
+            <option value="last7" selected>Últimos 7 dias</option>
+            <option value="last30">Últimos 30 dias</option>
+            <option value="thisMonth">Este mês</option>
+            <option value="custom">Personalizado</option>
+          </select>
+          <div style="display:flex;gap:8px">
+            <input type="date" id="share-date-start" style="flex:1" onchange="handleManualShareDateChange()">
+            <input type="date" id="share-date-end" style="flex:1" onchange="handleManualShareDateChange()">
+          </div>
+        </div>
+
+        <div id="share-url-wrap" style="display:none">
+          <label style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Link gerado</label>
+          <div class="share-url-box" id="share-url">—</div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="saveClientPreset()">Salvar cliente</button>
+          <button class="btn-secondary" onclick="generateClientLink()">Gerar link</button>
+          <button class="btn-copy" onclick="copyLink()">📋 Copiar link</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1631,6 +1893,14 @@ const ADMIN_CREDENTIALS = {
   pass: CONFIG.ADMIN_PASS,
 };
 
+const STORAGE_KEYS = {
+  metaAppId: 'adsdash_meta_app_id',
+  metaToken: 'adsdash_meta_token',
+  profiles: 'adsdash_meta_profiles',
+  activeProfileId: 'adsdash_active_profile_id',
+  clients: 'adsdash_saved_clients',
+};
+
 // ============================================================
 // STATE
 // ============================================================
@@ -1639,6 +1909,11 @@ let state = {
   isClientView: false,
   clientName: '',
   accessToken: null,
+  profiles: [],
+  activeProfileId: null,
+  clients: [],
+  editingProfileId: null,
+  editingClientId: null,
   adAccounts: [],
   selectedAccount: null,
   lockedAccountId: null,
@@ -1672,6 +1947,332 @@ function formatDate(d) {
 
 function formatBR(d) {
   return new Intl.DateTimeFormat('pt-BR').format(new Date(d + 'T12:00:00'));
+}
+
+function getSavedMetaAppId() {
+  return localStorage.getItem(STORAGE_KEYS.metaAppId)?.trim() || '';
+}
+
+function getMetaAppId() {
+  return getActiveProfile()?.appId || getSavedMetaAppId() || CONFIG.META_APP_ID || '';
+}
+
+function getSavedMetaToken() {
+  return localStorage.getItem(STORAGE_KEYS.metaToken) || '';
+}
+
+function saveMetaToken(token) {
+  if (!token) return;
+  localStorage.setItem(STORAGE_KEYS.metaToken, token);
+}
+
+function clearMetaToken() {
+  localStorage.removeItem(STORAGE_KEYS.metaToken);
+}
+
+function readJsonStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function createId(prefix) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function getProfiles() {
+  return readJsonStorage(STORAGE_KEYS.profiles, []);
+}
+
+function saveProfiles(profiles) {
+  writeJsonStorage(STORAGE_KEYS.profiles, profiles);
+  state.profiles = profiles;
+}
+
+function getClients() {
+  return readJsonStorage(STORAGE_KEYS.clients, []);
+}
+
+function saveClients(clients) {
+  writeJsonStorage(STORAGE_KEYS.clients, clients);
+  state.clients = clients;
+}
+
+function getActiveProfileId() {
+  return localStorage.getItem(STORAGE_KEYS.activeProfileId) || '';
+}
+
+function setActiveProfileId(profileId) {
+  if (profileId) {
+    localStorage.setItem(STORAGE_KEYS.activeProfileId, profileId);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.activeProfileId);
+  }
+  state.activeProfileId = profileId || null;
+}
+
+function getActiveProfile() {
+  return state.profiles.find(profile => profile.id === state.activeProfileId) || null;
+}
+
+function formatTokenDate(dateString) {
+  if (!dateString) return 'Token ainda não conectado';
+  return `Token atualizado em ${new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(new Date(dateString))}`;
+}
+
+function getProfileStatus(profile) {
+  if (!profile?.token) {
+    return { label: 'sem token', className: 'warn' };
+  }
+
+  if (profile.tokenInvalid) {
+    return { label: 'reconectar', className: 'warn' };
+  }
+
+  return { label: 'conectado', className: 'ok' };
+}
+
+function markActiveProfileTokenInvalid() {
+  const activeProfile = getActiveProfile();
+  if (!activeProfile) return;
+
+  const profiles = [...state.profiles];
+  const index = profiles.findIndex(profile => profile.id === activeProfile.id);
+  if (index < 0) return;
+
+  profiles[index] = {
+    ...profiles[index],
+    token: '',
+    tokenInvalid: true,
+  };
+  saveProfiles(profiles);
+  state.accessToken = null;
+  sessionStorage.removeItem('meta_token');
+  clearMetaToken();
+  renderProfilesList();
+}
+
+function syncLegacyStorage() {
+  const legacyAppId = getSavedMetaAppId();
+  const legacyToken = getSavedMetaToken();
+  const profiles = getProfiles();
+
+  if (profiles.length > 0) return profiles;
+  if (!legacyAppId && !legacyToken && !CONFIG.META_APP_ID) return profiles;
+
+  const defaultProfile = {
+    id: createId('profile'),
+    name: 'Perfil principal',
+    appId: legacyAppId || (CONFIG.META_APP_ID !== 'SEU_APP_ID_AQUI' ? CONFIG.META_APP_ID : ''),
+    token: legacyToken || '',
+    tokenUpdatedAt: legacyToken ? new Date().toISOString() : '',
+    tokenInvalid: false,
+  };
+
+  saveProfiles([defaultProfile]);
+  setActiveProfileId(defaultProfile.id);
+  return [defaultProfile];
+}
+
+function initializeSavedData() {
+  const profiles = syncLegacyStorage();
+  state.profiles = profiles.length ? profiles : getProfiles();
+  state.clients = getClients();
+
+  if (!state.activeProfileId) {
+    const activeId = getActiveProfileId();
+    const existingActive = state.profiles.find(profile => profile.id === activeId);
+    if (existingActive) {
+      state.activeProfileId = existingActive.id;
+    } else if (state.profiles[0]) {
+      setActiveProfileId(state.profiles[0].id);
+    }
+  }
+
+  const activeProfile = getActiveProfile();
+  if (activeProfile?.token) {
+    state.accessToken = activeProfile.token;
+    sessionStorage.setItem('meta_token', activeProfile.token);
+  }
+}
+
+function loadProfileSettings() {
+  const activeProfile = getActiveProfile();
+  const profileNameInput = document.getElementById('profile-name');
+  const appIdInput = document.getElementById('profile-meta-app-id');
+
+  if (profileNameInput) {
+    profileNameInput.value = activeProfile?.name || '';
+  }
+  if (appIdInput) {
+    const appId = activeProfile?.appId || getMetaAppId();
+    appIdInput.value = appId === 'SEU_APP_ID_AQUI' ? '' : appId;
+  }
+
+  state.editingProfileId = activeProfile?.id || null;
+}
+
+function saveProfileSettings() {
+  const nameInput = document.getElementById('profile-name');
+  const input = document.getElementById('profile-meta-app-id');
+  const profileName = nameInput.value.trim() || 'Perfil Meta';
+  const appId = input.value.trim();
+
+  if (!appId) {
+    showToast('Informe um App ID para salvar o perfil.');
+    return;
+  }
+
+  const profiles = [...state.profiles];
+  const profileId = state.editingProfileId || createId('profile');
+  const current = profiles.find(profile => profile.id === profileId);
+  const nextProfile = {
+    id: profileId,
+    name: profileName,
+    appId,
+    token: current?.token || '',
+    tokenUpdatedAt: current?.tokenUpdatedAt || '',
+    tokenInvalid: current?.tokenInvalid || false,
+  };
+
+  const index = profiles.findIndex(profile => profile.id === profileId);
+  if (index >= 0) {
+    profiles[index] = nextProfile;
+  } else {
+    profiles.push(nextProfile);
+  }
+
+  saveProfiles(profiles);
+  setActiveProfileId(profileId);
+  state.accessToken = nextProfile.token || null;
+  localStorage.setItem(STORAGE_KEYS.metaAppId, appId);
+  if (nextProfile.token) {
+    saveMetaToken(nextProfile.token);
+  }
+  renderProfilesList();
+  updateActiveProfileUI();
+  showToast('Perfil salvo com sucesso!');
+  closeProfileModal();
+}
+
+function resetProfileForm() {
+  state.editingProfileId = null;
+  document.getElementById('profile-name').value = '';
+  document.getElementById('profile-meta-app-id').value = '';
+}
+
+function editProfile(profileId) {
+  const profile = state.profiles.find(item => item.id === profileId);
+  if (!profile) return;
+
+  state.editingProfileId = profile.id;
+  document.getElementById('profile-name').value = profile.name || '';
+  document.getElementById('profile-meta-app-id').value = profile.appId || '';
+}
+
+function activateProfile(profileId) {
+  const profile = state.profiles.find(item => item.id === profileId);
+  if (!profile) return;
+
+  setActiveProfileId(profile.id);
+  state.accessToken = profile.token || null;
+
+  if (profile.token) {
+    sessionStorage.setItem('meta_token', profile.token);
+    saveMetaToken(profile.token);
+    updateMetaStatus(true);
+    fetchAdAccounts();
+  } else {
+    sessionStorage.removeItem('meta_token');
+    clearMetaToken();
+    state.adAccounts = [];
+    state.selectedAccount = null;
+    updateMetaStatus(false);
+    renderEmptyState();
+  }
+
+  loadProfileSettings();
+  renderProfilesList();
+  renderSavedClientsList();
+  updateActiveProfileUI();
+  showToast(`Perfil ativo: ${profile.name}`);
+}
+
+function deleteProfile(profileId) {
+  const profile = state.profiles.find(item => item.id === profileId);
+  if (!profile) return;
+  if (!confirm(`Remover o perfil "${profile.name}"?`)) return;
+
+  const nextProfiles = state.profiles.filter(item => item.id !== profileId);
+  const nextClients = state.clients.filter(client => client.profileId !== profileId);
+  saveProfiles(nextProfiles);
+  saveClients(nextClients);
+
+  if (state.activeProfileId === profileId) {
+    setActiveProfileId(nextProfiles[0]?.id || '');
+    state.accessToken = nextProfiles[0]?.token || null;
+    if (state.accessToken) {
+      sessionStorage.setItem('meta_token', state.accessToken);
+      saveMetaToken(state.accessToken);
+    } else {
+      sessionStorage.removeItem('meta_token');
+      clearMetaToken();
+    }
+  }
+
+  if (state.editingProfileId === profileId) {
+    resetProfileForm();
+  }
+
+  renderProfilesList();
+  renderSavedClientsList();
+  updateActiveProfileUI();
+  showToast('Perfil removido.');
+}
+
+function renderProfilesList() {
+  const list = document.getElementById('profiles-list');
+  if (!list) return;
+
+  if (!state.profiles.length) {
+    list.innerHTML = `
+      <div class="saved-item">
+        <div class="saved-item-main">
+          <div class="saved-item-title">Nenhum perfil salvo</div>
+          <div class="saved-item-subtitle">Crie um perfil e conecte sua conta Meta.</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = state.profiles.map(profile => {
+    const status = getProfileStatus(profile);
+    return `
+      <div class="saved-item ${profile.id === state.activeProfileId ? 'active' : ''}">
+        <div class="saved-item-main">
+          <div class="saved-item-title">${profile.name}</div>
+          <div class="saved-item-subtitle">${profile.appId || 'Sem App ID'} · ${formatTokenDate(profile.tokenUpdatedAt)}</div>
+          <div class="status-chip ${status.className}">${status.label}</div>
+        </div>
+        <div class="saved-item-actions">
+          <button class="btn-inline" type="button" onclick="activateProfile('${profile.id}')">Ativar</button>
+          <button class="btn-inline" type="button" onclick="editProfile('${profile.id}')">Editar</button>
+          <button class="btn-inline" type="button" onclick="deleteProfile('${profile.id}')">Excluir</button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function getPresetRange(preset) {
@@ -1728,6 +2329,135 @@ function handleManualShareDateChange() {
   document.getElementById('share-range-preset').value = 'custom';
 }
 
+function updateActiveProfileUI() {
+  const profile = getActiveProfile();
+  const summary = document.getElementById('share-profile-summary');
+  if (summary) {
+    summary.textContent = profile
+      ? `Vinculado ao perfil ativo: ${profile.name}`
+      : 'Nenhum perfil Meta ativo';
+  }
+}
+
+function resetClientForm() {
+  state.editingClientId = null;
+  document.getElementById('share-client-name').value = '';
+  document.getElementById('share-account-select').value = '';
+  document.getElementById('share-url-wrap').style.display = 'none';
+  applyShareDatePreset('last7');
+  document.getElementById('share-range-preset').value = 'last7';
+}
+
+function editClientPreset(clientId) {
+  const client = state.clients.find(item => item.id === clientId);
+  if (!client) return;
+
+  state.editingClientId = client.id;
+  document.getElementById('share-client-name').value = client.name || '';
+  document.getElementById('share-account-select').value = client.accountId || '';
+  document.getElementById('share-date-start').value = client.dateStart || '';
+  document.getElementById('share-date-end').value = client.dateEnd || '';
+  document.getElementById('share-range-preset').value = client.rangePreset || 'custom';
+  document.getElementById('share-url-wrap').style.display = 'none';
+}
+
+function saveClientPreset() {
+  const activeProfile = getActiveProfile();
+  if (!activeProfile) {
+    showToast('Crie e ative um perfil Meta antes de salvar clientes.');
+    return;
+  }
+
+  const name = document.getElementById('share-client-name').value.trim();
+  const accountId = document.getElementById('share-account-select').value;
+  const dateStart = document.getElementById('share-date-start').value;
+  const dateEnd = document.getElementById('share-date-end').value;
+  const rangePreset = document.getElementById('share-range-preset').value;
+
+  if (!name) {
+    showToast('Informe o nome do cliente.');
+    return;
+  }
+
+  if (!accountId) {
+    showToast('Selecione uma conta de anúncio.');
+    return;
+  }
+
+  const clients = [...state.clients];
+  const clientId = state.editingClientId || createId('client');
+  const nextClient = {
+    id: clientId,
+    profileId: activeProfile.id,
+    profileName: activeProfile.name,
+    name,
+    accountId,
+    dateStart,
+    dateEnd,
+    rangePreset,
+  };
+
+  const index = clients.findIndex(client => client.id === clientId);
+  if (index >= 0) {
+    clients[index] = nextClient;
+  } else {
+    clients.push(nextClient);
+  }
+
+  saveClients(clients);
+  renderSavedClientsList();
+  state.editingClientId = clientId;
+  showToast('Cliente salvo com sucesso!');
+}
+
+function deleteClientPreset(clientId) {
+  const client = state.clients.find(item => item.id === clientId);
+  if (!client) return;
+  if (!confirm(`Remover o cliente "${client.name}"?`)) return;
+
+  saveClients(state.clients.filter(item => item.id !== clientId));
+  if (state.editingClientId === clientId) {
+    resetClientForm();
+  }
+  renderSavedClientsList();
+  showToast('Cliente removido.');
+}
+
+function renderSavedClientsList() {
+  const list = document.getElementById('saved-clients-list');
+  if (!list) return;
+
+  const activeProfile = getActiveProfile();
+  const clients = activeProfile
+    ? state.clients.filter(client => client.profileId === activeProfile.id)
+    : [];
+
+  if (!clients.length) {
+    list.innerHTML = `
+      <div class="saved-item">
+        <div class="saved-item-main">
+          <div class="saved-item-title">Nenhum cliente salvo</div>
+          <div class="saved-item-subtitle">Cadastre um cliente para reutilizar conta e período padrão.</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = clients.map(client => `
+    <div class="saved-item ${client.id === state.editingClientId ? 'active' : ''}">
+      <div class="saved-item-main">
+        <div class="saved-item-title">${client.name}</div>
+        <div class="saved-item-subtitle">${client.accountId} · ${client.dateStart || 'sem início'} até ${client.dateEnd || 'sem fim'}</div>
+      </div>
+      <div class="saved-item-actions">
+        <button class="btn-inline" type="button" onclick="editClientPreset('${client.id}')">Usar</button>
+        <button class="btn-inline" type="button" onclick="deleteClientPreset('${client.id}')">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+}
+
 // ============================================================
 // AUTH
 // ============================================================
@@ -1782,8 +2512,9 @@ function togglePasswordVisibility() {
 function doLogout() {
   if (!confirm('Sair do dashboard?')) return;
   sessionStorage.clear();
+  closeProfileModal();
   document.body.classList.remove('client-view');
-  state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, adAccounts: [], selectedAccount: null, lockedAccountId: null, data: null, campaigns: [], creatives: [], charts: {} };
+  state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, profiles: [], activeProfileId: null, clients: [], editingProfileId: null, editingClientId: null, adAccounts: [], selectedAccount: null, lockedAccountId: null, data: null, campaigns: [], creatives: [], charts: {} };
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('client-banner').style.display = 'none';
@@ -1793,12 +2524,26 @@ function doLogout() {
 // META OAUTH
 // ============================================================
 function connectMeta() {
-  if (!CONFIG.META_APP_ID || CONFIG.META_APP_ID === 'SEU_APP_ID_AQUI') {
-    showToast('⚠️ Configure seu META_APP_ID no código!');
+  const activeProfile = getActiveProfile();
+  const metaAppId = getMetaAppId();
+
+  if (!activeProfile) {
+    showToast('Crie e ative um perfil Meta antes de conectar.');
+    openProfileModal();
     return;
   }
+
+  if (!metaAppId || metaAppId === 'SEU_APP_ID_AQUI') {
+    showToast('Configure um App ID em um perfil Meta.');
+    openProfileModal();
+    return;
+  }
+
+  if (activeProfile?.id) {
+    sessionStorage.setItem('pending_profile_id', activeProfile.id);
+  }
   const redirectUri = encodeURIComponent(window.location.href.split('#')[0]);
-  const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${CONFIG.META_APP_ID}&redirect_uri=${redirectUri}&scope=${CONFIG.META_PERMISSIONS}&response_type=token`;
+  const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${metaAppId}&redirect_uri=${redirectUri}&scope=${CONFIG.META_PERMISSIONS}&response_type=token`;
   window.location.href = authUrl;
 }
 
@@ -1809,6 +2554,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Default dates
   applyDatePreset('last7');
   applyShareDatePreset('last7');
+  initializeSavedData();
+  loadProfileSettings();
+  renderProfilesList();
+  renderSavedClientsList();
+  updateActiveProfileUI();
 
   // Enter key on login screen
   document.addEventListener('keydown', (e) => {
@@ -1823,6 +2573,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (token) {
       state.accessToken = token;
       sessionStorage.setItem('meta_token', token);
+      saveMetaToken(token);
+      const pendingProfileId = sessionStorage.getItem('pending_profile_id') || state.activeProfileId;
+      if (pendingProfileId) {
+        const profiles = [...state.profiles];
+        const profileIndex = profiles.findIndex(profile => profile.id === pendingProfileId);
+        if (profileIndex >= 0) {
+          profiles[profileIndex] = {
+            ...profiles[profileIndex],
+            token,
+            tokenUpdatedAt: new Date().toISOString(),
+            tokenInvalid: false,
+          };
+          saveProfiles(profiles);
+          setActiveProfileId(pendingProfileId);
+        }
+      }
+      sessionStorage.removeItem('pending_profile_id');
       history.replaceState(null, '', window.location.pathname + window.location.search);
       if (sessionStorage.getItem('is_admin') === 'true') {
         state.isAdmin = true;
@@ -1847,7 +2614,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const savedAdmin = sessionStorage.getItem('is_admin');
   if (savedAdmin === 'true') {
     state.isAdmin = true;
-    const savedToken = sessionStorage.getItem('meta_token');
+    const savedToken = sessionStorage.getItem('meta_token') || getActiveProfile()?.token || getSavedMetaToken();
     if (savedToken) state.accessToken = savedToken;
     showApp();
     return;
@@ -1867,6 +2634,9 @@ function showApp() {
   document.getElementById('user-avatar').textContent = state.isAdmin ? 'A' : 'C';
   document.getElementById('share-btn').style.display = state.isAdmin ? 'flex' : 'none';
   document.getElementById('tab-contas').style.display = state.isAdmin ? 'flex' : 'none';
+  renderProfilesList();
+  renderSavedClientsList();
+  updateActiveProfileUI();
 
   if (state.accessToken) {
     updateMetaStatus(true);
@@ -1941,7 +2711,12 @@ async function fetchAdAccounts() {
   try {
     const res = await fetch(`https://graph.facebook.com/${CONFIG.META_API_VERSION}/me/adaccounts?fields=name,account_id,currency,account_status,spend_cap,amount_spent&access_token=${state.accessToken}`);
     const data = await res.json();
-    if (data.error) { console.error(data.error); showApiError(data.error.message); return; }
+    if (data.error) {
+      console.error(data.error);
+      if (data.error.code === 190) markActiveProfileTokenInvalid();
+      showApiError(data.error.message);
+      return;
+    }
 
     state.adAccounts = data.data || [];
     populateAccountSelects();
@@ -2047,6 +2822,14 @@ async function loadData() {
     const adsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/ads?fields=name,creative{id,name,thumbnail_url,image_url,video_id},insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){impressions,clicks,spend,actions}&access_token=${state.accessToken}`;
     const adsRes = await fetch(adsUrl);
     const adsData = await adsRes.json();
+
+    const possibleErrors = [insightsData.error, campaignsData.error, dailyData.error, adsData.error].filter(Boolean);
+    if (possibleErrors.length) {
+      const tokenExpired = possibleErrors.some(error => error.code === 190);
+      if (tokenExpired) markActiveProfileTokenInvalid();
+      showApiError(possibleErrors[0].message);
+      return;
+    }
 
     processRealData(insightsData.data, campaignsData.data, dailyData.data, adsData.data);
   } catch(e) {
@@ -2201,6 +2984,7 @@ function renderEmptyState() {
 
 function showApiError(msg) {
   renderEmptyState();
+  updateMetaStatus(false);
   showToast('⚠️ ' + (msg || 'Erro ao conectar ao Meta'));
   console.warn('[Meta API Error]', msg);
 }
@@ -2483,6 +3267,8 @@ function switchTab(tab) {
 // ============================================================
 function openShareModal() {
   document.getElementById('share-modal').style.display = 'flex';
+  updateActiveProfileUI();
+  renderSavedClientsList();
   // Populate account options
   const sel = document.getElementById('share-account-select');
   sel.innerHTML = '<option value="">Selecione...</option>';
@@ -2493,13 +3279,32 @@ function openShareModal() {
   } else {
     sel.add(new Option('Conta Demo', 'act_demo_123'));
   }
+
+  if (!state.editingClientId) {
+    resetClientForm();
+  }
 }
 
 function closeShareModal() {
   document.getElementById('share-modal').style.display = 'none';
 }
 
+function openProfileModal() {
+  loadProfileSettings();
+  renderProfilesList();
+  document.getElementById('profile-user-label').textContent = state.isAdmin ? 'Administrador' : 'Perfil';
+  document.getElementById('profile-user-subtitle').textContent = state.isClientView
+    ? 'Visualização compartilhada'
+    : 'Gerencie integração e sessão do dashboard';
+  document.getElementById('profile-modal').style.display = 'flex';
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-modal').style.display = 'none';
+}
+
 function generateClientLink() {
+  const activeProfile = getActiveProfile();
   const clientName = document.getElementById('share-client-name').value || 'Cliente';
   const accountId = document.getElementById('share-account-select').value || 'act_demo';
   const dateStart = document.getElementById('share-date-start').value;
@@ -2512,6 +3317,8 @@ function generateClientLink() {
     dateStart,
     dateEnd,
     token: state.accessToken || '',
+    profileId: activeProfile?.id || '',
+    profileName: activeProfile?.name || '',
   };
 
   const encoded = encodeClientParams(params);
@@ -2575,6 +3382,10 @@ function showToast(msg) {
 // Close modal on overlay click
 document.getElementById('share-modal').addEventListener('click', function(e) {
   if (e.target === this) closeShareModal();
+});
+
+document.getElementById('profile-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeProfileModal();
 });
 </script>
 </body>
