@@ -70,25 +70,18 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 8px;
+    gap: 14px;
+    margin-bottom: 28px;
   }
 
-  .login-logo svg { width: 32px; height: 32px; }
+  .login-logo img { height: 52px; width: auto; display: block; }
 
   .login-logo span {
-    font-size: 22px;
+    font-size: 34px;
     font-weight: 800;
     color: var(--text);
-    letter-spacing: -0.5px;
-  }
-
-  .login-subtitle {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-family: 'IBM Plex Mono', monospace;
-    margin-bottom: 36px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: -0.8px;
+    line-height: 1;
   }
 
   .login-card h2 {
@@ -193,23 +186,6 @@
 
   .btn-meta:hover { opacity: 0.9; }
 
-  .login-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 16px 0;
-    color: var(--text-muted);
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-
-  .login-divider::before, .login-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
   .login-error {
     background: rgba(224,85,85,0.1);
     border: 1px solid rgba(224,85,85,0.3);
@@ -258,12 +234,7 @@
     justify-self: auto;
   }
 
-  body.client-view #client-account-banner {
-    display: none;
-  }
-
-  body.client-view #client-banner .client-info,
-  body.client-view #client-account-banner {
+  body.client-view #client-banner .client-info {
     font-family: 'Manrope', sans-serif;
     font-size: 13px;
   }
@@ -330,8 +301,10 @@
   }
 
   .sidebar-logo {
-    width: 40px; height: 40px;
+    width: 46px;
+    height: auto;
     margin-bottom: 20px;
+    display: block;
   }
 
   .nav-item {
@@ -383,6 +356,31 @@
     gap: 8px;
   }
 
+  .sidebar-logout {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sidebar-logout:hover {
+    border-color: rgba(224,85,85,0.4);
+    color: var(--red);
+    background: rgba(224,85,85,0.08);
+  }
+
+  .sidebar-logout svg {
+    width: 16px;
+    height: 16px;
+  }
+
   .sidebar-avatar {
     width: 36px; height: 36px;
     background: var(--accent);
@@ -394,6 +392,10 @@
     font-weight: 700;
     color: #0a0a0a;
     cursor: pointer;
+  }
+
+  .sidebar-avatar.active {
+    box-shadow: 0 0 0 3px rgba(168,196,65,0.18);
   }
 
   .profile-hint {
@@ -440,6 +442,11 @@
     font-size: 11px;
     color: var(--text-muted);
     font-family: 'IBM Plex Mono', monospace;
+  }
+
+  #header-subtitle .subtitle-separator,
+  #header-subtitle #header-account {
+    display: none;
   }
 
   .header-controls {
@@ -549,20 +556,6 @@
   }
 
   .select-pill:focus { border-color: var(--accent); }
-
-  .date-pill {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 12px;
-    color: var(--text);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-  }
 
   .btn-icon {
     width: 34px; height: 34px;
@@ -1161,6 +1154,7 @@
     cursor: pointer;
     color: var(--text-muted);
     font-size: 16px;
+    touch-action: manipulation;
   }
 
   .share-url-box {
@@ -1236,6 +1230,21 @@
 
   .share-field input:focus { border-color: var(--accent); }
 
+  .auth-alt {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .login-note {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1.5;
+    text-align: left;
+  }
+
   .stack-fields {
     display: flex;
     flex-direction: column;
@@ -1248,23 +1257,6 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px;
-  }
-
-  .profile-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 14px;
-  }
-
-  .profile-meta strong {
-    font-size: 14px;
-  }
-
-  .profile-meta span {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-family: 'IBM Plex Mono', monospace;
   }
 
   .saved-list-header {
@@ -1389,10 +1381,13 @@
   }
 
   .profile-meta {
-    background: var(--surface2);
+    background: rgba(255,255,255,0.02);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .profile-meta strong {
@@ -1405,6 +1400,18 @@
     color: var(--text-muted);
     font-size: 12px;
     font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .token-output {
+    display: none;
+  }
+
+  .token-output.show {
+    display: block;
+  }
+
+  .team-list {
+    max-height: 180px;
   }
 
   /* ===== ADMIN ACCOUNTS LIST ===== */
@@ -1507,6 +1514,10 @@
       margin: 24px auto;
     }
 
+    .login-logo img {
+      height: 44px;
+    }
+
     body.client-view #client-banner,
     #client-banner {
       margin-left: 0;
@@ -1525,12 +1536,17 @@
       transition: opacity 0.18s ease, transform 0.18s ease;
     }
 
+    body.client-view #client-banner {
+      left: 14px;
+      right: auto;
+      top: 14px;
+    }
+
     body.client-banner-hidden #client-banner {
       transform: translateY(-6px);
     }
 
-    body.client-view #client-banner .client-info,
-    body.client-view #client-account-banner {
+    body.client-view #client-banner .client-info {
       grid-column: auto;
       justify-self: end;
       white-space: normal;
@@ -1548,6 +1564,8 @@
       text-align: right;
       justify-content: flex-end;
       line-height: 1;
+      text-align: left;
+      justify-content: flex-start;
     }
 
     body.client-view #header-subtitle #header-account,
@@ -1557,7 +1575,7 @@
 
     body.client-view .header {
       position: relative;
-      padding-top: 14px;
+      padding-top: 52px;
     }
 
     body.client-view .header {
@@ -1565,16 +1583,13 @@
     }
 
     body.client-view .header-title {
-      padding-right: 172px;
+      padding-right: 0;
       gap: 4px;
-      min-height: 30px;
+      min-height: 0;
     }
 
     body.client-view .header-title h1 {
-      min-height: 30px;
-      display: flex;
-      align-items: center;
-      line-height: 1;
+      display: none;
     }
 
     .layout {
@@ -1695,7 +1710,6 @@
       font-size: 11px;
     }
 
-    .header-controls .date-pill,
     .date-range-picker,
     .btn-icon {
       display: none !important;
@@ -1803,6 +1817,27 @@
       gap: 10px;
     }
 
+    .profile-page-grid,
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-actions {
+      flex-direction: column;
+    }
+
+    .profile-actions .btn-secondary,
+    .profile-actions .btn-copy,
+    .profile-actions .btn-inline,
+    .profile-actions .btn-meta {
+      width: 100%;
+      flex: 1 1 auto;
+    }
+
+    .connect-banner.profile-footer {
+      padding: 18px 16px;
+    }
+
     .section-header .btn-share,
     #content-contas .btn-share {
       width: 100%;
@@ -1885,11 +1920,11 @@
     }
 
     .modal-close {
-      top: 12px;
-      right: 12px;
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
     }
 
     .stack-fields {
@@ -2102,37 +2137,62 @@
     font-weight: 600;
   }
 
-  /* ===== MOBILE VIEW SECTION ===== */
-  .mobile-preview {
+  .profile-page-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .profile-page-stack {
     display: flex;
-    justify-content: center;
-    padding: 20px;
+    flex-direction: column;
+    gap: 14px;
   }
 
-  .mobile-frame {
-    width: 320px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 0 60px rgba(168,196,65,0.05);
+  .profile-page-grid > .card {
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
-  .mobile-kpi-grid {
+  .profile-card-wide {
+    grid-column: 1 / -1;
+  }
+
+  .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 12px;
+    gap: 12px;
   }
 
-  .mobile-kpi {
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 12px;
+  .info-grid .share-field:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 
-  .mobile-kpi .kpi-label { font-size: 9px; }
-  .mobile-kpi .kpi-value { font-size: 20px; }
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+
+  .profile-actions .btn-secondary,
+  .profile-actions .btn-copy,
+  .profile-actions .btn-inline {
+    flex: 1 1 160px;
+  }
+
+  .connect-banner.profile-footer {
+    margin-bottom: 0;
+    text-align: left;
+  }
+
+  .connect-banner.profile-footer .profile-actions {
+    margin-top: 14px;
+  }
+
 </style>
 </head>
 <body>
@@ -2141,16 +2201,10 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <svg viewBox="0 0 24 24" fill="none">
-        <rect width="24" height="24" rx="6" fill="#a8c441"/>
-        <path d="M7 17L12 7L17 17M9.5 13H14.5" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      <span>AdsDash</span>
+      <img src="./adsdash-logo.svg" alt="AdsDash">
     </div>
-    <p class="login-subtitle">Relatórios Meta Ads</p>
 
     <div id="admin-login">
-      <h2>Acesso Administrador</h2>
       <div class="field">
         <label>Usuário</label>
         <input type="text" id="login-user" placeholder="admin" autocomplete="username">
@@ -2163,10 +2217,35 @@
         </div>
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar</button>
-
-
-
+      <div class="auth-alt">
+        <button type="button" class="btn-inline" onclick="toggleAuthMode('register')">Cadastrar acesso com token</button>
+      </div>
       <div class="login-error" id="login-error">Usuário ou senha incorretos</div>
+    </div>
+
+    <div id="admin-register" style="display:none">
+      <h2>Cadastrar novo acesso</h2>
+      <div class="field">
+        <label>Token de cadastro</label>
+        <input type="text" id="register-token" placeholder="ADS-XXXX-XXXX" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Usuário</label>
+        <input type="text" id="register-user" placeholder="novo-admin" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <div class="password-field">
+          <input type="password" id="register-pass" placeholder="••••••••" autocomplete="new-password">
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-pass', this)">ver</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="registerAdminAccess()">Cadastrar acesso</button>
+      <div class="auth-alt">
+        <button type="button" class="btn-inline" onclick="toggleAuthMode('login')">Voltar ao login</button>
+      </div>
+      <div class="login-note">Esse cadastro cria um administrador secundário com acesso ao dashboard, mas sem permissão para gerar novos tokens.</div>
+      <div class="login-error" id="register-error">Token inválido</div>
     </div>
   </div>
 </div>
@@ -2177,7 +2256,6 @@
     <div class="client-dot"></div>
     <span>Visualização do cliente · <span id="client-name-banner">—</span></span>
   </div>
-  <span id="client-account-banner" style="font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;"></span>
 </div>
 
 <!-- MAIN APP -->
@@ -2186,10 +2264,7 @@
 
     <!-- SIDEBAR -->
     <nav class="sidebar">
-      <svg class="sidebar-logo" viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="10" fill="#a8c441"/>
-        <path d="M12 28L20 12L28 28M15.5 22H24.5" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
+      <img class="sidebar-logo" src="./adsdash-icon.svg" alt="AdsDash">
 
       <button class="nav-item active" onclick="switchTab('geral')" id="tab-geral">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2218,6 +2293,13 @@
       <div class="sidebar-bottom">
         <div class="sidebar-avatar" onclick="openProfileModal()" title="Perfil" id="user-avatar">A</div>
         <div class="profile-hint">perfil</div>
+        <button class="sidebar-logout" onclick="doLogout()" title="Sair da conta" aria-label="Sair da conta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
       </div>
     </nav>
 
@@ -2453,63 +2535,6 @@
           </div>
         </div>
 
-        <!-- TAB: DETALHAMENTO -->
-        <div class="tab-content" id="content-detalhamento">
-          <div class="section-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr">
-            <div class="card">
-              <div class="card-title">Novos Seguidores</div>
-              <div class="kpi-value" id="d-followers" style="font-size:36px"></div>
-              <div class="kpi-delta up" id="d-followers-delta"></div>
-            </div>
-            <div class="card">
-              <div class="card-title">Viz. pág. destino</div>
-              <div class="kpi-value" id="d-lpv" style="font-size:36px"></div>
-            </div>
-            <div class="card">
-              <div class="card-title">Gênero</div>
-              <div class="donut-wrap" style="margin-top:8px">
-                <div class="donut-canvas-wrap"><canvas id="gender-chart"></canvas></div>
-                <div class="donut-legend" id="gender-legend"></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">Add Carrinho p/ Anúncio</div>
-              <div class="donut-wrap" style="margin-top:8px">
-                <div class="donut-canvas-wrap"><canvas id="add-cart-chart"></canvas></div>
-                <div class="donut-legend" id="add-cart-legend"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Impressões ao longo do tempo</div>
-            <div class="chart-wrap" style="height:180px">
-              <canvas id="impressions-chart"></canvas>
-            </div>
-          </div>
-
-          <!-- CREATIVES TABLE -->
-          <div class="card" style="margin-top:14px">
-            <div class="card-title">Performance por Criativo</div>
-            <div style="overflow-x:auto">
-              <table class="campaigns-table" id="creatives-table-detail">
-                <thead>
-                  <tr>
-                    <th>Criativo</th>
-                    <th>Add Carrinho</th>
-                    <th>Compras</th>
-                    <th>Cliques</th>
-                    <th>Valor gasto</th>
-                  </tr>
-                </thead>
-                <tbody id="creatives-tbody-detail">
-                  <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
         <!-- TAB: CRIATIVOS -->
         <div class="tab-content" id="content-criativos">
           <div class="section-header">
@@ -2542,59 +2567,95 @@
           </div>
         </div>
 
-      </div>
-    </div>
-  </div>
-</div>
+        <div class="tab-content" id="content-perfil">
+          <div class="section-header">
+            <h2>Perfil e Meta Apps</h2>
+            <div class="badge" id="profile-role-badge">admin</div>
+          </div>
 
-<!-- PROFILE MODAL -->
-<div class="modal-overlay" id="profile-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeProfileModal()">×</button>
-    <h3>Perfil e Configurações</h3>
-    <p>Gerencie perfis Meta, tokens conectados e o perfil ativo do dashboard.</p>
+          <div class="profile-page-grid">
+            <div class="card">
+              <div class="card-title">Informações do perfil</div>
 
-    <div class="stack-fields">
-      <div class="profile-card">
-        <div class="profile-meta">
-          <strong id="profile-user-label">Administrador</strong>
-          <span id="profile-user-subtitle">Gerencie integração e sessão do dashboard</span>
-        </div>
+              <div class="info-grid">
+                <div class="share-field">
+                  <label>Empresa</label>
+                  <input type="text" id="profile-company" placeholder="Opcional">
+                </div>
+                <div class="share-field">
+                  <label>Nome</label>
+                  <input type="text" id="profile-display-name" placeholder="Seu nome">
+                </div>
+                <div class="share-field">
+                  <label>Número de celular</label>
+                  <input type="text" id="profile-phone" placeholder="(00) 00000-0000">
+                </div>
+                <div class="share-field">
+                  <label>Email</label>
+                  <input type="email" id="profile-email" placeholder="voce@empresa.com">
+                </div>
+              </div>
 
-        <div class="share-field">
-          <label>Nome do perfil</label>
-          <input type="text" id="profile-name" placeholder="Ex: BK Marketing">
-        </div>
-
-        <div class="share-field">
-          <label>Meta App ID</label>
-          <input type="text" id="profile-meta-app-id" placeholder="Ex: 123456789012345">
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-secondary" onclick="doLogout()">Sair</button>
-          <button class="btn-secondary" onclick="resetProfileForm()">Novo perfil</button>
-          <button class="btn-copy" onclick="saveProfileSettings()">Salvar perfil</button>
-        </div>
-
-        <div class="profile-note">
-          O token continua sendo obtido via Facebook Login. Quando ele expirar, este perfil será marcado para reconexão e você poderá renovar sem perder a configuração.
-        </div>
-      </div>
-
-      <div class="saved-list-card">
-        <div class="saved-list-header">
-          <div class="saved-list-title">Perfis Meta salvos</div>
-          <button class="btn-inline" type="button" onclick="connectMeta()">Conectar / renovar token</button>
-        </div>
-        <div class="saved-list" id="profiles-list">
-          <div class="saved-item">
-            <div class="saved-item-main">
-              <div class="saved-item-title">Nenhum perfil salvo</div>
-              <div class="saved-item-subtitle">Crie um perfil e conecte sua conta Meta.</div>
+              <div class="profile-actions">
+                <button class="btn-copy" onclick="saveAdminProfileDetails()">Salvar informações</button>
+              </div>
             </div>
+
+            <div class="card">
+              <div class="card-title">Cadastrar novo Meta App</div>
+              <div class="share-field">
+                <label>Nome do Meta App</label>
+                <input type="text" id="profile-name" placeholder="Nome do APP">
+              </div>
+              <div class="share-field">
+                <label>Meta App ID</label>
+                <input type="text" id="profile-meta-app-id" placeholder="Ex: 123456789012345">
+              </div>
+              <div class="profile-actions">
+                <button class="btn-secondary" onclick="resetProfileForm()">Limpar campos</button>
+                <button class="btn-copy" onclick="saveProfileSettings()">Salvar Meta App</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="saved-list-header">
+                <div class="saved-list-title">Meta Apps cadastrados</div>
+              </div>
+              <div class="saved-list" id="profiles-list">
+                <div class="saved-item">
+                  <div class="saved-item-main">
+                    <div class="saved-item-title">Nenhum Meta App salvo</div>
+                    <div class="saved-item-subtitle">Cadastre um Meta App para conectar contas.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" id="admin-access-card" style="display:none">
+              <div class="saved-list-header">
+                <div class="saved-list-title">Cadastro de sub-admin</div>
+                <button class="btn-inline" type="button" onclick="generateAdminInviteToken()">Gerar token</button>
+              </div>
+              <div class="profile-note" style="margin-top:0">Acessos criados por esse token entram como sub-admins e não podem gerar novos tokens.</div>
+              <div class="token-output" id="admin-token-output">
+                <div class="share-url-box" id="admin-token-value">—</div>
+                <div class="profile-actions">
+                  <button class="btn-copy" onclick="copyAdminInviteToken()">Copiar token</button>
+                </div>
+              </div>
+              <div class="saved-list team-list" id="admin-users-list">
+                <div class="saved-item">
+                  <div class="saved-item-main">
+                    <div class="saved-item-title">Nenhum sub-admin</div>
+                    <div class="saved-item-subtitle">Gere um token para liberar um novo acesso.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -2669,6 +2730,19 @@
   </div>
 </div>
 
+<!-- RECONNECT MODAL -->
+<div class="modal-overlay" id="reconnect-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeReconnectModal()">×</button>
+    <h3>Reconectar token Meta</h3>
+    <p id="reconnect-modal-text">O token da sua conta Meta expirou. Reconecte para voltar a carregar os dados reais.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReconnectModal()">Agora não</button>
+      <button class="btn-copy" onclick="reconnectMetaToken()">Reconectar agora</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">Link copiado!</div>
 
@@ -2697,6 +2771,10 @@ const STORAGE_KEYS = {
   profiles: 'adsdash_meta_profiles',
   activeProfileId: 'adsdash_active_profile_id',
   clients: 'adsdash_saved_clients',
+  adminUsers: 'adsdash_admin_users',
+  adminProfiles: 'adsdash_admin_profiles',
+  adminInviteTokens: 'adsdash_admin_invite_tokens',
+  adminSession: 'adsdash_admin_session',
 };
 
 const DEMO_ACCOUNT = {
@@ -2721,8 +2799,6 @@ const DEMO_DATA = {
     video75: 648,
     pageView: 247,
     ctr: 0.65,
-    hookRate: 0.01,
-    postActions: 84,
   },
   campaigns: [
     { name: '[RMKT] VENDAS | CARDAPIO 20/04', reach: 5400, impressions: 10200, clicks: 88, addToCart: 9, purchases: 5, spend: 315.40, roas: 9.18 },
@@ -2748,26 +2824,33 @@ const DEMO_DATA = {
 // ============================================================
 // STATE
 // ============================================================
-let state = {
-  isAdmin: false,
-  isClientView: false,
-  clientName: '',
-  accessToken: null,
-  profiles: [],
-  activeProfileId: null,
-  clients: [],
-  editingProfileId: null,
-  editingClientId: null,
-  adAccounts: [],
-  selectedAccount: null,
-  lockedAccountId: null,
-  data: null,
-  campaigns: [],
-  creatives: [],
-  selectedOverviewMetric: 'thruplay',
-  currentOverviewMetrics: {},
-  charts: {},
-};
+function createInitialState() {
+  return {
+    isAdmin: false,
+    isMasterAdmin: false,
+    isClientView: false,
+    clientName: '',
+    adminUser: '',
+    accessToken: null,
+    profiles: [],
+    activeProfileId: null,
+    clients: [],
+    adminUsers: [],
+    adminProfiles: {},
+    editingProfileId: null,
+    editingClientId: null,
+    adAccounts: [],
+    selectedAccount: null,
+    lockedAccountId: null,
+    campaigns: [],
+    creatives: [],
+    selectedOverviewMetric: 'thruplay',
+    currentOverviewMetrics: {},
+    charts: {},
+  };
+}
+
+let state = createInitialState();
 
 let lastMobileScrollY = 0;
 
@@ -2853,6 +2936,49 @@ function saveClients(clients) {
   state.clients = clients;
 }
 
+function getAdminUsers() {
+  return readJsonStorage(STORAGE_KEYS.adminUsers, []);
+}
+
+function saveAdminUsers(adminUsers) {
+  writeJsonStorage(STORAGE_KEYS.adminUsers, adminUsers);
+  state.adminUsers = adminUsers;
+}
+
+function getAdminProfiles() {
+  return readJsonStorage(STORAGE_KEYS.adminProfiles, {});
+}
+
+function saveAdminProfiles(adminProfiles) {
+  writeJsonStorage(STORAGE_KEYS.adminProfiles, adminProfiles);
+  state.adminProfiles = adminProfiles;
+}
+
+function getAdminInviteTokens() {
+  return readJsonStorage(STORAGE_KEYS.adminInviteTokens, []);
+}
+
+function saveAdminInviteTokens(tokens) {
+  writeJsonStorage(STORAGE_KEYS.adminInviteTokens, tokens);
+}
+
+function getAdminSession() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEYS.adminSession);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveAdminSession(sessionData) {
+  sessionStorage.setItem(STORAGE_KEYS.adminSession, JSON.stringify(sessionData));
+}
+
+function clearAdminSession() {
+  sessionStorage.removeItem(STORAGE_KEYS.adminSession);
+}
+
 function getActiveProfileId() {
   return localStorage.getItem(STORAGE_KEYS.activeProfileId) || '';
 }
@@ -2908,6 +3034,31 @@ function markActiveProfileTokenInvalid() {
   sessionStorage.removeItem('meta_token');
   clearMetaToken();
   renderProfilesList();
+
+  if (state.isAdmin && !state.isClientView) {
+    openReconnectModal(profiles[index]);
+  }
+}
+
+function openReconnectModal(profile = getActiveProfile()) {
+  if (!state.isAdmin || state.isClientView) return;
+
+  const modal = document.getElementById('reconnect-modal');
+  const text = document.getElementById('reconnect-modal-text');
+  if (!modal || !text) return;
+
+  const profileName = profile?.name || 'perfil Meta ativo';
+  text.textContent = `O token do "${profileName}" expirou. Reconecte para voltar a carregar os dados reais do dashboard.`;
+  modal.style.display = 'flex';
+}
+
+function closeReconnectModal() {
+  document.getElementById('reconnect-modal').style.display = 'none';
+}
+
+function reconnectMetaToken() {
+  closeReconnectModal();
+  connectMeta();
 }
 
 function syncLegacyStorage() {
@@ -2936,6 +3087,8 @@ function initializeSavedData() {
   const profiles = syncLegacyStorage();
   state.profiles = profiles.length ? profiles : getProfiles();
   state.clients = getClients();
+  state.adminUsers = getAdminUsers();
+  state.adminProfiles = getAdminProfiles();
 
   if (!state.activeProfileId) {
     const activeId = getActiveProfileId();
@@ -2955,19 +3108,7 @@ function initializeSavedData() {
 }
 
 function loadProfileSettings() {
-  const activeProfile = getActiveProfile();
-  const profileNameInput = document.getElementById('profile-name');
-  const appIdInput = document.getElementById('profile-meta-app-id');
-
-  if (profileNameInput) {
-    profileNameInput.value = activeProfile?.name || '';
-  }
-  if (appIdInput) {
-    const appId = activeProfile?.appId || getMetaAppId();
-    appIdInput.value = appId === 'SEU_APP_ID_AQUI' ? '' : appId;
-  }
-
-  state.editingProfileId = activeProfile?.id || null;
+  resetProfileForm();
 }
 
 function saveProfileSettings() {
@@ -3009,14 +3150,17 @@ function saveProfileSettings() {
   }
   renderProfilesList();
   updateActiveProfileUI();
-  showToast('Perfil salvo com sucesso!');
+  resetProfileForm();
+  showToast('Meta App salvo com sucesso!');
   closeProfileModal();
 }
 
 function resetProfileForm() {
   state.editingProfileId = null;
-  document.getElementById('profile-name').value = '';
-  document.getElementById('profile-meta-app-id').value = '';
+  const profileNameInput = document.getElementById('profile-name');
+  const appIdInput = document.getElementById('profile-meta-app-id');
+  if (profileNameInput) profileNameInput.value = '';
+  if (appIdInput) appIdInput.value = '';
 }
 
 function editProfile(profileId) {
@@ -3121,6 +3265,245 @@ function renderProfilesList() {
       </div>
     `;
   }).join('');
+}
+
+function getCurrentAdminKey() {
+  return state.adminUser || CONFIG.ADMIN_USER;
+}
+
+function getCurrentAdminProfile() {
+  const key = getCurrentAdminKey();
+  return state.adminProfiles[key] || {
+    company: '',
+    name: '',
+    phone: '',
+    email: '',
+  };
+}
+
+function loadAdminProfileDetails() {
+  const profile = getCurrentAdminProfile();
+  const companyInput = document.getElementById('profile-company');
+  const nameInput = document.getElementById('profile-display-name');
+  const phoneInput = document.getElementById('profile-phone');
+  const emailInput = document.getElementById('profile-email');
+
+  if (companyInput) companyInput.value = profile.company || '';
+  if (nameInput) nameInput.value = profile.name || '';
+  if (phoneInput) phoneInput.value = profile.phone || '';
+  if (emailInput) emailInput.value = profile.email || '';
+}
+
+function saveAdminProfileDetails() {
+  const key = getCurrentAdminKey();
+  const nextProfiles = { ...state.adminProfiles };
+  nextProfiles[key] = {
+    company: document.getElementById('profile-company')?.value.trim() || '',
+    name: document.getElementById('profile-display-name')?.value.trim() || '',
+    phone: document.getElementById('profile-phone')?.value.trim() || '',
+    email: document.getElementById('profile-email')?.value.trim() || '',
+  };
+  saveAdminProfiles(nextProfiles);
+  showToast('Informações do perfil salvas.');
+}
+
+function updateProfileAccessUI() {
+  const label = document.getElementById('profile-user-label');
+  const subtitle = document.getElementById('profile-user-subtitle');
+  const accessCard = document.getElementById('admin-access-card');
+  const roleBadge = document.getElementById('profile-role-badge');
+
+  if (label) {
+    label.textContent = state.isMasterAdmin ? 'Administrador principal' : 'Sub-admin';
+  }
+
+  if (subtitle) {
+    subtitle.textContent = state.isMasterAdmin
+      ? 'Controle total do dashboard e dos convites de acesso.'
+      : 'Acesso administrativo ao dashboard, sem permissão para gerar novos tokens.';
+  }
+
+  if (accessCard) {
+    accessCard.style.display = state.isMasterAdmin ? 'block' : 'none';
+  }
+
+  if (roleBadge) {
+    roleBadge.textContent = state.isMasterAdmin ? 'admin principal' : 'sub-admin';
+  }
+}
+
+function renderAdminUsersList() {
+  const list = document.getElementById('admin-users-list');
+  if (!list) return;
+
+  if (!state.adminUsers.length) {
+    list.innerHTML = `
+      <div class="saved-item">
+        <div class="saved-item-main">
+          <div class="saved-item-title">Nenhum sub-admin</div>
+          <div class="saved-item-subtitle">Gere um token para liberar um novo acesso.</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = state.adminUsers.map(admin => `
+    <div class="saved-item">
+      <div class="saved-item-main">
+        <div class="saved-item-title">${admin.username}</div>
+        <div class="saved-item-subtitle">Criado em ${new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(admin.createdAt))}</div>
+        <div class="status-chip ok">sub-admin</div>
+      </div>
+      <div class="saved-item-actions">
+        <button class="btn-inline" type="button" onclick="deleteAdminUser('${admin.id}')">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function generateAdminInviteToken() {
+  if (!state.isMasterAdmin) return;
+
+  const token = `ADS-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const tokens = getAdminInviteTokens();
+  tokens.unshift({
+    id: createId('invite'),
+    token,
+    createdAt: new Date().toISOString(),
+    createdBy: state.adminUser || CONFIG.ADMIN_USER,
+    used: false,
+    usedBy: '',
+  });
+  saveAdminInviteTokens(tokens);
+
+  const output = document.getElementById('admin-token-output');
+  const value = document.getElementById('admin-token-value');
+  if (output) output.classList.add('show');
+  if (value) value.textContent = token;
+  showToast('Token de cadastro gerado.');
+}
+
+function copyAdminInviteToken() {
+  const value = document.getElementById('admin-token-value')?.textContent || '';
+  if (!value || value === '—') {
+    showToast('Gere um token primeiro.');
+    return;
+  }
+  navigator.clipboard.writeText(value).then(() => {
+    showToast('Token copiado!');
+  }).catch(() => {
+    showToast('Não foi possível copiar o token.');
+  });
+}
+
+function deleteAdminUser(adminId) {
+  if (!state.isMasterAdmin) return;
+  const admin = state.adminUsers.find(item => item.id === adminId);
+  if (!admin) return;
+  if (!confirm(`Remover o acesso "${admin.username}"?`)) return;
+
+  saveAdminUsers(state.adminUsers.filter(item => item.id !== adminId));
+  renderAdminUsersList();
+  showToast('Acesso removido.');
+}
+
+function toggleAuthMode(mode) {
+  const login = document.getElementById('admin-login');
+  const register = document.getElementById('admin-register');
+  const loginError = document.getElementById('login-error');
+  const registerError = document.getElementById('register-error');
+
+  if (loginError) loginError.style.display = 'none';
+  if (registerError) registerError.style.display = 'none';
+
+  if (mode === 'register') {
+    if (login) login.style.display = 'none';
+    if (register) register.style.display = 'block';
+    document.getElementById('register-token')?.focus();
+    return;
+  }
+
+  if (login) login.style.display = 'block';
+  if (register) register.style.display = 'none';
+}
+
+function registerAdminAccess() {
+  const tokenInput = document.getElementById('register-token');
+  const userInput = document.getElementById('register-user');
+  const passInput = document.getElementById('register-pass');
+  const error = document.getElementById('register-error');
+  const token = tokenInput.value.trim().toUpperCase();
+  const username = userInput.value.trim();
+  const password = passInput.value;
+
+  if (!token || !username || !password) {
+    error.textContent = 'Preencha token, usuário e senha.';
+    error.style.display = 'block';
+    return;
+  }
+
+  if (username === CONFIG.ADMIN_USER || state.adminUsers.some(admin => admin.username === username)) {
+    error.textContent = 'Esse usuário já existe.';
+    error.style.display = 'block';
+    return;
+  }
+
+  const tokens = getAdminInviteTokens();
+  const tokenIndex = tokens.findIndex(item => item.token === token && !item.used);
+  if (tokenIndex < 0) {
+    error.textContent = 'Token inválido ou já utilizado.';
+    error.style.display = 'block';
+    return;
+  }
+
+  const nextAdmin = {
+    id: createId('admin'),
+    username,
+    password,
+    role: 'sub_admin',
+    createdAt: new Date().toISOString(),
+  };
+
+  saveAdminUsers([nextAdmin, ...state.adminUsers]);
+  saveAdminProfiles({
+    ...state.adminProfiles,
+    [username]: { company: '', name: '', phone: '', email: '' },
+  });
+  tokens[tokenIndex] = {
+    ...tokens[tokenIndex],
+    used: true,
+    usedBy: username,
+    usedAt: new Date().toISOString(),
+  };
+  saveAdminInviteTokens(tokens);
+
+  tokenInput.value = '';
+  userInput.value = '';
+  passInput.value = '';
+  error.style.display = 'none';
+  document.getElementById('login-user').value = username;
+  toggleAuthMode('login');
+  showToast('Acesso cadastrado com sucesso.');
+}
+
+function applyAdminSession(session) {
+  if (!session) return false;
+
+  if (session.role === 'master' && session.username === CONFIG.ADMIN_USER) {
+    state.isAdmin = true;
+    state.isMasterAdmin = true;
+    state.adminUser = session.username;
+    return true;
+  }
+
+  const admin = state.adminUsers.find(item => item.username === session.username);
+  if (!admin) return false;
+
+  state.isAdmin = true;
+  state.isMasterAdmin = false;
+  state.adminUser = admin.username;
+  return true;
 }
 
 function getPresetRange(preset) {
@@ -3382,20 +3765,32 @@ function doLogin() {
 
   if (user === ADMIN_CREDENTIALS.user && pass === ADMIN_CREDENTIALS.pass) {
     state.isAdmin = true;
-    sessionStorage.setItem('is_admin', 'true');
+    state.isMasterAdmin = true;
+    state.adminUser = user;
+    saveAdminSession({ role: 'master', username: user });
     showApp();
-  } else {
-    err.textContent = user !== ADMIN_CREDENTIALS.user
-      ? 'Usuário incorreto.'
-      : 'Senha incorreta.';
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 3000);
+    return;
   }
+
+  const secondaryAdmin = state.adminUsers.find(admin => admin.username === user && admin.password === pass);
+  if (secondaryAdmin) {
+    state.isAdmin = true;
+    state.isMasterAdmin = false;
+    state.adminUser = secondaryAdmin.username;
+    saveAdminSession({ role: 'secondary', username: secondaryAdmin.username });
+    showApp();
+    return;
+  }
+
+  err.textContent = 'Usuário ou senha incorretos.';
+  err.style.display = 'block';
+  setTimeout(() => err.style.display = 'none', 3000);
 }
 
-function togglePasswordVisibility() {
-  const input = document.getElementById('login-pass');
-  const button = document.getElementById('toggle-password-btn');
+function togglePasswordVisibility(inputId = 'login-pass', buttonEl = null) {
+  const input = document.getElementById(inputId);
+  const button = buttonEl || document.getElementById('toggle-password-btn');
+  if (!input || !button) return;
   const isHidden = input.type === 'password';
 
   input.type = isHidden ? 'text' : 'password';
@@ -3404,14 +3799,18 @@ function togglePasswordVisibility() {
 
 function doLogout() {
   if (!confirm('Sair do dashboard?')) return;
-  sessionStorage.clear();
+  clearAdminSession();
+  sessionStorage.removeItem('meta_token');
+  sessionStorage.removeItem('pending_profile_id');
   closeProfileModal();
   document.body.classList.remove('client-view');
   document.body.classList.remove('client-banner-hidden');
-  state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, profiles: [], activeProfileId: null, clients: [], editingProfileId: null, editingClientId: null, adAccounts: [], selectedAccount: null, lockedAccountId: null, data: null, campaigns: [], creatives: [], charts: {} };
+  state = createInitialState();
+  initializeSavedData();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('client-banner').style.display = 'none';
+  toggleAuthMode('login');
 }
 
 // ============================================================
@@ -3451,13 +3850,22 @@ document.addEventListener('DOMContentLoaded', function() {
   syncDateRangeDisplay();
   initializeSavedData();
   loadProfileSettings();
+  loadAdminProfileDetails();
   renderProfilesList();
   renderSavedClientsList();
   updateActiveProfileUI();
+  updateProfileAccessUI();
+  renderAdminUsersList();
+  toggleAuthMode('login');
 
   // Enter key on login screen
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !state.isAdmin && !state.isClientView) doLogin();
+    if (e.key !== 'Enter' || state.isAdmin || state.isClientView) return;
+    if (document.getElementById('admin-register')?.style.display === 'block') {
+      registerAdminAccess();
+    } else {
+      doLogin();
+    }
   });
 
   // 1. OAuth callback? (hash contains access_token)
@@ -3486,13 +3894,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       sessionStorage.removeItem('pending_profile_id');
       history.replaceState(null, '', window.location.pathname + window.location.search);
-      if (sessionStorage.getItem('is_admin') === 'true') {
-        state.isAdmin = true;
+      if (applyAdminSession(getAdminSession())) {
         showApp();
       } else {
-        // Token arrived but admin session gone — ask to re-login
-        sessionStorage.setItem('pending_token', token);
-        // Show login screen (already visible by default)
+        clearAdminSession();
       }
       return;
     }
@@ -3506,9 +3911,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // 3. Saved admin session?
-  const savedAdmin = sessionStorage.getItem('is_admin');
-  if (savedAdmin === 'true') {
-    state.isAdmin = true;
+  const savedAdminSession = getAdminSession();
+  if (applyAdminSession(savedAdminSession)) {
     const savedToken = sessionStorage.getItem('meta_token') || getActiveProfile()?.token || getSavedMetaToken();
     if (savedToken) state.accessToken = savedToken;
     showApp();
@@ -3530,9 +3934,12 @@ function showApp() {
   document.getElementById('user-avatar').textContent = state.isAdmin ? 'A' : 'C';
   document.getElementById('share-btn').style.display = state.isAdmin ? 'flex' : 'none';
   document.getElementById('tab-contas').style.display = state.isAdmin ? 'flex' : 'none';
+  loadAdminProfileDetails();
   renderProfilesList();
   renderSavedClientsList();
   updateActiveProfileUI();
+  updateProfileAccessUI();
+  renderAdminUsersList();
 
   if (state.accessToken) {
     updateMetaStatus(true);
@@ -3541,6 +3948,10 @@ function showApp() {
     updateMetaStatus(false);
     document.getElementById('connect-banner').style.display = 'block';
     fetchAdAccounts();
+  }
+
+  if (getActiveProfile()?.tokenInvalid) {
+    openReconnectModal();
   }
 }
 
@@ -3557,7 +3968,6 @@ function showClientView(params) {
   const banner = document.getElementById('client-banner');
   banner.style.display = 'flex';
   document.getElementById('client-name-banner').textContent = params.clientName;
-  document.getElementById('client-account-banner').textContent = '';
 
   // Set dates
   if (params.dateStart) document.getElementById('date-start').value = params.dateStart;
@@ -3801,12 +4211,10 @@ function processRealData(insights, campaigns, daily, ads) {
 
   const cpp = purchases > 0 ? spend / purchases : 0;
   const cac = addToCart > 0 ? spend / addToCart : 0;
-  const hookRate = impressions > 0 ? (thruplays / impressions) : 0;
-  const postActions = getActionValue(d.actions, 'post_engagement');
 
   updateKPIs({
     impressions, reach, spend, purchases, cpp, addToCart,
-    convValue, roas, cpm, thruplays, video50, video75, pageView, ctr, hookRate, postActions
+    convValue, roas, cpm, thruplays, video50, video75, pageView, ctr
   });
 
   // Campaigns
@@ -3836,10 +4244,8 @@ function processRealData(insights, campaigns, daily, ads) {
   const dailyLabels = (daily || []).map(d => d.date_start);
   const dailyAddCart = (daily || []).map(d => getActionValue(d.actions, 'add_to_cart'));
   const dailyPurchases = (daily || []).map(d => getActionValue(d.actions, 'purchase'));
-  const dailyImpressions = (daily || []).map(d => parseInt(d.impressions || 0));
 
   renderLineChart(dailyLabels, dailyAddCart, dailyPurchases);
-  renderImpressionsChart(dailyLabels, dailyImpressions);
 
   // Ads / creatives
   state.creatives = (ads || []).map(ad => {
@@ -3863,7 +4269,6 @@ function processRealData(insights, campaigns, daily, ads) {
 
   renderCreatives();
   renderDonutChart();
-  renderDetailTab();
 }
 
 function loadDemoData() {
@@ -3874,14 +4279,8 @@ function loadDemoData() {
 
   renderCampaignsTable();
   renderLineChart(DEMO_DATA.daily.labels, DEMO_DATA.daily.addToCart, DEMO_DATA.daily.purchases);
-  renderImpressionsChart(DEMO_DATA.daily.labels, DEMO_DATA.daily.impressions);
   renderCreatives();
   renderDonutChart();
-  renderDetailTab();
-
-  document.getElementById('d-followers').textContent = '124';
-  document.getElementById('d-followers-delta').textContent = '+18,1%';
-  document.getElementById('d-lpv').textContent = '713';
 }
 
 // ============================================================
@@ -3910,7 +4309,7 @@ function renderEmptyState() {
   document.getElementById('funnel-wrap').innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px 10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Conecte sua conta<br>Meta para ver o funil</div>`;
 
   // Metrics
-  ['bm-cac','bm-cpp','bm-cpm','mm-video','mm-roas','mm-conv','mm-hook','mm-ctr','mm-post'].forEach(id => {
+  ['bm-cac','bm-cpp','bm-cpm','mm-video','mm-roas','mm-conv'].forEach(id => {
     const el = document.getElementById(id); if(el) el.textContent = '';
   });
   ['mm-roas-delta','mm-conv-delta'].forEach(id => {
@@ -3920,7 +4319,6 @@ function renderEmptyState() {
 
   // Charts — empty
   renderLineChart([], [], []);
-  renderImpressionsChart([], []);
 
   // Tables
   document.getElementById('campaigns-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Conecte sua conta Meta para ver as campanhas</td></tr>`;
@@ -3929,18 +4327,10 @@ function renderEmptyState() {
   // Creatives
   document.getElementById('creatives-grid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">Conecte sua conta Meta para visualizar os criativos</div>`;
   document.getElementById('creatives-badge').textContent = '0 criativos';
-  document.getElementById('creatives-tbody-detail').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>`;
-
-  // Detail tab
-  document.getElementById('d-followers').textContent = '';
-  document.getElementById('d-followers-delta').textContent = '';
-  document.getElementById('d-lpv').textContent = '';
 
   // Donut charts — clear
-  destroyChart('donut'); destroyChart('gender'); destroyChart('addcart');
+  destroyChart('donut');
   document.getElementById('donut-legend').innerHTML = `<div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>`;
-  document.getElementById('gender-legend').innerHTML = '';
-  document.getElementById('add-cart-legend').innerHTML = '';
 
   state.campaigns = [];
   state.creatives = [];
@@ -4029,12 +4419,12 @@ function updateOverviewMetric(metricKey) {
 
 function renderFunnel(steps) {
   const colors = ['#4a9eff', '#5cb8f0', '#70c8e0', '#85d0c8'];
-  const maxWidth = 300;
+  const widths = [300, 252, 212, 168];
   const wrap = document.getElementById('funnel-wrap');
   wrap.innerHTML = '';
 
   steps.forEach((step, i) => {
-    const width = maxWidth * (1 - i * 0.15);
+    const width = widths[i] || Math.max(144, widths[widths.length - 1] - ((i - widths.length + 1) * 24));
     const div = document.createElement('div');
     div.className = 'funnel-step';
     div.innerHTML = `
@@ -4093,30 +4483,12 @@ function renderCreatives() {
       </div>
     </div>
   `).join('');
-
-  // Detail table
-  const tbody = document.getElementById('creatives-tbody-detail');
-  tbody.innerHTML = state.creatives.map(c => `
-    <tr>
-      <td>${c.name}</td>
-      <td class="tag-highlight">${c.addToCart}</td>
-      <td class="tag-highlight">${c.purchases}</td>
-      <td>${c.clicks}</td>
-      <td>R$ ${fmtMoney(c.spend)}</td>
-    </tr>
-  `).join('');
-}
-
-function renderDetailTab() {
-  renderGenderChart();
-  renderAddCartDonut();
 }
 
 // ============================================================
 // CHARTS
 // ============================================================
 const COLORS = ['#a8c441','#c8e05a','#7fa832','#e8f091','#5a7820'];
-const COLORS_GENDER = ['#a8c441','#4a9eff','#888'];
 
 function destroyChart(id) {
   if (state.charts[id]) { state.charts[id].destroy(); delete state.charts[id]; }
@@ -4184,88 +4556,21 @@ function renderDonutChart() {
   `).join('');
 }
 
-function renderGenderChart() {
-  destroyChart('gender');
-  const ctx = document.getElementById('gender-chart').getContext('2d');
-  state.charts['gender'] = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Female', 'Male', 'Unknown'],
-      datasets: [{ data: [40.7, 59.3, 0], backgroundColor: COLORS_GENDER, borderWidth: 0 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '65%',
-      plugins: { legend: { display: false } }
-    }
-  });
-
-  document.getElementById('gender-legend').innerHTML = ['Female','Male','Unknown'].map((g, i) => `
-    <div class="legend-item"><div class="legend-dot" style="background:${COLORS_GENDER[i]}"></div><span>${g}</span></div>
-  `).join('');
-}
-
-function renderAddCartDonut() {
-  destroyChart('addcart');
-  const ctx = document.getElementById('add-cart-chart').getContext('2d');
-  const data = state.creatives.slice(0, 5);
-  const total = data.reduce((s, c) => s + c.addToCart, 0) || 1;
-
-  state.charts['addcart'] = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: data.map(c => c.name),
-      datasets: [{ data: data.map(c => c.addToCart), backgroundColor: COLORS, borderWidth: 0 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '65%',
-      plugins: { legend: { display: false } }
-    }
-  });
-
-  document.getElementById('add-cart-legend').innerHTML = data.map((c, i) => `
-    <div class="legend-item"><div class="legend-dot" style="background:${COLORS[i]}"></div><span>${c.name} · ${(c.addToCart/total*100).toFixed(1)}%</span></div>
-  `).join('');
-}
-
-function renderImpressionsChart(labels, impressions) {
-  destroyChart('impressions');
-  const ctx = document.getElementById('impressions-chart').getContext('2d');
-  state.charts['impressions'] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Impressões',
-        data: impressions,
-        borderColor: '#a8c441',
-        backgroundColor: 'rgba(168,196,65,0.08)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 2,
-        borderWidth: 2,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#555', font: { size: 9 }, maxTicksLimit: 8 }, grid: { color: '#1a1a1a' }, border: { display: false } },
-        y: { ticks: { color: '#555', font: { size: 9 }, callback: v => fmtNum(v) }, grid: { color: '#1a1a1a' }, border: { display: false } },
-      }
-    }
-  });
-}
 
 // ============================================================
 // TABS
 // ============================================================
 function switchTab(tab) {
-  ['geral','criativos','contas'].forEach(t => {
+  ['geral','criativos','contas','perfil'].forEach(t => {
     document.getElementById('tab-' + t)?.classList.remove('active');
     document.getElementById('content-' + t)?.classList.remove('active');
   });
+  document.getElementById('user-avatar')?.classList.remove('active');
   document.getElementById('tab-' + tab)?.classList.add('active');
   document.getElementById('content-' + tab)?.classList.add('active');
+  if (tab === 'perfil') {
+    document.getElementById('user-avatar')?.classList.add('active');
+  }
 }
 
 // ============================================================
@@ -4298,16 +4603,15 @@ function closeShareModal() {
 function openProfileModal() {
   if (state.isClientView) return;
   loadProfileSettings();
+  loadAdminProfileDetails();
   renderProfilesList();
-  document.getElementById('profile-user-label').textContent = state.isAdmin ? 'Administrador' : 'Perfil';
-  document.getElementById('profile-user-subtitle').textContent = state.isClientView
-    ? 'Visualização compartilhada'
-    : 'Gerencie integração e sessão do dashboard';
-  document.getElementById('profile-modal').style.display = 'flex';
+  renderAdminUsersList();
+  updateProfileAccessUI();
+  switchTab('perfil');
 }
 
 function closeProfileModal() {
-  document.getElementById('profile-modal').style.display = 'none';
+  return;
 }
 
 function generateClientLink() {
@@ -4394,8 +4698,8 @@ document.getElementById('share-modal').addEventListener('click', function(e) {
   if (e.target === this) closeShareModal();
 });
 
-document.getElementById('profile-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeProfileModal();
+document.getElementById('reconnect-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReconnectModal();
 });
 
 document.addEventListener('click', function(e) {
