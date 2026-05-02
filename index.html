@@ -276,6 +276,10 @@
     display: none !important;
   }
 
+  body.client-view .sidebar-bottom {
+    display: none !important;
+  }
+
   body.client-view .header {
     top: 44px;
   }
@@ -3721,6 +3725,7 @@ function closeShareModal() {
 }
 
 function openProfileModal() {
+  if (state.isClientView) return;
   loadProfileSettings();
   renderProfilesList();
   document.getElementById('profile-user-label').textContent = state.isAdmin ? 'Administrador' : 'Perfil';
