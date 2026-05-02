@@ -577,7 +577,11 @@
   .funnel-card {
     display: flex;
     flex-direction: column;
-    min-height: 430px;
+    height: 272px;
+  }
+
+  .overview-compact-card {
+    height: 272px;
   }
 
   /* ===== FUNNEL ===== */
@@ -585,10 +589,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 0;
-    margin: 8px 0 0;
-    padding: 4px 0 0;
+    justify-content: flex-start;
+    gap: 4px;
+    margin: 4px 0 0;
+    padding: 0;
     flex: 1;
   }
 
@@ -598,11 +602,11 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    flex: 1;
+    flex: 0 0 auto;
   }
 
   .funnel-bar {
-    height: 52px;
+    height: 40px;
     border-radius: 6px;
     display: flex;
     flex-direction: column;
@@ -617,12 +621,12 @@
 
   .funnel-bar:hover { opacity: 0.9; }
 
-  .funnel-bar .f-label { font-size: 10px; font-weight: 600; opacity: 0.72; margin-bottom: 2px; font-family: 'IBM Plex Mono', monospace; }
-  .funnel-bar .f-val { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .funnel-bar .f-label { font-size: 9px; font-weight: 600; opacity: 0.72; margin-bottom: 1px; font-family: 'IBM Plex Mono', monospace; }
+  .funnel-bar .f-val { font-size: 14px; font-weight: 800; letter-spacing: -0.4px; }
 
   .funnel-connector {
     width: 2px;
-    height: 18px;
+    height: 12px;
     background: var(--border);
   }
 
@@ -682,11 +686,19 @@
     height: 160px;
   }
 
+  .overview-chart-card .chart-wrap {
+    height: 150px;
+  }
+
   /* ===== DONUT ===== */
   .donut-wrap {
     display: flex;
     align-items: center;
     gap: 16px;
+  }
+
+  .overview-donut-card .donut-wrap {
+    align-items: flex-start;
   }
 
   .donut-canvas-wrap {
@@ -1627,7 +1639,7 @@
             </div>
 
             <!-- LINE CHART -->
-            <div class="card">
+            <div class="card overview-compact-card overview-chart-card">
               <div class="card-title">Add Carrinho vs Compras</div>
               <div class="chart-wrap">
                 <canvas id="line-chart"></canvas>
@@ -1645,7 +1657,7 @@
             </div>
 
             <!-- DONUT -->
-            <div class="card">
+            <div class="card overview-compact-card overview-donut-card">
               <div class="card-title">Melhores Anúncios (Conversões)</div>
               <div class="donut-wrap">
                 <div class="donut-canvas-wrap">
