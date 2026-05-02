@@ -434,6 +434,92 @@
     gap: 10px;
   }
 
+  .date-range-picker {
+    position: relative;
+  }
+
+  .date-range-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 7px 12px;
+    min-height: 36px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .date-range-trigger:hover,
+  .date-range-picker.open .date-range-trigger {
+    border-color: var(--accent);
+  }
+
+  .date-range-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .date-range-divider {
+    color: var(--text-muted);
+  }
+
+  .date-range-trigger svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .date-range-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 270px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    display: none;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    z-index: 120;
+  }
+
+  .date-range-picker.open .date-range-panel {
+    display: block;
+  }
+
+  .date-range-panel-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+  }
+
+  .date-range-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .date-range-field label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 4px;
+  }
+
   .select-pill {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -546,6 +632,11 @@
     gap: 4px;
   }
 
+  .kpi-delta:empty,
+  .metric-mini-delta:empty {
+    display: none;
+  }
+
   .kpi-delta.up { color: var(--green); }
   .kpi-delta.down { color: var(--red); }
 
@@ -569,7 +660,7 @@
   .card-title {
     font-size: 13px;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     color: var(--text);
     letter-spacing: -0.2px;
   }
@@ -577,11 +668,13 @@
   .funnel-card {
     display: flex;
     flex-direction: column;
-    height: 272px;
+    height: 360px;
   }
 
   .overview-compact-card {
-    height: 272px;
+    height: 360px;
+    display: flex;
+    flex-direction: column;
   }
 
   /* ===== FUNNEL ===== */
@@ -589,12 +682,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    gap: 0;
-    margin: 4px 0 0;
+    justify-content: center;
+    gap: 3px;
+    margin: 0;
     padding: 0;
     flex: 1;
-    position: relative;
   }
 
   .funnel-step {
@@ -607,75 +699,50 @@
   }
 
   .funnel-bar {
-    height: 44px;
-    border-radius: 0 0 18px 18px;
+    height: 58px;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #f4fbff;
+    color: #0a0a0a;
     font-weight: 700;
     font-size: 11px;
     transition: opacity 0.2s;
     position: relative;
-    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.1);
-    clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08);
   }
 
   .funnel-bar:hover { opacity: 0.9; }
 
-  .funnel-top-cap {
-    width: 292px;
-    height: 24px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #3f9eff 0%, #1f7fdb 100%);
-    position: relative;
-    margin-bottom: -6px;
-    box-shadow: inset 0 -3px 0 rgba(255,255,255,0.08);
-  }
-
-  .funnel-top-cap::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 5px;
-    transform: translateX(-50%);
-    width: 170px;
-    height: 11px;
-    border-radius: 50%;
-    background: rgba(5, 52, 93, 0.65);
-  }
-
   .funnel-bar .f-label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    opacity: 0.96;
-    margin-bottom: 2px;
+    opacity: 0.9;
+    margin-bottom: 4px;
     font-family: 'IBM Plex Mono', monospace;
-    letter-spacing: 0;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.16);
+    letter-spacing: 0.4px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.12);
   }
   .funnel-bar .f-val {
-    font-size: 18px;
+    font-size: 26px;
     font-weight: 800;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.8px;
     line-height: 1;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.18);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.14);
   }
 
   .funnel-connector {
-    width: 62%;
-    height: 10px;
-    background: rgba(255,255,255,0.08);
-    clip-path: polygon(4% 0, 96% 0, 88% 100%, 12% 100%);
-    margin-top: -1px;
-    margin-bottom: -1px;
+    width: 2px;
+    height: 6px;
+    background: var(--border);
   }
 
   /* ===== METRICS SMALL ===== */
   .metrics-col {
     display: flex;
     flex-direction: column;
+    height: 360px;
     gap: 10px;
   }
 
@@ -684,6 +751,15 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 14px 16px;
+    flex: 1;
+  }
+
+  .metric-mini-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
   }
 
   .metric-mini-label {
@@ -692,13 +768,39 @@
     font-family: 'IBM Plex Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    margin-bottom: 4px;
+  }
+
+  .metric-mini-select {
+    min-width: 132px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #bdbdbd;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    outline: none;
+    cursor: pointer;
+    appearance: auto;
+  }
+
+  .metric-mini-select:focus {
+    border-color: var(--accent);
+    color: #d7d7d7;
+  }
+
+  .metric-mini-select option {
+    color: #0a0a0a;
   }
 
   .metric-mini-val {
-    font-size: 22px;
+    font-size: 36px;
     font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-top: 6px;
   }
 
   .metric-mini-delta {
@@ -729,7 +831,8 @@
   }
 
   .overview-chart-card .chart-wrap {
-    height: 150px;
+    height: 220px;
+    flex: 1;
   }
 
   /* ===== DONUT ===== */
@@ -742,18 +845,20 @@
   .overview-donut-card .donut-wrap {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 16px;
+    flex: 1;
   }
 
   .overview-donut-card .donut-canvas-wrap {
-    width: 112px;
-    height: 112px;
+    width: 156px;
+    height: 156px;
   }
 
   .overview-donut-card .donut-legend {
     width: 100%;
-    gap: 6px;
-    max-height: 104px;
+    gap: 8px;
+    max-height: 132px;
     overflow-y: auto;
     padding-right: 4px;
   }
@@ -776,7 +881,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-dim);
     font-family: 'IBM Plex Mono', monospace;
     width: 100%;
@@ -803,7 +908,7 @@
     display: flex;
     align-items: center;
     gap: 18px;
-    margin-top: 14px;
+    margin-top: 18px;
     flex-wrap: wrap;
   }
 
@@ -811,7 +916,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-dim);
     font-family: 'IBM Plex Mono', monospace;
   }
@@ -1382,6 +1487,7 @@
 
   /* ===== DATE PICKER ===== */
   input[type="date"] {
+    width: 100%;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -1393,6 +1499,7 @@
   }
 
   input[type="date"]:focus { border-color: var(--accent); }
+
   input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
 
   /* ===== CONNECTED STATUS ===== */
@@ -1534,19 +1641,12 @@
         <path d="M12 28L20 12L28 28M15.5 22H24.5" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
 
-      <button class="nav-item active" onclick="switchTab('visao')" id="tab-visao">
+      <button class="nav-item active" onclick="switchTab('geral')" id="tab-geral">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
-        <span>Visão</span>
-      </button>
-
-      <button class="nav-item" onclick="switchTab('detalhamento')" id="tab-detalhamento">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-        </svg>
-        <span>Detalhe</span>
+        <span>Geral</span>
       </button>
 
       <button class="nav-item" onclick="switchTab('criativos')" id="tab-criativos">
@@ -1598,8 +1698,34 @@
             <option value="">Conta</option>
           </select>
 
-          <input type="date" id="date-start" onchange="handleManualDateChange()">
-          <input type="date" id="date-end" onchange="handleManualDateChange()">
+          <div class="date-range-picker" id="date-range-picker">
+            <button type="button" class="date-range-trigger" onclick="toggleDateRangePicker()">
+              <span class="date-range-display">
+                <span id="date-range-start-display">--/--/----</span>
+                <span class="date-range-divider">-</span>
+                <span id="date-range-end-display">--/--/----</span>
+              </span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </button>
+            <div class="date-range-panel">
+              <div class="date-range-panel-title">Período de análise</div>
+              <div class="date-range-fields">
+                <div class="date-range-field">
+                  <label for="date-start">Data inicial</label>
+                  <input type="date" id="date-start" onchange="handleManualDateChange()">
+                </div>
+                <div class="date-range-field">
+                  <label for="date-end">Data final</label>
+                  <input type="date" id="date-end" onchange="handleManualDateChange()">
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="btn-icon" onclick="exportData()" title="Exportar">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1633,34 +1759,34 @@
         </div>
 
         <!-- TAB: VISÃO GERAL -->
-        <div class="tab-content active" id="content-visao">
+        <div class="tab-content active" id="content-geral">
 
           <!-- KPIs -->
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-label">Impressões</div>
-              <div class="kpi-value" id="kpi-impressoes">—</div>
-              <div class="kpi-delta up" id="kpi-impressoes-delta">—</div>
+              <div class="kpi-value" id="kpi-impressoes"></div>
+              <div class="kpi-delta up" id="kpi-impressoes-delta"></div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Alcance</div>
-              <div class="kpi-value" id="kpi-alcance">—</div>
-              <div class="kpi-delta up" id="kpi-alcance-delta">—</div>
+              <div class="kpi-value" id="kpi-alcance"></div>
+              <div class="kpi-delta up" id="kpi-alcance-delta"></div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Valor gasto</div>
-              <div class="kpi-value" id="kpi-gasto">—</div>
-              <div class="kpi-delta up" id="kpi-gasto-delta">—</div>
+              <div class="kpi-value" id="kpi-gasto"></div>
+              <div class="kpi-delta up" id="kpi-gasto-delta"></div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Compras</div>
-              <div class="kpi-value" id="kpi-compras">—</div>
-              <div class="kpi-delta up" id="kpi-compras-delta">—</div>
+              <div class="kpi-value" id="kpi-compras"></div>
+              <div class="kpi-delta up" id="kpi-compras-delta"></div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Custo por compra</div>
-              <div class="kpi-value" id="kpi-cpp">—</div>
-              <div class="kpi-delta down" id="kpi-cpp-delta">—</div>
+              <div class="kpi-value" id="kpi-cpp"></div>
+              <div class="kpi-delta down" id="kpi-cpp-delta"></div>
             </div>
           </div>
 
@@ -1678,15 +1804,15 @@
               <div class="bottom-metrics" id="bottom-metrics">
                 <div class="bm-card">
                   <div class="bm-label">Custo Add Carrinho</div>
-                  <div class="bm-val" id="bm-cac">—</div>
+                  <div class="bm-val" id="bm-cac"></div>
                 </div>
                 <div class="bm-card">
                   <div class="bm-label">Custo/Compra</div>
-                  <div class="bm-val" id="bm-cpp">—</div>
+                  <div class="bm-val" id="bm-cpp"></div>
                 </div>
                 <div class="bm-card">
                   <div class="bm-label">CPM</div>
-                  <div class="bm-val" id="bm-cpm">—</div>
+                  <div class="bm-val" id="bm-cpm"></div>
                 </div>
               </div>
             </div>
@@ -1694,19 +1820,26 @@
             <!-- METRICS COL -->
             <div class="metrics-col">
               <div class="metric-mini">
-                <div class="metric-mini-label">3 seg. exibições de vídeo</div>
-                <div class="metric-mini-val" id="mm-video">—</div>
+                <div class="metric-mini-head">
+                  <select class="metric-mini-select" id="metric-filter-select" onchange="updateOverviewMetric(this.value)">
+                    <option value="thruplay">ThruPlay</option>
+                    <option value="video50">50% Video View</option>
+                    <option value="video75">75% Video View</option>
+                    <option value="pageView">Page View</option>
+                  </select>
+                </div>
+                <div class="metric-mini-val" id="mm-video"></div>
               </div>
               <div class="metric-mini">
                 <div class="metric-mini-label">ROAS TOTAL</div>
-                <div class="metric-mini-val" id="mm-roas" style="color:var(--accent)">—</div>
-                <div class="metric-mini-delta" id="mm-roas-delta" style="color:var(--green)">—</div>
+                <div class="metric-mini-val" id="mm-roas" style="color:var(--accent)"></div>
+                <div class="metric-mini-delta" id="mm-roas-delta" style="color:var(--green)"></div>
                 <div class="roas-bar"><div class="roas-fill" id="roas-fill" style="width:0%"></div></div>
               </div>
               <div class="metric-mini">
                 <div class="metric-mini-label">Valor de conversão</div>
-                <div class="metric-mini-val" id="mm-conv">—</div>
-                <div class="metric-mini-delta" id="mm-conv-delta" style="color:var(--green)">—</div>
+                <div class="metric-mini-val" id="mm-conv"></div>
+                <div class="metric-mini-delta" id="mm-conv-delta" style="color:var(--green)"></div>
               </div>
             </div>
 
@@ -1719,7 +1852,7 @@
               <div class="chart-legend">
                 <div class="chart-legend-item">
                   <span class="chart-legend-swatch" style="background:#a8c441"></span>
-                  <span>Adicionar ao carrinho</span>
+                  <span>Adição de Carrinho</span>
                 </div>
                 <div class="chart-legend-item">
                   <span class="chart-legend-swatch" style="background:#ffffff"></span>
@@ -1754,7 +1887,7 @@
                   <tr>
                     <th>#</th>
                     <th>Nome da campanha</th>
-                    <th>Conjunto de anúncios</th>
+                    <th>Alcance</th>
                     <th>Impressões</th>
                     <th>Add Carrinho</th>
                     <th>Compras</th>
@@ -1775,12 +1908,12 @@
           <div class="section-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr">
             <div class="card">
               <div class="card-title">Novos Seguidores</div>
-              <div class="kpi-value" id="d-followers" style="font-size:36px">—</div>
-              <div class="kpi-delta up" id="d-followers-delta">—</div>
+              <div class="kpi-value" id="d-followers" style="font-size:36px"></div>
+              <div class="kpi-delta up" id="d-followers-delta"></div>
             </div>
             <div class="card">
               <div class="card-title">Viz. pág. destino</div>
-              <div class="kpi-value" id="d-lpv" style="font-size:36px">—</div>
+              <div class="kpi-value" id="d-lpv" style="font-size:36px"></div>
             </div>
             <div class="card">
               <div class="card-title">Gênero</div>
@@ -2016,6 +2149,52 @@ const STORAGE_KEYS = {
   clients: 'adsdash_saved_clients',
 };
 
+const DEMO_ACCOUNT = {
+  id: 'act_demo_123',
+  name: 'Conta Teste',
+  account_id: '000000000123',
+  amount_spent: '111558',
+};
+
+const DEMO_DATA = {
+  overview: {
+    impressions: 38000,
+    reach: 18000,
+    spend: 1115.58,
+    purchases: 17,
+    addToCart: 31,
+    convValue: 10582.40,
+    roas: 9.48,
+    cpm: 29.36,
+    thruplays: 382,
+    video50: 1124,
+    video75: 648,
+    pageView: 247,
+    ctr: 0.65,
+    hookRate: 0.01,
+    postActions: 84,
+  },
+  campaigns: [
+    { name: '[RMKT] VENDAS | CARDAPIO 20/04', reach: 5400, impressions: 10200, clicks: 88, addToCart: 9, purchases: 5, spend: 315.40, roas: 9.18 },
+    { name: '[RMKT] +ALCANCE | CARDAPIO 27/04', reach: 4600, impressions: 8400, clicks: 61, addToCart: 5, purchases: 3, spend: 221.77, roas: 8.98 },
+    { name: '[MJ] +ALCANCE | CARDAPIO 20/04', reach: 6200, impressions: 11300, clicks: 54, addToCart: 3, purchases: 0, spend: 301.27, roas: 0 },
+    { name: '[MJ] VENDAS | CARDAPIO | 27/04', reach: 3900, impressions: 8100, clicks: 45, addToCart: 14, purchases: 9, spend: 277.14, roas: 23.61 },
+  ],
+  creatives: [
+    { name: '03', thumbnailUrl: null, impressions: 9200, addToCart: 8, purchases: 6, clicks: 61, spend: 256.80 },
+    { name: '02', thumbnailUrl: null, impressions: 7100, addToCart: 6, purchases: 0, clicks: 48, spend: 193.22 },
+    { name: '01 - ALEXIA', thumbnailUrl: null, impressions: 5800, addToCart: 4, purchases: 0, clicks: 31, spend: 147.18 },
+    { name: 'ESTÁTICO - RMKT', thumbnailUrl: null, impressions: 7600, addToCart: 5, purchases: 4, clicks: 42, spend: 214.53 },
+    { name: 'VIDEO - RMKT', thumbnailUrl: null, impressions: 8300, addToCart: 8, purchases: 7, clicks: 66, spend: 303.85 },
+  ],
+  daily: {
+    labels: ['2026-04-25', '2026-04-26', '2026-04-27', '2026-04-28', '2026-04-29', '2026-04-30', '2026-05-01'],
+    addToCart: [2, 5, 3, 4, 5, 7, 5],
+    purchases: [1, 2, 1, 1, 2, 6, 4],
+    impressions: [4100, 4700, 4900, 5200, 5600, 7300, 6200],
+  },
+};
+
 // ============================================================
 // STATE
 // ============================================================
@@ -2035,6 +2214,8 @@ let state = {
   data: null,
   campaigns: [],
   creatives: [],
+  selectedOverviewMetric: 'thruplay',
+  currentOverviewMetrics: {},
   charts: {},
 };
 
@@ -2414,6 +2595,7 @@ function getPresetRange(preset) {
 function setDateRange(startId, endId, start, end) {
   document.getElementById(startId).value = formatDate(start);
   document.getElementById(endId).value = formatDate(end);
+  syncDateRangeDisplay();
 }
 
 function applyDatePreset(preset, shouldLoad = false) {
@@ -2437,6 +2619,8 @@ function applyShareDatePreset(preset) {
 
 function handleManualDateChange() {
   document.getElementById('range-preset').value = 'custom';
+  syncDateRangeDisplay();
+  closeDateRangePicker();
   loadData();
 }
 
@@ -2452,6 +2636,25 @@ function updateActiveProfileUI() {
       ? `Vinculado ao perfil ativo: ${profile.name}`
       : 'Nenhum perfil Meta ativo';
   }
+}
+
+function syncDateRangeDisplay() {
+  const start = document.getElementById('date-start')?.value;
+  const end = document.getElementById('date-end')?.value;
+  const startDisplay = document.getElementById('date-range-start-display');
+  const endDisplay = document.getElementById('date-range-end-display');
+  if (startDisplay) startDisplay.textContent = start ? formatBR(start) : '--/--/----';
+  if (endDisplay) endDisplay.textContent = end ? formatBR(end) : '--/--/----';
+}
+
+function toggleDateRangePicker() {
+  const picker = document.getElementById('date-range-picker');
+  if (!picker) return;
+  picker.classList.toggle('open');
+}
+
+function closeDateRangePicker() {
+  document.getElementById('date-range-picker')?.classList.remove('open');
 }
 
 function resetClientForm() {
@@ -2669,6 +2872,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Default dates
   applyDatePreset('last7');
   applyShareDatePreset('last7');
+  syncDateRangeDisplay();
   initializeSavedData();
   loadProfileSettings();
   renderProfilesList();
@@ -2759,7 +2963,7 @@ function showApp() {
   } else {
     updateMetaStatus(false);
     document.getElementById('connect-banner').style.display = 'block';
-    renderEmptyState();
+    fetchAdAccounts();
   }
 }
 
@@ -2822,7 +3026,17 @@ function updateMetaStatus(connected) {
 // META API
 // ============================================================
 async function fetchAdAccounts() {
-  if (!state.accessToken) return;
+  if (!state.accessToken) {
+    state.adAccounts = [DEMO_ACCOUNT];
+    populateAccountSelects();
+    if (!state.selectedAccount) {
+      selectAccount(DEMO_ACCOUNT.id);
+    } else {
+      document.getElementById('account-select').value = state.selectedAccount;
+      populateAccountCards();
+    }
+    return;
+  }
   try {
     const res = await fetch(`https://graph.facebook.com/${CONFIG.META_API_VERSION}/me/adaccounts?fields=name,account_id,currency,account_status,spend_cap,amount_spent&access_token=${state.accessToken}`);
     const data = await res.json();
@@ -2834,6 +3048,9 @@ async function fetchAdAccounts() {
     }
 
     state.adAccounts = data.data || [];
+    if (!state.adAccounts.some(acc => acc.id === DEMO_ACCOUNT.id)) {
+      state.adAccounts.push(DEMO_ACCOUNT);
+    }
     populateAccountSelects();
     if (state.adAccounts.length > 0) {
       const sharedAccountStillExists = state.selectedAccount && state.adAccounts.some(acc => acc.id === state.selectedAccount);
@@ -2901,7 +3118,17 @@ function selectAccount(accountId) {
 }
 
 async function loadData() {
-  if (!state.accessToken || !state.selectedAccount) {
+  if (!state.selectedAccount) {
+    renderEmptyState();
+    return;
+  }
+
+  if (state.selectedAccount === DEMO_ACCOUNT.id) {
+    loadDemoData();
+    return;
+  }
+
+  if (!state.accessToken) {
     renderEmptyState();
     return;
   }
@@ -2914,6 +3141,7 @@ async function loadData() {
     'impressions', 'reach', 'spend', 'clicks', 'ctr',
     'actions', 'action_values', 'purchase_roas', 'cpm',
     'cost_per_action_type', 'video_thruplay_watched_actions',
+    'video_p50_watched_actions', 'video_p75_watched_actions',
     'outbound_clicks', 'website_ctr'
   ].join(',');
 
@@ -2924,7 +3152,7 @@ async function loadData() {
     const insightsData = await insightsRes.json();
 
     // Campaigns
-    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/campaigns?fields=name,status,insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){impressions,clicks,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/campaigns?fields=name,status,insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){reach,impressions,clicks,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
     const campaignsRes = await fetch(campaignsUrl);
     const campaignsData = await campaignsRes.json();
 
@@ -2959,6 +3187,24 @@ function getActionValue(actions, type) {
   return a ? parseFloat(a.value) : 0;
 }
 
+function getFirstActionValue(actions, types) {
+  if (!actions?.length) return 0;
+  for (const type of types) {
+    const value = getActionValue(actions, type);
+    if (value > 0) return value;
+  }
+  return 0;
+}
+
+function getMetricValue(metricItems, preferredType) {
+  if (!metricItems?.length) return 0;
+  if (preferredType) {
+    const match = metricItems.find(item => item.action_type === preferredType);
+    if (match) return parseFloat(match.value || 0);
+  }
+  return parseFloat(metricItems[0]?.value || 0);
+}
+
 function processRealData(insights, campaigns, daily, ads) {
   if (!insights || insights.length === 0) { renderEmptyState(); return; }
 
@@ -2972,17 +3218,20 @@ function processRealData(insights, campaigns, daily, ads) {
   const convValue = getActionValue(d.action_values, 'purchase');
   const roas = d.purchase_roas ? parseFloat(d.purchase_roas[0]?.value || 0) : 0;
   const cpm = parseFloat(d.cpm || 0);
-  const videoViews = getActionValue(d.video_thruplay_watched_actions, 'video_view');
+  const thruplays = getMetricValue(d.video_thruplay_watched_actions, 'video_view');
+  const video50 = getMetricValue(d.video_p50_watched_actions, 'video_view');
+  const video75 = getMetricValue(d.video_p75_watched_actions, 'video_view');
+  const pageView = getFirstActionValue(d.actions, ['landing_page_view', 'page_view']);
   const ctr = parseFloat(d.ctr || 0);
 
   const cpp = purchases > 0 ? spend / purchases : 0;
   const cac = addToCart > 0 ? spend / addToCart : 0;
-  const hookRate = impressions > 0 ? (videoViews / impressions) : 0;
+  const hookRate = impressions > 0 ? (thruplays / impressions) : 0;
   const postActions = getActionValue(d.actions, 'post_engagement');
 
   updateKPIs({
     impressions, reach, spend, purchases, cpp, addToCart,
-    convValue, roas, cpm, videoViews, ctr, hookRate, postActions
+    convValue, roas, cpm, thruplays, video50, video75, pageView, ctr, hookRate, postActions
   });
 
   // Campaigns
@@ -2990,7 +3239,7 @@ function processRealData(insights, campaigns, daily, ads) {
     const ci = c.insights?.data?.[0] || {};
     return {
       name: c.name,
-      adset: '—',
+      reach: parseInt(ci.reach || 0),
       impressions: parseInt(ci.impressions || 0),
       clicks: parseInt(ci.clicks || 0),
       addToCart: getActionValue(ci.actions, 'add_to_cart'),
@@ -3042,6 +3291,24 @@ function processRealData(insights, campaigns, daily, ads) {
   renderDetailTab();
 }
 
+function loadDemoData() {
+  updateKPIs(DEMO_DATA.overview);
+
+  state.campaigns = DEMO_DATA.campaigns.map(campaign => ({ ...campaign }));
+  state.creatives = DEMO_DATA.creatives.map(creative => ({ ...creative }));
+
+  renderCampaignsTable();
+  renderLineChart(DEMO_DATA.daily.labels, DEMO_DATA.daily.addToCart, DEMO_DATA.daily.purchases);
+  renderImpressionsChart(DEMO_DATA.daily.labels, DEMO_DATA.daily.impressions);
+  renderCreatives();
+  renderDonutChart();
+  renderDetailTab();
+
+  document.getElementById('d-followers').textContent = '124';
+  document.getElementById('d-followers-delta').textContent = '+18,1%';
+  document.getElementById('d-lpv').textContent = '713';
+}
+
 // ============================================================
 // LOADING / EMPTY / ERROR STATES
 // ============================================================
@@ -3058,7 +3325,7 @@ function showLoadingState() {
 function renderEmptyState() {
   // KPIs
   ['kpi-impressoes','kpi-alcance','kpi-gasto','kpi-compras','kpi-cpp'].forEach(id => {
-    document.getElementById(id).textContent = '—';
+    document.getElementById(id).textContent = '';
   });
   ['kpi-impressoes-delta','kpi-alcance-delta','kpi-gasto-delta','kpi-compras-delta','kpi-cpp-delta'].forEach(id => {
     document.getElementById(id).textContent = '';
@@ -3069,7 +3336,7 @@ function renderEmptyState() {
 
   // Metrics
   ['bm-cac','bm-cpp','bm-cpm','mm-video','mm-roas','mm-conv','mm-hook','mm-ctr','mm-post'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.textContent = '—';
+    const el = document.getElementById(id); if(el) el.textContent = '';
   });
   ['mm-roas-delta','mm-conv-delta'].forEach(id => {
     const el = document.getElementById(id); if(el) el.textContent = '';
@@ -3090,9 +3357,9 @@ function renderEmptyState() {
   document.getElementById('creatives-tbody-detail').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados</td></tr>`;
 
   // Detail tab
-  document.getElementById('d-followers').textContent = '—';
+  document.getElementById('d-followers').textContent = '';
   document.getElementById('d-followers-delta').textContent = '';
-  document.getElementById('d-lpv').textContent = '—';
+  document.getElementById('d-lpv').textContent = '';
 
   // Donut charts — clear
   destroyChart('donut'); destroyChart('gender'); destroyChart('addcart');
@@ -3136,7 +3403,7 @@ function updateKPIs(d) {
   renderFunnel([
     { label: 'Impressões', value: d.impressions, pct: 100 },
     { label: 'Cliques de links', value: Math.round(d.impressions * (d.ctr / 100) || d.impressions * 0.0026), pct: d.ctr || 0.26 },
-    { label: 'Adicionar ao carrinho', value: d.addToCart, pct: (d.addToCart / d.impressions * 100) },
+    { label: 'Adição de Carrinho', value: d.addToCart, pct: (d.addToCart / d.impressions * 100) },
     { label: 'Compras', value: d.purchases, pct: (d.purchases / d.impressions * 100) },
   ]);
 
@@ -3144,7 +3411,13 @@ function updateKPIs(d) {
   document.getElementById('bm-cpp').textContent = 'R$ ' + fmtMoney(d.cpp);
   document.getElementById('bm-cpm').textContent = 'R$ ' + fmtMoney(d.cpm);
 
-  setText('mm-video', fmtNum(d.videoViews));
+  state.currentOverviewMetrics = {
+    thruplay: d.thruplays,
+    video50: d.video50,
+    video75: d.video75,
+    pageView: d.pageView,
+  };
+  renderOverviewMetricCard();
   setText('mm-roas', d.roas.toFixed(2));
   // document.getElementById('mm-roas-delta') — calculated from real data
   document.getElementById('roas-fill').style.width = Math.min(d.roas / 5 * 100, 100) + '%';
@@ -3154,22 +3427,44 @@ function updateKPIs(d) {
   // Followers and LPV populated from real Meta data via processRealData
 }
 
+function renderOverviewMetricCard() {
+  const valueEl = document.getElementById('mm-video');
+  const selectEl = document.getElementById('metric-filter-select');
+  if (!valueEl || !selectEl) return;
+
+  const metricMap = {
+    thruplay: { label: 'ThruPlay', value: state.currentOverviewMetrics.thruplay },
+    video50: { label: '50% Video View', value: state.currentOverviewMetrics.video50 },
+    video75: { label: '75% Video View', value: state.currentOverviewMetrics.video75 },
+    pageView: { label: 'Page View', value: state.currentOverviewMetrics.pageView },
+  };
+
+  const selectedKey = metricMap[state.selectedOverviewMetric] ? state.selectedOverviewMetric : 'thruplay';
+  const selectedMetric = metricMap[selectedKey];
+
+  state.selectedOverviewMetric = selectedKey;
+  selectEl.value = selectedKey;
+  valueEl.textContent = fmtNum(selectedMetric.value);
+}
+
+function updateOverviewMetric(metricKey) {
+  state.selectedOverviewMetric = metricKey;
+  renderOverviewMetricCard();
+}
+
 function renderFunnel(steps) {
-  const colors = ['#3f98f5', '#3590eb', '#2e88e3', '#267ed7'];
-  const widths = [270, 210, 160, 120];
+  const colors = ['#4a9eff', '#5cb8f0', '#70c8e0', '#85d0c8'];
+  const maxWidth = 300;
   const wrap = document.getElementById('funnel-wrap');
   wrap.innerHTML = '';
 
-  const topCap = document.createElement('div');
-  topCap.className = 'funnel-top-cap';
-  wrap.appendChild(topCap);
-
   steps.forEach((step, i) => {
+    const width = maxWidth * (1 - i * 0.15);
     const div = document.createElement('div');
     div.className = 'funnel-step';
     div.innerHTML = `
       ${i > 0 ? '<div class="funnel-connector"></div>' : ''}
-      <div class="funnel-bar" style="width:${widths[i] || widths[widths.length - 1]}px;background:${colors[i]}">
+      <div class="funnel-bar" style="width:${width}px;background:${colors[i]}">
         <div class="f-label">${step.label}</div>
         <div class="f-val">${fmtNum(step.value)}</div>
       </div>
@@ -3188,7 +3483,7 @@ function renderCampaignsTable() {
     <tr>
       <td style="color:var(--text-muted);font-family:'IBM Plex Mono',monospace">${i+1}.</td>
       <td>${c.name}</td>
-      <td style="color:var(--text-muted)">${c.adset}</td>
+      <td>${fmtNum(c.reach)}</td>
       <td>${fmtNum(c.impressions)}</td>
       <td class="tag-highlight">${c.addToCart}</td>
       <td class="tag-highlight">${c.purchases}</td>
@@ -3260,7 +3555,7 @@ function renderLineChart(labels, addCart, purchases) {
     data: {
       labels,
       datasets: [
-        { label: 'Adicionar ao carrinho', data: addCart, borderColor: '#a8c441', backgroundColor: 'rgba(168,196,65,0.05)', tension: 0.4, pointRadius: 3, pointBackgroundColor: '#a8c441', borderWidth: 2 },
+        { label: 'Adição de Carrinho', data: addCart, borderColor: '#a8c441', backgroundColor: 'rgba(168,196,65,0.05)', tension: 0.4, pointRadius: 3, pointBackgroundColor: '#a8c441', borderWidth: 2 },
         { label: 'Compras', data: purchases, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.03)', tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ffffff', borderWidth: 2 },
       ]
     },
@@ -3390,7 +3685,7 @@ function renderImpressionsChart(labels, impressions) {
 // TABS
 // ============================================================
 function switchTab(tab) {
-  ['visao','detalhamento','criativos','contas'].forEach(t => {
+  ['geral','criativos','contas'].forEach(t => {
     document.getElementById('tab-' + t)?.classList.remove('active');
     document.getElementById('content-' + t)?.classList.remove('active');
   });
@@ -3483,8 +3778,8 @@ function copyLink() {
 // ============================================================
 function exportData() {
   const rows = [
-    ['Campanha', 'Conjunto', 'Impressões', 'Add Carrinho', 'Compras', 'Gasto (R$)', 'ROAS'],
-    ...state.campaigns.map(c => [c.name, c.adset, c.impressions, c.addToCart, c.purchases, c.spend.toFixed(2), c.roas.toFixed(2)])
+    ['Campanha', 'Alcance', 'Impressões', 'Add Carrinho', 'Compras', 'Gasto (R$)', 'ROAS'],
+    ...state.campaigns.map(c => [c.name, c.reach, c.impressions, c.addToCart, c.purchases, c.spend.toFixed(2), c.roas.toFixed(2)])
   ];
   const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -3499,9 +3794,7 @@ function exportData() {
 // UTILS
 // ============================================================
 function fmtNum(n) {
-  if (n >= 1000000) return (n/1000000).toFixed(1) + ' mi';
-  if (n >= 1000) return (n/1000).toFixed(0) + ' mil';
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return Math.round(Number(n) || 0).toLocaleString('pt-BR');
 }
 
 function fmtMoney(n) {
@@ -3522,6 +3815,13 @@ document.getElementById('share-modal').addEventListener('click', function(e) {
 
 document.getElementById('profile-modal').addEventListener('click', function(e) {
   if (e.target === this) closeProfileModal();
+});
+
+document.addEventListener('click', function(e) {
+  const picker = document.getElementById('date-range-picker');
+  if (picker && !picker.contains(e.target)) {
+    closeDateRangePicker();
+  }
 });
 </script>
 </body>
