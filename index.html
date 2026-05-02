@@ -1484,9 +1484,524 @@
   }
 
   @media (max-width: 768px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .section-grid { grid-template-columns: 1fr; }
-    .header-controls .date-pill { display: none; }
+    #login-screen {
+      padding: 24px 16px;
+      align-items: flex-start;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 32px 22px;
+      margin: 24px auto;
+    }
+
+    body.client-view #client-banner,
+    #client-banner {
+      margin-left: 0;
+      width: 100%;
+      padding: 12px 16px;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      min-height: auto;
+      position: sticky;
+      top: 0;
+    }
+
+    body.client-view #client-banner .client-info,
+    body.client-view #client-account-banner {
+      grid-column: auto;
+      justify-self: start;
+      white-space: normal;
+    }
+
+    body.client-view .header {
+      top: 0;
+    }
+
+    .layout {
+      min-height: 100dvh;
+    }
+
+    .sidebar {
+      width: 100%;
+      height: 72px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      border-right: none;
+      border-top: 1px solid var(--border);
+      top: auto;
+      bottom: 0;
+      gap: 8px;
+    }
+
+    .sidebar-logo,
+    .sidebar-bottom,
+    .profile-hint {
+      display: none;
+    }
+
+    .nav-item {
+      width: auto;
+      min-width: 72px;
+      height: 54px;
+      padding: 8px 10px;
+      flex: 1;
+      gap: 6px;
+      border-radius: 14px;
+    }
+
+    .nav-item span {
+      font-size: 10px;
+    }
+
+    .main {
+      margin-left: 0;
+      padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+      min-width: 0;
+    }
+
+    .header {
+      height: auto;
+      padding: 14px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .header-title {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .header-title h1 {
+      font-size: 17px;
+      line-height: 1.1;
+      letter-spacing: -0.4px;
+    }
+
+    .header-title p {
+      margin-top: 0;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+
+    .header-controls {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 6px;
+    }
+
+    .header-controls .date-pill {
+      display: none;
+    }
+
+    .meta-status,
+    .select-pill,
+    .btn-share {
+      min-height: 40px;
+    }
+
+    .meta-status {
+      grid-column: 1 / -1;
+      min-height: 34px;
+      padding: 6px 10px;
+      justify-content: flex-start;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+
+    #range-preset,
+    #account-select {
+      width: 100%;
+      min-width: 0;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .date-range-picker {
+      grid-column: 1 / -1;
+      width: 100%;
+    }
+
+    .date-range-trigger {
+      width: 100%;
+      justify-content: space-between;
+      min-height: 38px;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+
+    .date-range-display {
+      min-width: 0;
+      gap: 6px;
+      font-size: 10px;
+    }
+
+    .date-range-panel {
+      right: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .btn-icon,
+    #share-btn {
+      width: 100%;
+      min-width: 0;
+      justify-content: center;
+    }
+
+    .btn-icon {
+      min-height: 38px;
+      width: 38px;
+      justify-self: end;
+    }
+
+    #share-btn {
+      min-height: 38px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .connect-banner {
+      padding: 18px 16px;
+      text-align: left;
+    }
+
+    .kpi-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-card {
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .kpi-value {
+      font-size: 24px;
+    }
+
+    .section-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    .funnel-card,
+    .overview-compact-card,
+    .metrics-col {
+      height: auto;
+      min-height: 0;
+    }
+
+    .funnel-wrap {
+      padding: 8px 0 4px;
+    }
+
+    .funnel-bar {
+      width: 100% !important;
+      max-width: none !important;
+      height: 56px;
+    }
+
+    .funnel-bar .f-val {
+      font-size: 22px;
+    }
+
+    .metrics-col {
+      gap: 8px;
+    }
+
+    .metric-mini {
+      padding: 14px;
+    }
+
+    .metric-mini-select {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .metric-mini-val {
+      font-size: 28px;
+    }
+
+    .overview-chart-card .chart-wrap,
+    .chart-wrap {
+      height: 220px;
+    }
+
+    .overview-donut-card .donut-canvas-wrap {
+      width: 148px;
+      height: 148px;
+    }
+
+    .chart-legend {
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .section-header .btn-share,
+    #content-contas .btn-share {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .campaigns-table {
+      min-width: 720px;
+    }
+
+    .campaigns-table th,
+    .campaigns-table td {
+      padding: 10px 10px;
+    }
+
+    .creatives-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .creative-card {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      align-items: stretch;
+    }
+
+    .creative-thumb {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 96px;
+    }
+
+    .creative-info {
+      padding: 12px;
+    }
+
+    .creative-name {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      line-height: 1.35;
+    }
+
+    .bottom-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .accounts-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .account-card {
+      padding: 16px;
+    }
+
+    .account-stats {
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .modal {
+      width: calc(100vw - 20px);
+      max-width: calc(100vw - 20px);
+      max-height: calc(100dvh - 20px);
+      padding: 20px 14px;
+      border-radius: 14px;
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      padding-right: 28px;
+    }
+
+    .modal p {
+      font-size: 11px;
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+
+    .modal-close {
+      top: 12px;
+      right: 12px;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+
+    .stack-fields {
+      gap: 12px;
+    }
+
+    .profile-card,
+    .saved-list-card {
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .profile-meta {
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .profile-meta strong {
+      font-size: 13px;
+    }
+
+    .profile-meta span {
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .share-field {
+      margin-bottom: 12px;
+    }
+
+    .share-field label,
+    .saved-list-title {
+      font-size: 10px;
+      margin-bottom: 5px;
+      letter-spacing: 0.7px;
+    }
+
+    .share-field input,
+    .share-field select,
+    input[type="date"] {
+      min-height: 38px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    #share-range-preset {
+      margin-bottom: 6px !important;
+    }
+
+    #share-modal .share-field > div[style*="display:flex"] {
+      gap: 6px !important;
+    }
+
+    #share-url-wrap {
+      margin-top: 2px;
+    }
+
+    .share-url-box {
+      padding: 10px 12px;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+
+    .modal-actions {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-copy,
+    .btn-secondary {
+      width: 100%;
+      min-height: 38px;
+      padding: 9px 12px;
+      font-size: 12px;
+    }
+
+    .saved-list-header,
+    .saved-item {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .saved-item-actions {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .saved-item-actions .btn-inline {
+      flex: 1 1 calc(50% - 4px);
+      text-align: center;
+      min-height: 34px;
+      padding: 7px 8px;
+      font-size: 10px;
+    }
+
+    .toast {
+      left: 16px;
+      right: 16px;
+      bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      padding: 12px 14px;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .content,
+    .header {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .header-controls {
+      grid-template-columns: 1fr;
+    }
+
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    #range-preset,
+    #account-select,
+    .btn-icon,
+    #share-btn {
+      width: 100%;
+    }
+
+    .meta-status,
+    .date-range-picker {
+      grid-column: auto;
+    }
+
+    .btn-icon {
+      justify-self: stretch;
+      width: 100%;
+    }
+
+    .date-range-display {
+      flex-wrap: wrap;
+    }
+
+    .overview-donut-card .donut-canvas-wrap {
+      width: 132px;
+      height: 132px;
+    }
+
+    .creative-card {
+      grid-template-columns: 84px 1fr;
+    }
+
+    .campaigns-table {
+      min-width: 640px;
+    }
   }
 
   /* ===== DATE PICKER ===== */
@@ -1611,14 +2126,7 @@
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar</button>
 
-      <div class="login-divider">ou</div>
 
-      <button class="btn-meta" onclick="connectMeta()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-        </svg>
-        Continuar com Facebook
-      </button>
 
       <div class="login-error" id="login-error">Usuário ou senha incorretos</div>
     </div>
