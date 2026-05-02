@@ -574,20 +574,31 @@
     letter-spacing: -0.2px;
   }
 
+  .funnel-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 430px;
+  }
+
   /* ===== FUNNEL ===== */
   .funnel-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    margin: 8px 0;
+    justify-content: space-between;
+    gap: 0;
+    margin: 8px 0 0;
+    padding: 4px 0 0;
+    flex: 1;
   }
 
   .funnel-step {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 100%;
+    flex: 1;
   }
 
   .funnel-bar {
@@ -597,7 +608,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #0a0a0a;
     font-weight: 700;
     font-size: 11px;
     transition: opacity 0.2s;
@@ -606,12 +617,12 @@
 
   .funnel-bar:hover { opacity: 0.9; }
 
-  .funnel-bar .f-label { font-size: 10px; font-weight: 400; opacity: 0.8; margin-bottom: 2px; font-family: 'IBM Plex Mono', monospace; }
+  .funnel-bar .f-label { font-size: 10px; font-weight: 600; opacity: 0.72; margin-bottom: 2px; font-family: 'IBM Plex Mono', monospace; }
   .funnel-bar .f-val { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
 
   .funnel-connector {
     width: 2px;
-    height: 6px;
+    height: 18px;
     background: var(--border);
   }
 
@@ -704,6 +715,30 @@
   .legend-dot {
     width: 8px; height: 8px;
     border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .chart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .chart-legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
     flex-shrink: 0;
   }
 
@@ -820,6 +855,10 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     margin-top: 12px;
+  }
+
+  .funnel-card .bottom-metrics {
+    display: none;
   }
 
   .bm-card {
@@ -1545,7 +1584,7 @@
           <div class="section-grid">
 
             <!-- FUNNEL -->
-            <div class="card">
+            <div class="card funnel-card">
               <div class="card-title">Funil de Tráfego</div>
               <div class="funnel-wrap" id="funnel-wrap">
                 <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;font-family:'IBM Plex Mono',monospace;">
@@ -1585,23 +1624,6 @@
                 <div class="metric-mini-val" id="mm-conv">—</div>
                 <div class="metric-mini-delta" id="mm-conv-delta" style="color:var(--green)">—</div>
               </div>
-              <div class="metric-mini">
-                <div class="metric-mini-label">Hook Rate · CTR Links</div>
-                <div style="display:flex;gap:16px;margin-top:4px">
-                  <div>
-                    <div style="font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">Hook</div>
-                    <div class="metric-mini-val" id="mm-hook" style="font-size:18px">—</div>
-                  </div>
-                  <div>
-                    <div style="font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">CTR</div>
-                    <div class="metric-mini-val" id="mm-ctr" style="font-size:18px">—</div>
-                  </div>
-                  <div>
-                    <div style="font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">Ações post</div>
-                    <div class="metric-mini-val" id="mm-post" style="font-size:18px">—</div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!-- LINE CHART -->
@@ -1609,6 +1631,16 @@
               <div class="card-title">Add Carrinho vs Compras</div>
               <div class="chart-wrap">
                 <canvas id="line-chart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="chart-legend-item">
+                  <span class="chart-legend-swatch" style="background:#a8c441"></span>
+                  <span>Adicionar ao carrinho</span>
+                </div>
+                <div class="chart-legend-item">
+                  <span class="chart-legend-swatch" style="background:#ffffff"></span>
+                  <span>Compras</span>
+                </div>
               </div>
             </div>
 
@@ -2809,7 +2841,7 @@ async function loadData() {
     const insightsData = await insightsRes.json();
 
     // Campaigns
-    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/campaigns?fields=name,status,insights{impressions,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/campaigns?fields=name,status,insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){impressions,clicks,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
     const campaignsRes = await fetch(campaignsUrl);
     const campaignsData = await campaignsRes.json();
 
@@ -2877,12 +2909,19 @@ function processRealData(insights, campaigns, daily, ads) {
       name: c.name,
       adset: '—',
       impressions: parseInt(ci.impressions || 0),
+      clicks: parseInt(ci.clicks || 0),
       addToCart: getActionValue(ci.actions, 'add_to_cart'),
       purchases: getActionValue(ci.actions, 'purchase'),
       spend: parseFloat(ci.spend || 0),
       roas: ci.purchase_roas ? parseFloat(ci.purchase_roas[0]?.value || 0) : 0,
     };
-  });
+  }).filter(campaign =>
+    campaign.impressions > 0 ||
+    campaign.clicks > 0 ||
+    campaign.spend > 0 ||
+    campaign.addToCart > 0 ||
+    campaign.purchases > 0
+  );
 
   renderCampaignsTable();
 
@@ -2993,6 +3032,11 @@ function showApiError(msg) {
 // UI UPDATE
 // ============================================================
 function updateKPIs(d) {
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
   document.getElementById('kpi-impressoes').textContent = fmtNum(d.impressions);
   document.getElementById('kpi-alcance').textContent = fmtNum(d.reach);
   document.getElementById('kpi-gasto').textContent = 'R$ ' + fmtMoney(d.spend);
@@ -3017,15 +3061,12 @@ function updateKPIs(d) {
   document.getElementById('bm-cpp').textContent = 'R$ ' + fmtMoney(d.cpp);
   document.getElementById('bm-cpm').textContent = 'R$ ' + fmtMoney(d.cpm);
 
-  document.getElementById('mm-video').textContent = fmtNum(d.videoViews);
-  document.getElementById('mm-roas').textContent = d.roas.toFixed(2);
+  setText('mm-video', fmtNum(d.videoViews));
+  setText('mm-roas', d.roas.toFixed(2));
   // document.getElementById('mm-roas-delta') — calculated from real data
   document.getElementById('roas-fill').style.width = Math.min(d.roas / 5 * 100, 100) + '%';
-  document.getElementById('mm-conv').textContent = 'R$ ' + fmtMoney(d.convValue);
+  setText('mm-conv', 'R$ ' + fmtMoney(d.convValue));
   // document.getElementById('mm-conv-delta') — calculated from real data
-  document.getElementById('mm-hook').textContent = d.hookRate.toFixed(2);
-  document.getElementById('mm-ctr').textContent = d.ctr.toFixed(2) + '%';
-  document.getElementById('mm-post').textContent = d.postActions;
 
   // Followers and LPV populated from real Meta data via processRealData
 }
