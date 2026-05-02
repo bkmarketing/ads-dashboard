@@ -233,6 +233,11 @@
     display: none;
   }
 
+  body.client-banner-hidden #client-banner {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   body.client-view #client-banner {
     margin-left: 80px;
     width: calc(100% - 80px);
@@ -1507,6 +1512,16 @@
       min-height: auto;
       position: sticky;
       top: 0;
+      overflow: hidden;
+      max-height: 72px;
+      transition: max-height 0.22s ease, padding 0.22s ease, opacity 0.18s ease, border-color 0.18s ease;
+    }
+
+    body.client-banner-hidden #client-banner {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-bottom-color: transparent;
     }
 
     body.client-view #client-banner .client-info,
@@ -2683,6 +2698,8 @@ let state = {
   charts: {},
 };
 
+let lastMobileScrollY = 0;
+
 // ============================================================
 // URL PARAMS (client view)
 // ============================================================
@@ -3121,6 +3138,29 @@ function closeDateRangePicker() {
   document.getElementById('date-range-picker')?.classList.remove('open');
 }
 
+function handleMobileClientBannerVisibility() {
+  if (!state.isClientView) return;
+  if (window.innerWidth > 768) {
+    document.body.classList.remove('client-banner-hidden');
+    return;
+  }
+
+  const currentScrollY = window.scrollY || window.pageYOffset || 0;
+  if (currentScrollY <= 8) {
+    document.body.classList.remove('client-banner-hidden');
+    lastMobileScrollY = currentScrollY;
+    return;
+  }
+
+  if (currentScrollY > lastMobileScrollY + 8 && currentScrollY > 40) {
+    document.body.classList.add('client-banner-hidden');
+  } else if (currentScrollY < lastMobileScrollY - 8) {
+    document.body.classList.remove('client-banner-hidden');
+  }
+
+  lastMobileScrollY = currentScrollY;
+}
+
 function resetClientForm() {
   state.editingClientId = null;
   document.getElementById('share-client-name').value = '';
@@ -3296,6 +3336,7 @@ function doLogout() {
   sessionStorage.clear();
   closeProfileModal();
   document.body.classList.remove('client-view');
+  document.body.classList.remove('client-banner-hidden');
   state = { isAdmin: false, isClientView: false, clientName: '', accessToken: null, profiles: [], activeProfileId: null, clients: [], editingProfileId: null, editingClientId: null, adAccounts: [], selectedAccount: null, lockedAccountId: null, data: null, campaigns: [], creatives: [], charts: {} };
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
@@ -3411,6 +3452,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 function showApp() {
   document.body.classList.remove('client-view');
+  document.body.classList.remove('client-banner-hidden');
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
@@ -3433,10 +3475,12 @@ function showApp() {
 
 function showClientView(params) {
   document.body.classList.add('client-view');
+  document.body.classList.remove('client-banner-hidden');
   state.isClientView = true;
   state.clientName = params.clientName || 'Cliente';
   state.selectedAccount = params.accountId;
   state.lockedAccountId = params.accountId;
+  lastMobileScrollY = window.scrollY || 0;
 
   // Show client banner
   const banner = document.getElementById('client-banner');
@@ -3447,7 +3491,8 @@ function showClientView(params) {
   // Set dates
   if (params.dateStart) document.getElementById('date-start').value = params.dateStart;
   if (params.dateEnd) document.getElementById('date-end').value = params.dateEnd;
-  document.getElementById('range-preset').value = 'custom';
+  document.getElementById('range-preset').value = params.rangePreset || 'custom';
+  syncDateRangeDisplay();
 
   // If token provided
   if (params.token) {
@@ -3463,11 +3508,7 @@ function showClientView(params) {
   document.getElementById('header-account').textContent = params.accountId;
 
   updateMetaStatus(!!params.token);
-  if (params.token) {
-    fetchAdAccounts();
-  } else {
-    renderEmptyState();
-  }
+  fetchAdAccounts();
 }
 
 function updateMetaStatus(connected) {
@@ -3496,8 +3537,7 @@ async function fetchAdAccounts() {
     if (!state.selectedAccount) {
       selectAccount(DEMO_ACCOUNT.id);
     } else {
-      document.getElementById('account-select').value = state.selectedAccount;
-      populateAccountCards();
+      selectAccount(state.selectedAccount);
     }
     return;
   }
@@ -4203,8 +4243,12 @@ function generateClientLink() {
   const activeProfile = getActiveProfile();
   const clientName = document.getElementById('share-client-name').value || 'Cliente';
   const accountId = document.getElementById('share-account-select').value || 'act_demo';
-  const dateStart = document.getElementById('share-date-start').value;
-  const dateEnd = document.getElementById('share-date-end').value;
+  const { start, end } = getPresetRange('last7');
+  const dateStart = formatDate(start);
+  const dateEnd = formatDate(end);
+  document.getElementById('share-range-preset').value = 'last7';
+  document.getElementById('share-date-start').value = dateStart;
+  document.getElementById('share-date-end').value = dateEnd;
 
   const params = {
     type: 'client',
@@ -4212,6 +4256,7 @@ function generateClientLink() {
     accountId,
     dateStart,
     dateEnd,
+    rangePreset: 'last7',
     token: state.accessToken || '',
     profileId: activeProfile?.id || '',
     profileName: activeProfile?.name || '',
@@ -4288,6 +4333,9 @@ document.addEventListener('click', function(e) {
     closeDateRangePicker();
   }
 });
+
+window.addEventListener('scroll', handleMobileClientBannerVisibility, { passive: true });
+window.addEventListener('resize', handleMobileClientBannerVisibility);
 </script>
 </body>
 </html>
