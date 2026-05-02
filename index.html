@@ -2907,13 +2907,42 @@ let lastMobileScrollY = 0;
 function getUrlParams() {
   const hash = window.location.hash.replace('#', '');
   if (!hash) return null;
+
+  if (hash.includes('=')) {
+    const compactParams = new URLSearchParams(hash);
+    const viewType = compactParams.get('v');
+    if (viewType === 'c') {
+      return {
+        type: 'client',
+        clientName: compactParams.get('c') || 'Cliente',
+        accountId: compactParams.get('a') || '',
+        dateStart: compactParams.get('s') || '',
+        dateEnd: compactParams.get('e') || '',
+        rangePreset: compactParams.get('r') || 'custom',
+        token: compactParams.get('t') || '',
+      };
+    }
+  }
+
   try {
     return JSON.parse(atob(hash));
   } catch(e) { return null; }
 }
 
 function encodeClientParams(params) {
-  return btoa(JSON.stringify(params));
+  const compactParams = new URLSearchParams();
+  compactParams.set('v', 'c');
+  compactParams.set('c', params.clientName || 'Cliente');
+  compactParams.set('a', params.accountId || '');
+  compactParams.set('s', params.dateStart || '');
+  compactParams.set('e', params.dateEnd || '');
+  compactParams.set('r', params.rangePreset || 'custom');
+
+  if (params.token) {
+    compactParams.set('t', params.token);
+  }
+
+  return compactParams.toString();
 }
 
 // ============================================================
@@ -4783,7 +4812,6 @@ function closeProfileModal() {
 }
 
 function generateClientLink() {
-  const activeProfile = getActiveProfile();
   const clientName = document.getElementById('share-client-name').value || 'Cliente';
   const accountId = document.getElementById('share-account-select').value || 'act_demo';
   const { start, end } = getPresetRange('last7');
@@ -4801,8 +4829,6 @@ function generateClientLink() {
     dateEnd,
     rangePreset: 'last7',
     token: state.accessToken || '',
-    profileId: activeProfile?.id || '',
-    profileName: activeProfile?.name || '',
   };
 
   const encoded = encodeClientParams(params);
