@@ -3046,6 +3046,8 @@
 const CONFIG = {
   ADMIN_USER: 'admin',          // Usuário admin
   ADMIN_PASS: 'Jesus@123',      // Senha admin (MUDE ISSO!)
+  BACKEND_BASE_URL: 'https://adsdash-worker.adsdash.workers.dev',
+  BACKEND_ADMIN_SECRET: 'admin:Jesus@123',
   // Para Meta API, insira seu App ID do Facebook
   // Obtenha em: https://developers.facebook.com
   META_APP_ID: '934502342744476',
@@ -3171,6 +3173,13 @@ function getUrlParams() {
 
   if (hash.includes('=')) {
     const compactParams = new URLSearchParams(hash);
+    if (compactParams.has('id')) {
+      return {
+        type: 'client-share-id',
+        shareId: compactParams.get('id') || '',
+      };
+    }
+
     const hasClientParams = compactParams.has('a') && compactParams.has('c');
     const viewType = compactParams.get('v');
     if (viewType === 'c' || hasClientParams) {
@@ -3209,6 +3218,42 @@ function encodeClientParams(params) {
   }
 
   return compactParams.toString();
+}
+
+function getBackendBaseUrl() {
+  return String(CONFIG.BACKEND_BASE_URL || '').replace(/\/+$/, '');
+}
+
+function buildClientLinkFromShareId(shareId) {
+  return `${window.location.origin}${window.location.pathname}#id=${encodeURIComponent(shareId)}`;
+}
+
+async function resolveClientShare(shareId) {
+  const baseUrl = getBackendBaseUrl();
+  if (!baseUrl || !shareId) return null;
+
+  try {
+    const response = await fetch(`${baseUrl}/share/${encodeURIComponent(shareId)}`);
+    const result = await response.json();
+
+    if (!response.ok || !result.ok || !result.data) {
+      throw new Error(result.error || 'Nao foi possivel carregar o link compartilhado.');
+    }
+
+    return {
+      type: 'client',
+      clientName: result.data.clientName || 'Cliente',
+      accountId: result.data.accountId || '',
+      dateStart: result.data.dateStart || '',
+      dateEnd: result.data.dateEnd || '',
+      rangePreset: result.data.rangePreset || 'custom',
+      token: result.data.token || '',
+    };
+  } catch (error) {
+    console.error(error);
+    showToast('Link do cliente invalido ou indisponivel.');
+    return null;
+  }
 }
 
 // ============================================================
@@ -4345,7 +4390,7 @@ function connectMeta() {
 // ============================================================
 // INIT — single entry point after DOM is ready
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   // Default dates
   applyDatePreset('last7');
   applyShareDatePreset('last7');
@@ -4421,8 +4466,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // 2. Client view? (hash is base64 JSON)
+  // 2. Client view?
   const clientParams = getUrlParams();
+  if (clientParams && clientParams.type === 'client-share-id' && clientParams.shareId) {
+    const resolvedClientParams = await resolveClientShare(clientParams.shareId);
+    if (resolvedClientParams) {
+      showClientView(resolvedClientParams);
+      return;
+    }
+  }
+
   if (clientParams && clientParams.type === 'client') {
     showClientView(clientParams);
     return;
@@ -5173,12 +5226,24 @@ function closeProfileModal() {
   return;
 }
 
-function generateClientLink() {
-  const clientName = document.getElementById('share-client-name').value || 'Cliente';
-  const accountId = document.getElementById('share-account-select').value || 'act_demo';
+async function generateClientLink() {
+  const clientName = document.getElementById('share-client-name').value.trim() || 'Cliente';
+  const accountId = document.getElementById('share-account-select').value || '';
   const rangePreset = document.getElementById('share-range-preset').value || 'last7';
   let dateStart = document.getElementById('share-date-start').value;
   let dateEnd = document.getElementById('share-date-end').value;
+  const shareUrlEl = document.getElementById('share-url');
+  const shareUrlWrapEl = document.getElementById('share-url-wrap');
+
+  if (!state.accessToken) {
+    showToast('Conecte a Meta antes de gerar um link.');
+    return;
+  }
+
+  if (!accountId) {
+    showToast('Selecione uma conta de anuncio.');
+    return;
+  }
 
   if (rangePreset !== 'custom') {
     const { start, end } = getPresetRange(rangePreset);
@@ -5188,21 +5253,43 @@ function generateClientLink() {
     document.getElementById('share-date-end').value = dateEnd;
   }
 
-  const params = {
-    type: 'client',
-    clientName,
-    accountId,
-    dateStart,
-    dateEnd,
-    rangePreset,
-    token: state.accessToken || '',
-  };
+  if (rangePreset === 'custom' && (!dateStart || !dateEnd)) {
+    showToast('Defina a data inicial e final do cliente.');
+    return;
+  }
 
-  const encoded = encodeClientParams(params);
-  const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
+  shareUrlWrapEl.style.display = 'block';
+  shareUrlEl.textContent = 'Gerando link...';
 
-  document.getElementById('share-url').textContent = url;
-  document.getElementById('share-url-wrap').style.display = 'block';
+  try {
+    const response = await fetch(`${getBackendBaseUrl()}/share`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-secret': CONFIG.BACKEND_ADMIN_SECRET,
+      },
+      body: JSON.stringify({
+        clientName,
+        accountId,
+        rangePreset,
+        dateStart,
+        dateEnd,
+        metaToken: state.accessToken || '',
+      }),
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.ok || !result.id) {
+      throw new Error(result.error || 'Nao foi possivel gerar o link do cliente.');
+    }
+
+    shareUrlEl.textContent = buildClientLinkFromShareId(result.id);
+    showToast('Link gerado com sucesso!');
+  } catch (error) {
+    console.error(error);
+    shareUrlEl.textContent = 'Erro ao gerar link.';
+    showToast('Nao foi possivel gerar o link.');
+  }
 }
 
 function copyLink() {
