@@ -2615,6 +2615,7 @@
           </div>
 
           <select class="select-pill" id="range-preset" onchange="applyDatePreset(this.value, true)">
+            <option value="today">Hoje</option>
             <option value="last7" selected>Últimos 7 dias</option>
             <option value="last30">Últimos 30 dias</option>
             <option value="thisMonth">Este mês</option>
@@ -2652,12 +2653,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="btn-icon" onclick="exportData()" title="Exportar">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
           </div>
 
           <button class="btn-share" id="share-btn" onclick="openShareModal()" style="display:none">
@@ -2879,7 +2874,7 @@
                   </div>
                   <div class="share-field">
                     <label>Nome</label>
-                    <input type="text" id="profile-display-name" placeholder="Seu nome">
+                    <input type="text" id="profile-display-name" placeholder="Seu nome" oninput="updateUserAvatarLetter(this.value)">
                   </div>
                   <div class="share-field">
                     <label>Celular</label>
@@ -2999,6 +2994,7 @@
         <div class="share-field">
           <label>Período padrão</label>
           <select class="select-pill" id="share-range-preset" onchange="applyShareDatePreset(this.value)" style="width:100%;margin-bottom:8px;">
+            <option value="today">Hoje</option>
             <option value="last7" selected>Últimos 7 dias</option>
             <option value="last30">Últimos 30 dias</option>
             <option value="thisMonth">Este mês</option>
@@ -3059,6 +3055,14 @@ const CONFIG = {
 const ADMIN_CREDENTIALS = {
   user: CONFIG.ADMIN_USER,
   pass: CONFIG.ADMIN_PASS,
+};
+
+const RANGE_PRESET_CODES = {
+  today: 'd',
+  last7: 'w',
+  last30: 'm',
+  thisMonth: 'mth',
+  custom: 'c',
 };
 
 const STORAGE_KEYS = {
@@ -3164,15 +3168,18 @@ function getUrlParams() {
 
   if (hash.includes('=')) {
     const compactParams = new URLSearchParams(hash);
+    const hasClientParams = compactParams.has('a') && compactParams.has('c');
     const viewType = compactParams.get('v');
-    if (viewType === 'c') {
+    if (viewType === 'c' || hasClientParams) {
+      const rangeCode = compactParams.get('r') || 'c';
+      const rangePreset = Object.keys(RANGE_PRESET_CODES).find(key => RANGE_PRESET_CODES[key] === rangeCode) || 'custom';
       return {
         type: 'client',
         clientName: compactParams.get('c') || 'Cliente',
         accountId: compactParams.get('a') || '',
         dateStart: compactParams.get('s') || '',
         dateEnd: compactParams.get('e') || '',
-        rangePreset: compactParams.get('r') || 'custom',
+        rangePreset,
         token: compactParams.get('t') || '',
       };
     }
@@ -3185,12 +3192,14 @@ function getUrlParams() {
 
 function encodeClientParams(params) {
   const compactParams = new URLSearchParams();
-  compactParams.set('v', 'c');
   compactParams.set('c', params.clientName || 'Cliente');
   compactParams.set('a', params.accountId || '');
-  compactParams.set('s', params.dateStart || '');
-  compactParams.set('e', params.dateEnd || '');
-  compactParams.set('r', params.rangePreset || 'custom');
+  compactParams.set('r', RANGE_PRESET_CODES[params.rangePreset] || RANGE_PRESET_CODES.custom);
+
+  if (params.rangePreset === 'custom') {
+    compactParams.set('s', params.dateStart || '');
+    compactParams.set('e', params.dateEnd || '');
+  }
 
   if (params.token) {
     compactParams.set('t', params.token);
@@ -3691,6 +3700,15 @@ function getCurrentAdminProfile() {
   };
 }
 
+function updateUserAvatarLetter(name = '') {
+  const avatar = document.getElementById('user-avatar');
+  if (!avatar) return;
+
+  const fallbackName = state.adminUser || CONFIG.ADMIN_USER || 'A';
+  const source = (name || fallbackName).trim();
+  avatar.textContent = (source.charAt(0) || 'A').toUpperCase();
+}
+
 function hasSavedAdminProfile(profile = getCurrentAdminProfile()) {
   return Boolean(profile.company || profile.name || profile.phone || profile.email);
 }
@@ -3727,6 +3745,7 @@ function loadAdminProfileDetails() {
   if (nameInput) nameInput.value = profile.name || '';
   if (phoneInput) phoneInput.value = profile.phone || '';
   if (emailInput) emailInput.value = profile.email || '';
+  updateUserAvatarLetter(profile.name || '');
   state.isEditingAdminProfile = !hasSavedAdminProfile(profile);
   updateAdminProfileFormState();
 }
@@ -3746,6 +3765,7 @@ function saveAdminProfileDetails() {
     email: document.getElementById('profile-email')?.value.trim() || '',
   };
   saveAdminProfiles(nextProfiles);
+  updateUserAvatarLetter(nextProfiles[key].name || '');
   state.isEditingAdminProfile = false;
   updateAdminProfileFormState();
   showToast('Informações do perfil salvas.');
@@ -3954,6 +3974,10 @@ function getPresetRange(preset) {
   const end = new Date();
   end.setHours(12, 0, 0, 0);
   const start = new Date(end);
+
+  if (preset === 'today') {
+    return { start, end };
+  }
 
   if (preset === 'last30') {
     start.setDate(end.getDate() - 29);
@@ -4420,7 +4444,7 @@ function showApp() {
 
   loadScopedDashboardData();
 
-  document.getElementById('user-avatar').textContent = state.isAdmin ? 'A' : 'C';
+  updateUserAvatarLetter(getCurrentAdminProfile().name || '');
   document.getElementById('share-btn').style.display = state.isAdmin ? 'flex' : 'none';
   document.getElementById('tab-contas').style.display = state.isAdmin ? 'flex' : 'none';
   loadAdminProfileDetails();
@@ -4461,10 +4485,14 @@ function showClientView(params) {
   document.getElementById('client-name-banner').textContent = params.clientName;
 
   // Set dates
-  if (params.dateStart) document.getElementById('date-start').value = params.dateStart;
-  if (params.dateEnd) document.getElementById('date-end').value = params.dateEnd;
   document.getElementById('range-preset').value = params.rangePreset || 'custom';
-  syncDateRangeDisplay();
+  if (params.rangePreset && params.rangePreset !== 'custom' && !params.dateStart && !params.dateEnd) {
+    applyDatePreset(params.rangePreset);
+  } else {
+    if (params.dateStart) document.getElementById('date-start').value = params.dateStart;
+    if (params.dateEnd) document.getElementById('date-end').value = params.dateEnd;
+    syncDateRangeDisplay();
+  }
 
   // If token provided
   if (params.token) {
@@ -5140,12 +5168,17 @@ function closeProfileModal() {
 function generateClientLink() {
   const clientName = document.getElementById('share-client-name').value || 'Cliente';
   const accountId = document.getElementById('share-account-select').value || 'act_demo';
-  const { start, end } = getPresetRange('last7');
-  const dateStart = formatDate(start);
-  const dateEnd = formatDate(end);
-  document.getElementById('share-range-preset').value = 'last7';
-  document.getElementById('share-date-start').value = dateStart;
-  document.getElementById('share-date-end').value = dateEnd;
+  const rangePreset = document.getElementById('share-range-preset').value || 'last7';
+  let dateStart = document.getElementById('share-date-start').value;
+  let dateEnd = document.getElementById('share-date-end').value;
+
+  if (rangePreset !== 'custom') {
+    const { start, end } = getPresetRange(rangePreset);
+    dateStart = formatDate(start);
+    dateEnd = formatDate(end);
+    document.getElementById('share-date-start').value = dateStart;
+    document.getElementById('share-date-end').value = dateEnd;
+  }
 
   const params = {
     type: 'client',
@@ -5153,7 +5186,7 @@ function generateClientLink() {
     accountId,
     dateStart,
     dateEnd,
-    rangePreset: 'last7',
+    rangePreset,
     token: state.accessToken || '',
   };
 
