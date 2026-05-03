@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meta Ads Dashboard</title>
+<title>AdsDash</title>
+<link rel="icon" type="image/x-icon" href="./favicon.ico">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2601,7 +2602,7 @@
       <!-- HEADER -->
       <header class="header">
         <div class="header-title">
-          <h1 id="header-client-name">Meta Ads Dashboard</h1>
+          <h1 id="header-client-name">AdsDash</h1>
           <p id="header-subtitle"><span class="subtitle-label">Relatório Meta Ads</span><span class="subtitle-separator"> · </span><span id="header-account">Todas as contas</span></p>
         </div>
 
@@ -3052,6 +3053,7 @@ const CONFIG = {
   META_APP_ID: '934502342744476',
   META_API_VERSION: 'v21.0',
   META_PERMISSIONS: 'ads_read,ads_management,business_management',
+  DASHBOARD_REFRESH_MS: 30000,
 };
 
 const ADMIN_CREDENTIALS = {
@@ -3148,6 +3150,10 @@ function createInitialState() {
 let state = createInitialState();
 
 let lastMobileScrollY = 0;
+let dashboardRefreshTimer = null;
+let currentLoadRequestId = 0;
+let isLoadInProgress = false;
+let skipChartAnimationOnNextRender = false;
 
 // ============================================================
 // URL PARAMS (client view)
@@ -4001,6 +4007,29 @@ function handleManualShareDateChange() {
   document.getElementById('share-range-preset').value = 'custom';
 }
 
+function stopDashboardAutoRefresh() {
+  if (dashboardRefreshTimer) {
+    clearInterval(dashboardRefreshTimer);
+    dashboardRefreshTimer = null;
+  }
+}
+
+function startDashboardAutoRefresh() {
+  stopDashboardAutoRefresh();
+
+  if (document.hidden) return;
+  if (document.getElementById('app')?.style.display !== 'block') return;
+  if (!state.selectedAccount) return;
+
+  dashboardRefreshTimer = setInterval(() => {
+    loadData({ silent: true, source: 'auto-refresh' });
+  }, CONFIG.DASHBOARD_REFRESH_MS);
+}
+
+function restartDashboardAutoRefresh() {
+  startDashboardAutoRefresh();
+}
+
 function updateActiveProfileUI() {
   const profile = getActiveProfile();
   const summary = document.getElementById('share-profile-summary');
@@ -4237,6 +4266,9 @@ function togglePasswordVisibility(inputId = 'login-pass', buttonEl = null) {
 
 function doLogout() {
   if (!confirm('Sair do dashboard?')) return;
+  stopDashboardAutoRefresh();
+  currentLoadRequestId = 0;
+  isLoadInProgress = false;
   clearAdminSession();
   sessionStorage.removeItem('meta_token');
   sessionStorage.removeItem('pending_profile_id');
@@ -4303,6 +4335,18 @@ document.addEventListener('DOMContentLoaded', function() {
       registerAdminAccess();
     } else {
       doLogin();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopDashboardAutoRefresh();
+      return;
+    }
+
+    if (document.getElementById('app')?.style.display === 'block') {
+      restartDashboardAutoRefresh();
+      loadData({ silent: true, source: 'visibility-resume' });
     }
   });
 
@@ -4398,6 +4442,8 @@ function showApp() {
   if (getActiveProfile()?.tokenInvalid) {
     openReconnectModal();
   }
+
+  restartDashboardAutoRefresh();
 }
 
 function showClientView(params) {
@@ -4435,6 +4481,7 @@ function showClientView(params) {
 
   updateMetaStatus(!!params.token);
   fetchAdAccounts();
+  restartDashboardAutoRefresh();
 }
 
 function updateMetaStatus(connected) {
@@ -4544,26 +4591,40 @@ function selectAccount(accountId) {
   }
 
   populateAccountCards();
+  restartDashboardAutoRefresh();
   loadData();
 }
 
-async function loadData() {
+async function loadData(options = {}) {
+  const { silent = false } = options;
   if (!state.selectedAccount) {
+    stopDashboardAutoRefresh();
     renderEmptyState();
     return;
   }
 
   if (state.selectedAccount === DEMO_ACCOUNT.id) {
     loadDemoData();
+    restartDashboardAutoRefresh();
     return;
   }
 
   if (!state.accessToken) {
+    stopDashboardAutoRefresh();
     renderEmptyState();
     return;
   }
 
-  showLoadingState();
+  if (silent && isLoadInProgress) return;
+
+  const requestId = ++currentLoadRequestId;
+  const selectedAccountId = state.selectedAccount;
+  isLoadInProgress = true;
+  skipChartAnimationOnNextRender = silent;
+
+  if (!silent) {
+    showLoadingState();
+  }
   const dateStart = document.getElementById('date-start').value;
   const dateEnd = document.getElementById('date-end').value;
 
@@ -4577,24 +4638,28 @@ async function loadData() {
 
   try {
     // Account insights
-    const insightsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/insights?fields=${fields}&time_range={"since":"${dateStart}","until":"${dateEnd}"}&level=account&access_token=${state.accessToken}`;
+    const insightsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${selectedAccountId}/insights?fields=${fields}&time_range={"since":"${dateStart}","until":"${dateEnd}"}&level=account&access_token=${state.accessToken}`;
     const insightsRes = await fetch(insightsUrl);
     const insightsData = await insightsRes.json();
 
     // Campaigns
-    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/campaigns?fields=name,status,insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){reach,impressions,clicks,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${selectedAccountId}/campaigns?fields=name,status,insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){reach,impressions,clicks,spend,actions,action_values,purchase_roas}&access_token=${state.accessToken}`;
     const campaignsRes = await fetch(campaignsUrl);
     const campaignsData = await campaignsRes.json();
 
     // Daily insights for charts
-    const dailyUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/insights?fields=impressions,actions&time_range={"since":"${dateStart}","until":"${dateEnd}"}&time_increment=1&access_token=${state.accessToken}`;
+    const dailyUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${selectedAccountId}/insights?fields=impressions,actions&time_range={"since":"${dateStart}","until":"${dateEnd}"}&time_increment=1&access_token=${state.accessToken}`;
     const dailyRes = await fetch(dailyUrl);
     const dailyData = await dailyRes.json();
 
     // Ad creatives
-    const adsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${state.selectedAccount}/ads?fields=name,creative{id,name,thumbnail_url,image_url,video_id},insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){impressions,clicks,spend,actions}&access_token=${state.accessToken}`;
+    const adsUrl = `https://graph.facebook.com/${CONFIG.META_API_VERSION}/${selectedAccountId}/ads?fields=name,creative{id,name,thumbnail_url,image_url,video_id},insights.time_range({"since":"${dateStart}","until":"${dateEnd}"}){impressions,clicks,spend,actions}&access_token=${state.accessToken}`;
     const adsRes = await fetch(adsUrl);
     const adsData = await adsRes.json();
+
+    if (requestId !== currentLoadRequestId || selectedAccountId !== state.selectedAccount) {
+      return;
+    }
 
     const possibleErrors = [insightsData.error, campaignsData.error, dailyData.error, adsData.error].filter(Boolean);
     if (possibleErrors.length) {
@@ -4605,9 +4670,18 @@ async function loadData() {
     }
 
     processRealData(insightsData.data, campaignsData.data, dailyData.data, adsData.data);
+    skipChartAnimationOnNextRender = false;
+    restartDashboardAutoRefresh();
   } catch(e) {
     console.error(e);
     showApiError('Erro ao buscar dados. Verifique sua conexão e permissões.');
+  } finally {
+    if (requestId === currentLoadRequestId) {
+      isLoadInProgress = false;
+    }
+    if (!silent) {
+      skipChartAnimationOnNextRender = false;
+    }
   }
 }
 
@@ -4942,6 +5016,7 @@ function destroyChart(id) {
 function renderLineChart(labels, addCart, purchases) {
   destroyChart('line');
   const ctx = document.getElementById('line-chart').getContext('2d');
+  const animateChart = !skipChartAnimationOnNextRender;
   state.charts['line'] = new Chart(ctx, {
     type: 'line',
     data: {
@@ -4952,6 +5027,7 @@ function renderLineChart(labels, addCart, purchases) {
       ]
     },
     options: {
+      animation: animateChart ? undefined : false,
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
@@ -4965,6 +5041,7 @@ function renderLineChart(labels, addCart, purchases) {
 function renderDonutChart() {
   destroyChart('donut');
   const ctx = document.getElementById('donut-chart').getContext('2d');
+  const animateChart = !skipChartAnimationOnNextRender;
   const data = state.creatives
     .filter(c => c.purchases > 0)
     .sort((a, b) => b.purchases - a.purchases)
@@ -4984,6 +5061,7 @@ function renderDonutChart() {
       datasets: [{ data: data.map(c => c.purchases), backgroundColor: COLORS, borderWidth: 0, hoverOffset: 4 }]
     },
     options: {
+      animation: animateChart ? undefined : false,
       responsive: true, maintainAspectRatio: false,
       cutout: '70%',
       plugins: { legend: { display: false }, tooltip: {
