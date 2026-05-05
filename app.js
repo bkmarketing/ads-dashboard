@@ -1331,6 +1331,8 @@ async function doLogout(skipConfirm = false) {
     });
   } catch {
     // A interface ja voltou para o login; ignoramos falhas do backend aqui.
+  } finally {
+    window.location.reload();
   }
 }
 
