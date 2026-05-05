@@ -399,6 +399,8 @@
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   .objective-menu {
@@ -2169,7 +2171,7 @@
     }
 
     .objective-selector-wrap {
-      flex: 1;
+      flex: 1.2;
       margin-top: 0;
       min-width: 0;
     }
@@ -2178,10 +2180,15 @@
       width: 100%;
       min-height: 58px;
       border-radius: 16px;
+      padding: 8px 6px 9px;
+      gap: 3px;
     }
 
     .objective-selector-btn span {
-      font-size: 9px;
+      font-size: 7px;
+      line-height: 1.15;
+      letter-spacing: 0.2px;
+      max-width: 100%;
     }
 
     .objective-selector-note {
@@ -2918,6 +2925,21 @@
     .nav-item span {
       font-size: 9px;
       letter-spacing: 0.4px;
+    }
+
+    .objective-selector-wrap {
+      flex: 1.35;
+      min-width: 82px;
+    }
+
+    .objective-selector-btn {
+      min-height: 60px;
+      padding-inline: 5px;
+    }
+
+    .objective-selector-btn span {
+      font-size: 6.5px;
+      line-height: 1.12;
     }
 
     .profile-page-grid {
