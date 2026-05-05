@@ -1275,23 +1275,49 @@ function resetAdminState() {
 }
 
 function resetLoginForm() {
-  document.getElementById("login-user").value = "";
-  document.getElementById("login-pass").value = "";
-  document.getElementById("login-error").style.display = "none";
-  document.getElementById("register-error").style.display = "none";
+  const loginUser = document.getElementById("login-user");
+  const loginPass = document.getElementById("login-pass");
+  const loginError = document.getElementById("login-error");
+  const registerError = document.getElementById("register-error");
+
+  if (loginUser) loginUser.value = "";
+  if (loginPass) loginPass.value = "";
+  if (loginError) loginError.style.display = "none";
+  if (registerError) registerError.style.display = "none";
   toggleAuthMode("login");
 }
 
 function returnToLoginScreen() {
-  document.getElementById("share-modal").style.display = "none";
-  document.getElementById("reconnect-modal").style.display = "none";
-  closeProfileModal();
-  resetAdminState();
-  renderEmptyState();
-  history.replaceState(null, "", window.location.pathname + window.location.search);
-  resetLoginForm();
-  showLoginScreen();
-  document.getElementById("login-user")?.focus();
+  const app = document.getElementById("app");
+  const loginScreen = document.getElementById("login-screen");
+  const clientBanner = document.getElementById("client-banner");
+  const shareModal = document.getElementById("share-modal");
+  const reconnectModal = document.getElementById("reconnect-modal");
+
+  try {
+    if (shareModal) shareModal.style.display = "none";
+    if (reconnectModal) reconnectModal.style.display = "none";
+    closeProfileModal();
+    resetAdminState();
+    try {
+      renderEmptyState();
+    } catch (error) {
+      console.warn("Nao foi possivel limpar o dashboard durante o logout.", error);
+    }
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    resetLoginForm();
+  } finally {
+    document.body.classList.remove("client-view", "client-banner-hidden");
+    if (app) app.style.display = "none";
+    if (loginScreen) loginScreen.style.display = "flex";
+    if (clientBanner) clientBanner.style.display = "none";
+    try {
+      updateMetaStatus(false);
+    } catch (error) {
+      console.warn("Nao foi possivel atualizar o status da Meta durante o logout.", error);
+    }
+    document.getElementById("login-user")?.focus();
+  }
 }
 
 async function doLogout(skipConfirm = false) {
