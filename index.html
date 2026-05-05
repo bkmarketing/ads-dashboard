@@ -1656,7 +1656,7 @@
 
   .access-row {
     display: grid;
-    grid-template-columns: minmax(220px, 1.35fr) minmax(210px, 1.1fr) minmax(170px, 0.9fr) minmax(240px, 1fr);
+    grid-template-columns: minmax(220px, 1.25fr) minmax(210px, 1fr) minmax(170px, 0.85fr) minmax(320px, 1.2fr);
     gap: 0;
     align-items: stretch;
     background: var(--surface2);
@@ -1730,10 +1730,20 @@
 
   .access-cell-actions {
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
     gap: 10px;
-    flex-wrap: nowrap;
+  }
+
+  .access-actions-main {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .access-actions-secondary {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .access-action-buttons {
@@ -1742,6 +1752,97 @@
     gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-end;
+  }
+
+  .access-days-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .access-days-control.is-disabled {
+    opacity: 0.55;
+  }
+
+  .access-days-hint {
+    display: none;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+  }
+
+  .access-days-input {
+    width: 74px;
+    min-height: 34px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    outline: none;
+  }
+
+  .access-days-input:focus {
+    border-color: var(--accent);
+  }
+
+  .access-days-input:disabled,
+  .btn-access-add:disabled,
+  .btn-access-subtract:disabled,
+  .btn-access-permanent:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .btn-access-add,
+  .btn-access-subtract {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .btn-access-add {
+    border-color: rgba(168,196,65,0.34);
+    color: var(--green);
+  }
+
+  .btn-access-add:hover {
+    border-color: rgba(168,196,65,0.6);
+    background: rgba(168,196,65,0.12);
+  }
+
+  .btn-access-subtract {
+    border-color: rgba(224,85,85,0.34);
+    color: var(--red);
+  }
+
+  .btn-access-subtract:hover {
+    border-color: rgba(224,85,85,0.6);
+    background: rgba(224,85,85,0.12);
+  }
+
+  .btn-access-permanent {
+    border-color: rgba(74,158,255,0.34);
+    color: #bcd9ff;
+  }
+
+  .btn-access-permanent:hover {
+    border-color: rgba(74,158,255,0.6);
+    background: rgba(74,158,255,0.12);
+  }
+
+  .access-cell-actions .status-chip {
+    align-self: flex-end;
   }
 
   .access-empty-state {
@@ -2233,20 +2334,79 @@
     .access-row {
       grid-template-columns: 1fr;
       gap: 10px;
+      padding: 12px;
     }
 
     .access-row-head {
       display: none;
     }
 
+    .access-row .access-cell + .access-cell {
+      border-left: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .access-cell {
+      padding: 12px 0 0;
+    }
+
+    .access-cell:first-child {
+      padding-top: 0;
+    }
+
+    .access-cell[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 8px;
+      color: #d9e8a4;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
     .access-cell-actions {
-      justify-content: flex-start;
       align-items: flex-start;
-      flex-wrap: wrap;
+    }
+
+    .access-actions-main,
+    .access-actions-secondary {
+      width: 100%;
+      justify-content: flex-start;
     }
 
     .access-action-buttons {
-      justify-content: flex-start;
+      width: 100%;
+      justify-content: stretch;
+      gap: 8px;
+    }
+
+    .access-days-control {
+      width: 100%;
+      justify-content: stretch;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 40px 40px;
+      align-items: center;
+    }
+
+    .access-days-input {
+      width: 100%;
+    }
+
+    .access-days-hint {
+      display: none;
+    }
+
+    .btn-access-permanent,
+    .access-cell-actions .btn-inline:not(.btn-access-add):not(.btn-access-subtract) {
+      flex: 1 1 calc(50% - 4px);
+      min-height: 40px;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .access-cell-actions .status-chip {
+      align-self: flex-start;
     }
 
     .campaigns-table {
