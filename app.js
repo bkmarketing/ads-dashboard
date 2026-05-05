@@ -1274,25 +1274,38 @@ function resetAdminState() {
   setSavedActiveProfileId("");
 }
 
-function doLogout(skipConfirm = false) {
-  if (!skipConfirm && !confirm("Sair do dashboard?")) return;
-  apiRequest("/auth/logout", {
-    method: "POST",
-    body: {}
-  }).catch(() => {});
+function resetLoginForm() {
+  document.getElementById("login-user").value = "";
+  document.getElementById("login-pass").value = "";
+  document.getElementById("login-error").style.display = "none";
+  document.getElementById("register-error").style.display = "none";
+  toggleAuthMode("login");
+}
+
+function returnToLoginScreen() {
   document.getElementById("share-modal").style.display = "none";
   document.getElementById("reconnect-modal").style.display = "none";
   closeProfileModal();
   resetAdminState();
   renderEmptyState();
-  toggleAuthMode("login");
   history.replaceState(null, "", window.location.pathname + window.location.search);
-  document.getElementById("login-user").value = "";
-  document.getElementById("login-pass").value = "";
-  document.getElementById("login-error").style.display = "none";
-  document.getElementById("register-error").style.display = "none";
+  resetLoginForm();
   showLoginScreen();
   document.getElementById("login-user")?.focus();
+}
+
+async function doLogout(skipConfirm = false) {
+  if (!skipConfirm && !confirm("Sair do dashboard?")) return;
+  returnToLoginScreen();
+
+  try {
+    await apiRequest("/auth/logout", {
+      method: "POST",
+      body: {}
+    });
+  } catch {
+    // A interface ja voltou para o login; ignoramos falhas do backend aqui.
+  }
 }
 
 async function restoreSession() {
