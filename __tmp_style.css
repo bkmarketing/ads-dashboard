@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AdsDash</title>
-<link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
+
   :root {
     --bg: #060708;
     --bg-alt: #0d1012;
@@ -485,7 +476,7 @@
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    word-break: normal;
+    word-break: break-word;
     overflow-wrap: anywhere;
   }
 
@@ -1446,7 +1437,7 @@
   }
 
   .legend-text {
-    word-break: normal;
+    word-break: break-word;
   }
 
   .chart-legend {
@@ -1562,9 +1553,7 @@
     height: 100%;
   }
 
-  .creative-thumb img,
-  .creative-thumb video,
-  .creative-thumb canvas {
+  .creative-thumb img {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1576,11 +1565,6 @@
     transition: opacity 0.2s ease;
   }
 
-  .creative-thumb canvas {
-    opacity: 0;
-    pointer-events: none;
-  }
-
   .creative-thumb.is-video {
     background:
       radial-gradient(circle at top, rgba(74,158,255,0.10), transparent 36%),
@@ -1588,25 +1572,9 @@
   }
 
   .creative-thumb.is-video img {
-    object-fit: cover;
-    object-position: center 20%;
+    object-fit: contain;
+    object-position: center top;
     padding: 0;
-    transform: scale(1.08);
-    transform-origin: center top;
-  }
-
-  .creative-thumb.is-video video {
-    object-fit: cover;
-    object-position: center 18%;
-    background: transparent;
-    transform: scale(1.08);
-    transform-origin: center top;
-  }
-
-  .creative-thumb.is-video canvas {
-    object-fit: cover;
-    transform: scale(1.08);
-    transform-origin: center top;
   }
 
   .creative-thumb .placeholder-icon {
@@ -1621,20 +1589,7 @@
     pointer-events: none;
   }
 
-  .creative-thumb.is-loaded img,
-  .creative-thumb.is-loaded video {
-    opacity: 1;
-  }
-
-  .creative-thumb.video-frame-ready canvas {
-    opacity: 0;
-  }
-
-  .creative-thumb.video-frame-ready .creative-video-fallback {
-    opacity: 0;
-  }
-
-  .creative-thumb.video-frame-ready video {
+  .creative-thumb.is-loaded img {
     opacity: 1;
   }
 
@@ -1654,7 +1609,6 @@
     min-height: 36px;
     line-height: 1.35;
     display: -webkit-box;
-    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -1721,8 +1675,7 @@
     overflow: auto;
   }
 
-  .creative-preview-stage img,
-  .creative-preview-stage video {
+  .creative-preview-stage img {
     max-width: 100%;
     max-height: calc(100vh - 220px);
     width: auto;
@@ -2025,7 +1978,7 @@
     font-size: 12px;
     color: var(--text-muted);
     font-family: 'IBM Plex Mono', monospace;
-    word-break: normal;
+    word-break: break-word;
     line-height: 1.5;
   }
 
@@ -3036,7 +2989,7 @@
 
     .access-action-buttons {
       width: 100%;
-      justify-content: flex-start;
+      justify-content: stretch;
       gap: 8px;
     }
 
@@ -3261,7 +3214,7 @@
 
     .profile-page-grid .saved-item-actions {
       width: 100%;
-      justify-content: flex-start;
+      justify-content: stretch;
     }
 
     #profiles-list .saved-item-actions {
@@ -3475,7 +3428,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    align-items: flex-start;
+    align-items: start;
   }
 
   .info-grid .share-field:last-child:nth-child(odd) {
@@ -3679,650 +3632,3 @@
     margin-top: 14px;
   }
 
-</style>
-</head>
-<body>
-
-<!-- LOGIN SCREEN -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <img src="./adsdash-logo.svg" alt="AdsDash">
-    </div>
-
-    <div id="admin-login">
-      <div class="field">
-        <label>Usuário</label>
-        <input type="text" id="login-user" placeholder="user" autocomplete="username">
-      </div>
-      <div class="field">
-        <label>Senha</label>
-        <div class="password-field">
-          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
-          <button type="button" class="password-toggle" id="toggle-password-btn" onclick="togglePasswordVisibility()">ver</button>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="doLogin()">Entrar</button>
-      <div class="auth-alt">
-        <button type="button" class="btn-inline" onclick="toggleAuthMode('register')">Cadastrar acesso com token</button>
-      </div>
-      <div class="login-error" id="login-error">Usuário ou senha incorretos</div>
-    </div>
-
-    <div id="admin-register" style="display:none">
-      <h2>Cadastrar novo acesso</h2>
-      <div class="field">
-        <label>Token de cadastro</label>
-        <input type="text" id="register-token" placeholder="ADS-XXXX-XXXX" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Usuário</label>
-        <input type="text" id="register-user" placeholder="novo-admin" autocomplete="username">
-      </div>
-      <div class="field">
-        <label>Senha</label>
-        <div class="password-field">
-          <input type="password" id="register-pass" placeholder="••••••••" autocomplete="new-password">
-          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-pass', this)">ver</button>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="registerAdminAccess()">Cadastrar acesso</button>
-      <div class="auth-alt">
-        <button type="button" class="btn-inline" onclick="toggleAuthMode('login')">Voltar ao login</button>
-      </div>
-      <div class="login-note">Esse cadastro cria um administrador secundário com acesso ao dashboard, mas sem permissão para gerar novos tokens.</div>
-      <div class="login-error" id="register-error">Token inválido</div>
-    </div>
-  </div>
-</div>
-
-<!-- CLIENT BANNER -->
-<div id="client-banner">
-  <div class="client-info">
-    <div class="client-dot"></div>
-    <span>Visualização do cliente · <span id="client-name-banner">—</span></span>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="app">
-  <div class="layout">
-
-    <!-- SIDEBAR -->
-    <nav class="sidebar">
-      <img class="sidebar-logo" src="./adsdash-icon.svg" alt="AdsDash">
-
-      <button class="nav-item active" onclick="switchTab('geral')" id="tab-geral">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-        <span>Geral</span>
-      </button>
-
-      <button class="nav-item" onclick="switchTab('criativos')" id="tab-criativos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
-        </svg>
-        <span>Cria­tivos</span>
-      </button>
-
-      <button class="nav-item" onclick="switchTab('contas')" id="tab-contas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        <span>Contas</span>
-      </button>
-
-      <div class="objective-selector-wrap" id="objective-selector-wrap">
-        <button type="button" class="objective-selector-btn" id="objective-selector-btn" onclick="toggleObjectiveMenu()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 7h16"></path>
-            <path d="M7 12h10"></path>
-            <path d="M10 17h4"></path>
-          </svg>
-          <span id="objective-button-label">Compra no site</span>
-        </button>
-        <div class="objective-menu" id="objective-menu">
-          <div class="objective-menu-title">Visualizacao Geral</div>
-          <button type="button" class="objective-option active" data-objective-option="purchase" onclick="selectObjectiveType('purchase')">Compra no site</button>
-          <button type="button" class="objective-option" data-objective-option="message" onclick="selectObjectiveType('message')">Mensagem direta</button>
-          <button type="button" class="objective-option" data-objective-option="lead" onclick="selectObjectiveType('lead')">Leads de formulario</button>
-        </div>
-      </div>
-
-      <button class="nav-item mobile-only-nav" onclick="switchTab('perfil')" id="tab-perfil">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        <span>Perfil</span>
-      </button>
-
-      <button class="nav-item mobile-only-nav" onclick="doLogout()" id="mobile-logout-btn" title="Sair da conta" aria-label="Sair da conta">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-        <span>Sair</span>
-      </button>
-
-      <div class="sidebar-bottom">
-        <div class="sidebar-avatar" onclick="openProfileModal()" title="Perfil" id="user-avatar">A</div>
-        <div class="profile-hint">perfil</div>
-        <button class="sidebar-logout" onclick="doLogout()" title="Sair da conta" aria-label="Sair da conta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-    </nav>
-
-    <!-- MAIN -->
-    <div class="main">
-
-      <!-- HEADER -->
-      <header class="header">
-        <div class="header-title">
-          <h1 id="header-client-name">AdsDash</h1>
-          <p id="header-subtitle"><span class="subtitle-label">Relatório Meta Ads</span><span class="subtitle-separator"> · </span><span id="header-account">Todas as contas</span></p>
-        </div>
-
-        <img class="mobile-client-logo" src="./adsdash-icon.svg" alt="AdsDash">
-
-        <div class="header-controls">
-          <div class="meta-status" id="meta-status">
-            <div class="status-dot" id="status-dot"></div>
-            <span id="status-text">Não conectado</span>
-          </div>
-
-          <select class="select-pill" id="range-preset" onchange="applyDatePreset(this.value, true)" style="display:none">
-            <option value="today">Hoje</option>
-            <option value="yesterdayToday">Ontem e hoje</option>
-            <option value="last7" selected>Ultimos 7 dias</option>
-            <option value="last30">Ultimos 30 dias</option>
-            <option value="thisMonth">Este mes</option>
-            <option value="custom">Personalizado</option>
-          </select>
-
-          <select class="select-pill" id="account-select" onchange="selectAccount(this.value)" style="display:none">
-            <option value="">Conta</option>
-          </select>
-
-          <div class="date-range-picker" id="date-range-picker">
-            <button type="button" class="date-range-trigger" onclick="toggleDateRangePicker()">
-              <span class="date-range-display">
-                <span class="date-range-label" id="date-range-label">--/--/----</span>
-              </span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </button>
-            <div class="date-range-panel">
-              <div class="date-range-calendar-head">
-                <button type="button" class="date-range-nav" onclick="shiftDateRangeCalendar(-1)" aria-label="Mes anterior">&lt;</button>
-                <div class="date-range-summary">
-                  <div class="date-range-panel-title">Periodo de analise</div>
-                  <strong id="date-range-panel-summary">Selecione um intervalo</strong>
-                </div>
-                <button type="button" class="date-range-nav" onclick="shiftDateRangeCalendar(1)" aria-label="Proximo mes">&gt;</button>
-              </div>
-              <div class="date-range-calendars">
-                <div class="date-calendar">
-                  <div class="date-calendar-toolbar">
-                    <select id="date-month-left" class="date-calendar-select" onchange="updateDateRangeMonth('left')"></select>
-                    <select id="date-year-left" class="date-calendar-select" onchange="updateDateRangeMonth('left')"></select>
-                  </div>
-                  <div class="date-weekdays" id="date-weekdays-left"></div>
-                  <div class="date-grid" id="date-grid-left"></div>
-                </div>
-                <div class="date-calendar">
-                  <div class="date-calendar-toolbar">
-                    <select id="date-month-right" class="date-calendar-select" onchange="updateDateRangeMonth('right')"></select>
-                    <select id="date-year-right" class="date-calendar-select" onchange="updateDateRangeMonth('right')"></select>
-                  </div>
-                  <div class="date-weekdays" id="date-weekdays-right"></div>
-                  <div class="date-grid" id="date-grid-right"></div>
-                </div>
-              </div>
-              <div class="date-range-footer">
-                <div class="date-range-actions">
-                  <button type="button" class="btn-inline" onclick="applyDatePreset('last7', true)">Ultimos 7 dias</button>
-                  <button type="button" class="btn-inline" onclick="applyDatePreset('last30', true)">Ultimos 30 dias</button>
-                  <button type="button" class="btn-inline" onclick="applyDatePreset('thisMonth', true)">Este mes</button>
-                </div>
-                <div class="date-range-actions">
-                  <button type="button" class="btn-inline" onclick="closeDateRangePicker()">Fechar</button>
-                  <button type="button" class="btn-inline btn-apply" onclick="applyDateRangeSelection()">Aplicar</button>
-                </div>
-              </div>
-              <div class="date-range-hidden-inputs">
-                <input type="date" id="date-start" onchange="handleManualDateChange()">
-                <input type="date" id="date-end" onchange="handleManualDateChange()">
-              </div>
-            </div>
-          </div>
-
-          <button class="btn-share" id="share-btn" onclick="openShareModal()" style="display:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            Gerar link
-          </button>
-        </div>
-      </header>
-
-      <!-- CONTENT -->
-      <div class="content">
-
-        <!-- CONNECT BANNER -->
-        <div class="connect-banner" id="connect-banner">
-          <h3>Vincule um perfil Meta</h3>
-          <p>Para visualizar dados reais com seguranca, cadastre um nome e um System User Token no perfil Meta.</p>
-          <button class="btn-meta" style="width:auto;margin:0 auto;display:inline-flex;" onclick="connectMeta()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-            Abrir perfil Meta
-          </button>
-        </div>
-
-        <!-- TAB: VISÃO GERAL -->
-        <div class="tab-content active" id="content-geral">
-
-          <!-- KPIs -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-label">Impressões</div>
-              <div class="kpi-value" id="kpi-impressoes"></div>
-              <div class="kpi-delta up" id="kpi-impressoes-delta"></div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">Alcance</div>
-              <div class="kpi-value" id="kpi-alcance"></div>
-              <div class="kpi-delta up" id="kpi-alcance-delta"></div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">Valor gasto</div>
-              <div class="kpi-value" id="kpi-gasto"></div>
-              <div class="kpi-delta up" id="kpi-gasto-delta"></div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label" id="kpi-result-label">Compras</div>
-              <div class="kpi-value" id="kpi-compras"></div>
-              <div class="kpi-delta up" id="kpi-compras-delta"></div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label" id="kpi-cost-label">Custo por compra</div>
-              <div class="kpi-value" id="kpi-cpp"></div>
-              <div class="kpi-delta down" id="kpi-cpp-delta"></div>
-            </div>
-          </div>
-
-          <!-- SECTION GRID -->
-          <div class="section-grid">
-
-            <!-- FUNNEL -->
-            <div class="card funnel-card">
-              <div class="card-title">Funil de Tráfego</div>
-              <div class="funnel-wrap" id="funnel-wrap">
-                <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;font-family:'IBM Plex Mono',monospace;">
-                  Conecte sua conta para ver o funil
-                </div>
-              </div>
-              <div class="bottom-metrics" id="bottom-metrics">
-                <div class="bm-card">
-                  <div class="bm-label" id="bm-assist-label">Custo Add Carrinho</div>
-                  <div class="bm-val" id="bm-cac"></div>
-                </div>
-                <div class="bm-card">
-                  <div class="bm-label" id="bm-result-label">Custo/Compra</div>
-                  <div class="bm-val" id="bm-cpp"></div>
-                </div>
-                <div class="bm-card">
-                  <div class="bm-label" id="bm-last-label">CPM</div>
-                  <div class="bm-val" id="bm-cpm"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- METRICS COL -->
-            <div class="metrics-col">
-              <div class="metric-mini">
-                <div class="metric-mini-head">
-                  <select class="metric-mini-select" id="metric-filter-select" onchange="updateOverviewMetric(this.value)">
-                    <option value="thruplay">ThruPlay</option>
-                    <option value="video50">50% Video View</option>
-                    <option value="video75">75% Video View</option>
-                    <option value="pageView">Page View</option>
-                  </select>
-                </div>
-                <div class="metric-mini-val" id="mm-video"></div>
-              </div>
-              <div class="metric-mini">
-                <div class="metric-mini-label" id="metric-primary-label">ROAS TOTAL</div>
-                <div class="metric-mini-val" id="mm-roas" style="color:var(--accent)"></div>
-                <div class="metric-mini-delta" id="mm-roas-delta" style="color:var(--green)"></div>
-              </div>
-              <div class="metric-mini">
-                <div class="metric-mini-label" id="metric-secondary-label">Valor de conversão</div>
-                <div class="metric-mini-val" id="mm-conv"></div>
-                <div class="metric-mini-delta" id="mm-conv-delta" style="color:var(--green)"></div>
-              </div>
-            </div>
-
-            <!-- LINE CHART -->
-            <div class="card overview-compact-card overview-chart-card">
-              <div class="card-title" id="line-chart-title">Add Carrinho vs Compras</div>
-              <div class="chart-wrap">
-                <canvas id="line-chart"></canvas>
-              </div>
-              <div class="chart-legend">
-                <div class="chart-legend-item">
-                  <span class="chart-legend-swatch" style="background:#a8c441"></span>
-                  <span id="line-legend-primary">Adição de Carrinho</span>
-                </div>
-                <div class="chart-legend-item">
-                  <span class="chart-legend-swatch" style="background:#ffffff"></span>
-                  <span id="line-legend-secondary">Compras</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- DONUT -->
-            <div class="card overview-compact-card overview-donut-card">
-              <div class="card-title" id="donut-chart-title">Melhores Anúncios (Conversões)</div>
-              <div class="donut-wrap">
-                <div class="donut-canvas-wrap">
-                  <canvas id="donut-chart"></canvas>
-                </div>
-                <div class="donut-legend" id="donut-legend">
-                  <div style="color:var(--text-muted);font-size:11px;font-family:'IBM Plex Mono',monospace">Sem dados</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- CAMPAIGNS TABLE -->
-          <div class="card">
-            <div class="section-header">
-              <div class="card-title" style="margin:0">Campanhas</div>
-              <div class="badge" id="campaigns-badge">0 campanhas</div>
-            </div>
-            <div style="overflow-x:auto">
-              <table class="campaigns-table" id="campaigns-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Nome da campanha</th>
-                    <th>Alcance</th>
-                    <th>Impressões</th>
-                    <th id="campaign-assist-header">Add Carrinho</th>
-                    <th id="campaign-main-header">Compras</th>
-                    <th>Valor gasto</th>
-                    <th id="campaign-last-header">ROAS</th>
-                  </tr>
-                </thead>
-                <tbody id="campaigns-tbody">
-                  <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:12px">Sem dados de campanha</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB: CRIATIVOS -->
-        <div class="tab-content" id="content-criativos">
-          <div class="section-header">
-            <h2>Criativos das Campanhas</h2>
-            <div class="badge" id="creatives-badge">0 criativos</div>
-          </div>
-          <div class="creatives-grid" id="creatives-grid">
-            <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">
-              Conecte sua conta Meta para visualizar os criativos
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB: CONTAS -->
-        <div class="tab-content" id="content-contas">
-          <div class="section-header">
-            <h2>Contas de Anúncio</h2>
-            <button class="btn-share" id="contas-share-btn" onclick="openShareModal()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-              Gerar link de cliente
-            </button>
-            <button class="btn-share" id="contas-token-btn" onclick="generateAdminInviteToken()" style="display:none">Gerar token</button>
-          </div>
-          <div class="token-output" id="contas-token-output">
-            <div class="share-url-box" id="contas-token-value">—</div>
-            <div class="profile-actions">
-              <button class="btn-copy" onclick="copyAdminInviteToken()">Copiar token</button>
-            </div>
-          </div>
-          <div class="accounts-grid" id="accounts-grid">
-            <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">
-              Conecte sua conta Meta para ver as contas de anúncio
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-content" id="content-perfil">
-          <div class="section-header">
-            <h2>Perfil e Meta Apps</h2>
-            <div class="badge" id="profile-role-badge">admin</div>
-          </div>
-
-          <div class="profile-page-grid">
-              <div class="card" id="profile-info-card">
-                <div class="card-title">Informações do perfil</div>
-
-                <div class="info-grid">
-                  <div class="share-field">
-                    <label>Empresa</label>
-                    <input type="text" id="profile-company" placeholder="Opcional">
-                  </div>
-                  <div class="share-field">
-                    <label>Nome</label>
-                    <input type="text" id="profile-display-name" placeholder="Seu nome" oninput="updateUserAvatarLetter(this.value)">
-                  </div>
-                  <div class="share-field">
-                    <label>Celular</label>
-                    <input type="text" id="profile-phone" placeholder="(00) 00000-0000">
-                  </div>
-                  <div class="share-field">
-                    <label>Email</label>
-                    <input type="email" id="profile-email" placeholder="voce@empresa.com">
-                  </div>
-                </div>
-
-                <div class="profile-actions">
-                  <button class="btn-copy" id="profile-save-btn" onclick="saveAdminProfileDetails()">Salvar informações</button>
-                  <button class="btn-secondary" id="profile-edit-btn" onclick="editAdminProfileDetails()" style="display:none">Editar informações</button>
-                </div>
-              </div>
-
-              <div class="card">
-                <div class="saved-list-header">
-                  <div class="saved-list-title">Meta Apps cadastrados</div>
-                </div>
-                <div class="saved-list" id="profiles-list">
-                  <div class="saved-item">
-                    <div class="saved-item-main">
-                      <div class="saved-item-title">Nenhum Meta App salvo</div>
-                      <div class="saved-item-subtitle">Cadastre um Meta App para conectar contas.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card" id="meta-app-card">
-                <div class="card-title">Cadastrar novo perfil Meta</div>
-                <div class="share-field">
-                  <label>Nome</label>
-                  <input type="text" id="profile-name" placeholder="Nome">
-                </div>
-                <div class="share-field">
-                  <label>System User Token</label>
-                  <input type="password" id="profile-system-user-token" placeholder="Cole aqui o token seguro do sistema">
-                </div>
-                <div class="profile-actions" id="meta-app-actions">
-                  <button class="btn-secondary" onclick="resetProfileForm()">Limpar campos</button>
-                  <button class="btn-copy" onclick="saveProfileSettings()">Salvar perfil Meta</button>
-                </div>
-              </div>
-
-              <div class="card" id="admin-access-card" style="display:none">
-                <div class="saved-list-header">
-                  <div class="saved-list-title">Cadastro de sub-admin</div>
-                  <button class="btn-inline" type="button" onclick="generateAdminInviteToken()">Gerar token</button>
-                </div>
-                <div class="profile-note" style="margin-top:0">Acessos criados por esse token entram como sub-admins e não podem gerar novos tokens.</div>
-                <div class="token-output" id="admin-token-output">
-                  <div class="share-url-box" id="admin-token-value">—</div>
-                  <div class="profile-actions">
-                    <button class="btn-copy" onclick="copyAdminInviteToken()">Copiar token</button>
-                  </div>
-                </div>
-                <div class="saved-list team-list" id="admin-users-list">
-                  <div class="saved-item">
-                    <div class="saved-item-main">
-                      <div class="saved-item-title">Nenhum sub-admin</div>
-                      <div class="saved-item-subtitle">Gere um token para liberar um novo acesso.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SHARE MODAL -->
-<div class="modal-overlay" id="share-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeShareModal()">×</button>
-    <h3>Gerar link de cliente</h3>
-    <p>Salve clientes por perfil e gere links com a conta e o período já definidos.</p>
-
-    <div class="stack-fields">
-      <div class="saved-list-card">
-        <div class="saved-list-header">
-          <div class="saved-list-title">Clientes salvos</div>
-          <button class="btn-inline" type="button" onclick="resetClientForm()">Novo cliente</button>
-        </div>
-        <div class="saved-list" id="saved-clients-list">
-          <div class="saved-item">
-            <div class="saved-item-main">
-              <div class="saved-item-title">Nenhum cliente salvo</div>
-              <div class="saved-item-subtitle">Cadastre um cliente para reutilizar conta e período padrão.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="profile-card">
-        <div class="profile-meta">
-          <strong>Configuração do cliente</strong>
-          <span id="share-profile-summary">Vinculado ao perfil ativo do dashboard</span>
-        </div>
-
-        <div class="share-field">
-          <label>Nome do cliente</label>
-          <input type="text" id="share-client-name" placeholder="Ex: Nome Empresa">
-        </div>
-
-        <div class="share-field">
-          <label>Conta de anúncio</label>
-          <select class="select-pill" id="share-account-select" style="width:100%;">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-
-        <div class="share-field">
-          <label>Visualização geral</label>
-          <select class="select-pill" id="share-objective-select" onchange="handleShareObjectiveChange(this.value)" style="width:100%;">
-            <option value="purchase">Compra no site</option>
-            <option value="message">Mensagem direta</option>
-            <option value="lead">Leads de formulário</option>
-          </select>
-        </div>
-
-        <div class="share-field">
-          <label>Período padrão</label>
-          <select class="select-pill" id="share-range-preset" onchange="applyShareDatePreset(this.value)" style="width:100%;margin-bottom:8px;">
-            <option value="today">Hoje</option>
-            <option value="yesterdayToday">Ontem e hoje</option>
-            <option value="last7" selected>Últimos 7 dias</option>
-            <option value="last30">Últimos 30 dias</option>
-            <option value="thisMonth">Este mês</option>
-            <option value="custom">Personalizado</option>
-          </select>
-          <div style="display:flex;gap:8px">
-            <input type="date" id="share-date-start" style="flex:1" max="" onchange="handleManualShareDateChange()">
-            <input type="date" id="share-date-end" style="flex:1" max="" onchange="handleManualShareDateChange()">
-          </div>
-        </div>
-
-        <div id="share-url-wrap" style="display:none">
-          <label style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Link gerado</label>
-          <div class="share-url-box" id="share-url">—</div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-secondary" onclick="saveClientPreset()">Salvar cliente</button>
-          <button class="btn-secondary" onclick="generateClientLink()">Gerar link</button>
-          <button class="btn-copy" onclick="copyLink()">📋 Copiar link</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- RECONNECT MODAL -->
-<div class="modal-overlay" id="reconnect-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeReconnectModal()">×</button>
-    <h3>Atualizar System User Token</h3>
-    <p id="reconnect-modal-text">O token do seu perfil Meta expirou. Atualize o System User Token para voltar a carregar os dados reais.</p>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeReconnectModal()">Agora não</button>
-      <button class="btn-copy" onclick="reconnectMetaToken()">Abrir perfil Meta</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay creative-preview-modal" id="creative-preview-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeCreativePreview()">×</button>
-    <div class="creative-preview-head">
-      <h3 id="creative-preview-title">Preview do criativo</h3>
-    </div>
-    <div class="creative-preview-stage">
-      <img id="creative-preview-image" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
-      <video id="creative-preview-video" controls playsinline preload="metadata" style="display:none"></video>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast">Link copiado!</div>
-
-<script src="./app.js"></script>
-</body>
-</html>

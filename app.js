@@ -9,16 +9,7 @@ const STORAGE_KEYS = {
   sessionToken: "adsdash_session_token"
 };
 
-const DEMO_ACCOUNT_ID = "demo-account-aurora";
-const DEMO_ACCOUNT = {
-  id: DEMO_ACCOUNT_ID,
-  account_id: "DEMO-001",
-  name: "Demo | Aurora Forneria",
-  amount_spent: String(Math.round(2489.3 * 100)),
-  primaryView: "purchase",
-  supportedViews: ["purchase", "message", "lead"],
-  isDemo: true
-};
+const EMPTY_IMAGE_SRC = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
 
 function svgToDataUri(svg) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)
@@ -64,143 +55,6 @@ function createDemoCreativeThumb({ title, subtitle, accent, secondary, tag, mode
     </svg>
   `);
 }
-
-const DEMO_CREATIVE_THUMBS = {
-  auroraCombo: createDemoCreativeThumb({ title: "PIZZA NOBRE", subtitle: "edicao de inverno", accent: "#cf7c2a", secondary: "#5a2e17", tag: "COMBO" }),
-  cupomVip: createDemoCreativeThumb({ title: "CUPOM VIP", subtitle: "campanha de remarketing", accent: "#6f4df4", secondary: "#1d2344", tag: "RMKT" }),
-  burgerLaunch: createDemoCreativeThumb({ title: "BURGER PRIME", subtitle: "criativo de lancamento", accent: "#cc5630", secondary: "#31131a", tag: "NOVO" }),
-  videoChef: createDemoCreativeThumb({ title: "VIDEO CHEF", subtitle: "roteiro com oferta", accent: "#3c7cff", secondary: "#0d182b", tag: "VIDEO", mode: "video" }),
-  videoDelivery: createDemoCreativeThumb({ title: "ENTREGA EXPRESS", subtitle: "anuncio vertical", accent: "#16a085", secondary: "#0f3443", tag: "VIDEO", mode: "video" }),
-  leadMenu: createDemoCreativeThumb({ title: "MENU DIGITAL", subtitle: "captacao local", accent: "#97b63a", secondary: "#203014", tag: "LEAD" })
-};
-
-const DEMO_DASHBOARDS = {
-  purchase: {
-    overview: {
-      impressions: 48210,
-      reach: 21470,
-      spend: 2489.3,
-      purchases: 61,
-      addToCart: 143,
-      convValue: 16842.15,
-      roas: 6.77,
-      cpp: 40.81,
-      cpm: 51.63,
-      thruplays: 1890,
-      video50: 1328,
-      video75: 884,
-      pageView: 649,
-      ctr: 2.84,
-      clicks: 1369,
-      messages: 0,
-      leads: 0,
-      cpmessage: 0,
-      cpl: 0
-    },
-    campaigns: [
-      { name: "[VENDAS] Combo Aurora | Feed", reach: 7040, impressions: 12940, clicks: 336, addToCart: 39, purchases: 21, messages: 0, leads: 0, spend: 684.25, roas: 7.48, cpmessage: 0, cpl: 0 },
-      { name: "[RMKT] Cupom VIP | Stories", reach: 5210, impressions: 10180, clicks: 274, addToCart: 34, purchases: 18, messages: 0, leads: 0, spend: 521.6, roas: 8.14, cpmessage: 0, cpl: 0 },
-      { name: "[VIDEO] Chef Signature | Reels", reach: 5980, impressions: 11860, clicks: 298, addToCart: 28, purchases: 12, messages: 0, leads: 0, spend: 703.4, roas: 5.12, cpmessage: 0, cpl: 0 },
-      { name: "[LANCAMENTO] Burger Prime | Feed", reach: 3240, impressions: 7230, clicks: 201, addToCart: 22, purchases: 10, messages: 0, leads: 0, spend: 580.05, roas: 5.93, cpmessage: 0, cpl: 0 }
-    ],
-    creatives: [
-      { name: "Aurora Combo", thumbnailUrl: DEMO_CREATIVE_THUMBS.auroraCombo, mediaType: "image", impressions: 14620, addToCart: 45, purchases: 20, clicks: 388, messages: 0, leads: 0, spend: 729.3 },
-      { name: "Cupom VIP", thumbnailUrl: DEMO_CREATIVE_THUMBS.cupomVip, mediaType: "image", impressions: 10840, addToCart: 33, purchases: 16, clicks: 275, messages: 0, leads: 0, spend: 496.15 },
-      { name: "Burger Prime", thumbnailUrl: DEMO_CREATIVE_THUMBS.burgerLaunch, mediaType: "image", impressions: 7130, addToCart: 20, purchases: 9, clicks: 162, messages: 0, leads: 0, spend: 364.7 },
-      { name: "Video Chef", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoChef, mediaType: "video", impressions: 9020, addToCart: 24, purchases: 11, clicks: 301, messages: 0, leads: 0, spend: 533.85 },
-      { name: "Video Delivery", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoDelivery, mediaType: "video", impressions: 6600, addToCart: 21, purchases: 5, clicks: 243, messages: 0, leads: 0, spend: 365.3 },
-      { name: "Menu Lead", thumbnailUrl: DEMO_CREATIVE_THUMBS.leadMenu, mediaType: "image", impressions: 0, addToCart: 0, purchases: 0, clicks: 0, messages: 0, leads: 0, spend: 0 }
-    ],
-    daily: {
-      labels: ["2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"],
-      addToCart: [17, 15, 18, 22, 19, 25, 27],
-      purchases: [6, 7, 8, 9, 8, 11, 12],
-      impressions: [5930, 6210, 6480, 6670, 7040, 7330, 8550]
-    }
-  },
-  message: {
-    overview: {
-      impressions: 35620,
-      reach: 18430,
-      spend: 1428.45,
-      purchases: 0,
-      addToCart: 0,
-      convValue: 0,
-      roas: 0,
-      cpp: 0,
-      cpm: 40.1,
-      thruplays: 1342,
-      video50: 980,
-      video75: 622,
-      pageView: 412,
-      ctr: 3.12,
-      clicks: 1111,
-      messages: 84,
-      leads: 0,
-      cpmessage: 17.01,
-      cpl: 0
-    },
-    campaigns: [
-      { name: "[MSG] Delivery Express | Stories", reach: 4920, impressions: 10030, clicks: 351, addToCart: 0, purchases: 0, messages: 28, leads: 0, spend: 411.3, roas: 0, cpmessage: 14.69, cpl: 0 },
-      { name: "[MSG] Cupom VIP | Reels", reach: 4510, impressions: 9280, clicks: 306, addToCart: 0, purchases: 0, messages: 22, leads: 0, spend: 352.45, roas: 0, cpmessage: 16.02, cpl: 0 },
-      { name: "[MSG] Video Chef | Feed", reach: 5150, impressions: 10140, clicks: 287, addToCart: 0, purchases: 0, messages: 19, leads: 0, spend: 372.1, roas: 0, cpmessage: 19.58, cpl: 0 },
-      { name: "[MSG] Menu Noturno | Feed", reach: 3850, impressions: 6170, clicks: 167, addToCart: 0, purchases: 0, messages: 15, leads: 0, spend: 292.6, roas: 0, cpmessage: 19.51, cpl: 0 }
-    ],
-    creatives: [
-      { name: "Delivery Express", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoDelivery, mediaType: "video", impressions: 9960, addToCart: 0, purchases: 0, clicks: 332, messages: 25, leads: 0, spend: 394.35 },
-      { name: "Cupom VIP Stories", thumbnailUrl: DEMO_CREATIVE_THUMBS.cupomVip, mediaType: "image", impressions: 8830, addToCart: 0, purchases: 0, clicks: 276, messages: 20, leads: 0, spend: 328.2 },
-      { name: "Chef em Video", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoChef, mediaType: "video", impressions: 7920, addToCart: 0, purchases: 0, clicks: 244, messages: 18, leads: 0, spend: 301.4 },
-      { name: "Menu Digital", thumbnailUrl: DEMO_CREATIVE_THUMBS.leadMenu, mediaType: "image", impressions: 5860, addToCart: 0, purchases: 0, clicks: 149, messages: 11, leads: 0, spend: 214.5 }
-    ],
-    daily: {
-      labels: ["2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"],
-      clicks: [122, 135, 144, 153, 167, 182, 208],
-      messages: [9, 11, 10, 13, 12, 14, 15],
-      impressions: [4310, 4620, 4790, 4930, 5210, 5590, 6170]
-    }
-  },
-  lead: {
-    overview: {
-      impressions: 28940,
-      reach: 16120,
-      spend: 1196.2,
-      purchases: 0,
-      addToCart: 0,
-      convValue: 0,
-      roas: 0,
-      cpp: 0,
-      cpm: 41.33,
-      thruplays: 954,
-      video50: 711,
-      video75: 403,
-      pageView: 368,
-      ctr: 2.46,
-      clicks: 711,
-      messages: 0,
-      leads: 47,
-      cpmessage: 0,
-      cpl: 25.45
-    },
-    campaigns: [
-      { name: "[LEAD] Menu Corporativo | Form", reach: 4880, impressions: 9010, clicks: 214, addToCart: 0, purchases: 0, messages: 0, leads: 17, spend: 384.8, roas: 0, cpmessage: 0, cpl: 22.64 },
-      { name: "[LEAD] Combo Aurora | Form", reach: 4120, impressions: 7840, clicks: 189, addToCart: 0, purchases: 0, messages: 0, leads: 13, spend: 311.5, roas: 0, cpmessage: 0, cpl: 23.96 },
-      { name: "[LEAD] Chef Signature | Reels", reach: 3910, impressions: 7020, clicks: 163, addToCart: 0, purchases: 0, messages: 0, leads: 9, spend: 256.2, roas: 0, cpmessage: 0, cpl: 28.47 },
-      { name: "[LEAD] Cardapio Executivo | Feed", reach: 3210, impressions: 5070, clicks: 145, addToCart: 0, purchases: 0, messages: 0, leads: 8, spend: 243.7, roas: 0, cpmessage: 0, cpl: 30.46 }
-    ],
-    creatives: [
-      { name: "Lead Menu", thumbnailUrl: DEMO_CREATIVE_THUMBS.leadMenu, mediaType: "image", impressions: 8920, addToCart: 0, purchases: 0, clicks: 208, messages: 0, leads: 16, spend: 364.8 },
-      { name: "Aurora Combo Form", thumbnailUrl: DEMO_CREATIVE_THUMBS.auroraCombo, mediaType: "image", impressions: 7740, addToCart: 0, purchases: 0, clicks: 181, messages: 0, leads: 12, spend: 286.1 },
-      { name: "Chef Signature Lead", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoChef, mediaType: "video", impressions: 6240, addToCart: 0, purchases: 0, clicks: 152, messages: 0, leads: 10, spend: 271.4 },
-      { name: "Burger Prime Form", thumbnailUrl: DEMO_CREATIVE_THUMBS.burgerLaunch, mediaType: "image", impressions: 4970, addToCart: 0, purchases: 0, clicks: 119, messages: 0, leads: 9, spend: 214.7 }
-    ],
-    daily: {
-      labels: ["2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"],
-      clicks: [84, 91, 96, 101, 109, 114, 116],
-      leads: [4, 6, 5, 7, 8, 8, 9],
-      impressions: [3290, 3580, 3810, 4040, 4170, 4460, 5590]
-    }
-  }
-};
 
 const COLORS = ["#a8c441", "#c8e05a", "#7fa832", "#e8f091", "#5a7820"];
 const MONTH_NAMES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -879,20 +733,6 @@ function getSelectedObjectiveConfig() {
   return OBJECTIVE_CONFIGS[state.selectedObjectiveType] || OBJECTIVE_CONFIGS.purchase;
 }
 
-function isDemoAccount(accountId = "") {
-  return accountId === DEMO_ACCOUNT_ID;
-}
-
-function withDemoAccount(accounts = []) {
-  const sanitizedAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
-  return [...sanitizedAccounts.filter(account => account.id !== DEMO_ACCOUNT_ID), DEMO_ACCOUNT];
-}
-
-function getDemoDashboard() {
-  const source = DEMO_DASHBOARDS[state.selectedObjectiveType] || DEMO_DASHBOARDS.purchase;
-  return JSON.parse(JSON.stringify(source));
-}
-
 function getFilteredAccounts() {
   if (state.isMasterAdmin && !state.isClientView) return state.adAccounts;
   if (state.isClientView && state.lockedAccountId) {
@@ -981,10 +821,6 @@ function selectObjectiveType(objectiveType, options = {}) {
 
   const filteredAccounts = getFilteredAccounts();
   if (state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount)) {
-    if (isDemoAccount(state.selectedAccount)) {
-      loadData({ silent: true });
-      return;
-    }
     if (state.lastDashboardData) {
       processDashboardData(state.lastDashboardData);
     }
@@ -1988,7 +1824,7 @@ async function fetchAdAccounts() {
   }
 
   if (!activeProfile?.hasToken || activeProfile.tokenInvalid) {
-    state.adAccounts = withDemoAccount([]);
+    state.adAccounts = [];
     populateAccountSelects();
     const filteredAccounts = getFilteredAccounts();
     const fallbackAccountId = filteredAccounts.some(account => account.id === state.selectedAccount)
@@ -2001,7 +1837,7 @@ async function fetchAdAccounts() {
 
   try {
     const data = await apiRequest(`/meta/adaccounts?profileId=${encodeURIComponent(activeProfile.id)}`);
-    state.adAccounts = withDemoAccount(Array.isArray(data.accounts) ? data.accounts : []);
+    state.adAccounts = Array.isArray(data.accounts) ? data.accounts.filter(Boolean) : [];
     populateAccountSelects();
     const filteredAccounts = getFilteredAccounts();
     const hasSelected = state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount);
@@ -2021,7 +1857,6 @@ function populateAccountSelects() {
   const shareSelect = document.getElementById("share-account-select");
   if (!accountSelect || !shareSelect) return;
   const filteredAccounts = getFilteredAccounts();
-  const shareableAccounts = filteredAccounts.filter(account => !isDemoAccount(account.id));
 
   accountSelect.innerHTML = '<option value="">Selecione...</option>';
   shareSelect.innerHTML = '<option value="">Selecione...</option>';
@@ -2030,7 +1865,7 @@ function populateAccountSelects() {
     accountSelect.add(new Option(account.name, account.id));
   });
 
-  shareableAccounts.forEach(account => {
+  filteredAccounts.forEach(account => {
     shareSelect.add(new Option(account.name, account.id));
   });
 
@@ -2141,15 +1976,6 @@ async function loadData(options = {}) {
     return;
   }
 
-  if (isDemoAccount(state.selectedAccount)) {
-    isLoadInProgress = false;
-    skipChartAnimationOnNextRender = silent;
-    loadDemoData();
-    restartDashboardAutoRefresh();
-    if (!silent) skipChartAnimationOnNextRender = false;
-    return;
-  }
-
   const activeProfile = getActiveProfile();
   if (!state.isClientView && (!activeProfile?.hasToken || activeProfile.tokenInvalid)) {
     stopDashboardAutoRefresh();
@@ -2216,10 +2042,6 @@ function processDashboardData(dashboard) {
   renderLineChart(dashboard.daily || {});
   renderCreatives();
   renderDonutChart();
-}
-
-function loadDemoData() {
-  processDashboardData(getDemoDashboard());
 }
 
 function showLoadingState() {
@@ -2425,11 +2247,18 @@ function renderCreatives() {
 
   const placeholders = ["AD", "VT", "RM", "CR", "MX"];
   grid.innerHTML = state.creatives.map((creative, index) => `
-    <div class="creative-card" ${creative.thumbnailUrl ? `onclick="openCreativePreview('${escapeAttribute(creative.thumbnailUrl)}', '${escapeAttribute(creative.name)}')"` : ""}>
-      <div class="creative-thumb ${creative.thumbnailUrl ? "has-image" : ""} ${creative.mediaType === "video" ? "is-video" : "is-image"}">
-        ${creative.thumbnailUrl
-          ? `<img src="${escapeAttribute(creative.thumbnailUrl)}" alt="${escapeAttribute(creative.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="handleCreativeImageLoad(this)" onerror="handleCreativeImageError(this)">`
-          : ""
+    <div class="creative-card" ${(creative.videoSourceUrl || creative.thumbnailUrl) ? `onclick="openCreativePreview('${escapeAttribute(creative.videoSourceUrl || creative.thumbnailUrl)}', '${escapeAttribute(creative.mediaType || "image")}', '${escapeAttribute(creative.name)}')"` : ""}>
+      <div class="creative-thumb ${(creative.videoSourceUrl || creative.thumbnailUrl) ? "has-image" : ""} ${creative.mediaType === "video" ? "is-video" : "is-image"}">
+        ${creative.mediaType === "video" && creative.videoSourceUrl
+          ? `<canvas class="creative-video-canvas" aria-hidden="true"></canvas>
+             <video src="${escapeAttribute(creative.videoSourceUrl)}" muted playsinline preload="auto" disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen" onloadedmetadata="handleCreativeVideoMetadata(this)" onseeked="handleCreativeVideoSeeked(this)" onerror="handleCreativeVideoError(this)"></video>
+             ${creative.thumbnailUrl
+               ? `<img class="creative-video-fallback" src="${escapeAttribute(creative.thumbnailUrl)}" alt="${escapeAttribute(creative.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="handleCreativeImageLoad(this)" onerror="handleCreativeImageError(this)">`
+               : ""
+             }`
+          : creative.thumbnailUrl
+            ? `<img src="${escapeAttribute(creative.thumbnailUrl)}" alt="${escapeAttribute(creative.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="handleCreativeImageLoad(this)" onerror="handleCreativeImageError(this)">`
+            : ""
         }
         <div class="placeholder-icon">${placeholders[index % placeholders.length]}</div>
       </div>
@@ -2456,15 +2285,105 @@ function handleCreativeImageError(imageElement) {
   imageElement.remove();
 }
 
-function openCreativePreview(imageUrl, creativeName = "") {
-  if (!imageUrl) return;
+function handleCreativeVideoMetadata(videoElement) {
+  const thumb = videoElement.closest(".creative-thumb");
+  try {
+    const duration = Number(videoElement.duration) || 0;
+    const targetFrame = duration > 0 ? Math.min(Math.max(duration * 0.12, 0.35), 1.5) : 0.5;
+    videoElement.currentTime = targetFrame;
+  } catch {
+    if (thumb) thumb.classList.add("is-loaded");
+  }
+}
+
+function handleCreativeVideoSeeked(videoElement) {
+  const thumb = videoElement.closest(".creative-thumb");
+  const canvas = thumb?.querySelector(".creative-video-canvas");
+  if (thumb && canvas) {
+    const frameDrawn = drawCreativeVideoFrame(videoElement, canvas);
+    if (frameDrawn) {
+      thumb.classList.add("is-loaded");
+      thumb.classList.add("video-frame-ready");
+      videoElement.style.opacity = "1";
+    } else {
+      thumb.classList.add("is-loaded");
+    }
+  } else if (thumb) {
+    thumb.classList.add("is-loaded");
+  }
+  videoElement.pause();
+}
+
+function handleCreativeVideoError(videoElement) {
+  const thumb = videoElement.closest(".creative-thumb");
+  if (thumb) thumb.classList.remove("is-loaded");
+  videoElement.remove();
+}
+
+function drawCreativeVideoFrame(videoElement, canvasElement) {
+  const sourceWidth = Number(videoElement.videoWidth || 0);
+  const sourceHeight = Number(videoElement.videoHeight || 0);
+  if (!sourceWidth || !sourceHeight || !canvasElement) return false;
+
+  const thumb = canvasElement.closest(".creative-thumb");
+  const targetWidth = Math.max(1, Math.round(thumb?.clientWidth || canvasElement.clientWidth || 160));
+  const targetHeight = Math.max(1, Math.round(thumb?.clientHeight || canvasElement.clientHeight || 210));
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvasElement.width = Math.round(targetWidth * pixelRatio);
+  canvasElement.height = Math.round(targetHeight * pixelRatio);
+  canvasElement.style.width = `${targetWidth}px`;
+  canvasElement.style.height = `${targetHeight}px`;
+
+  const ctx = canvasElement.getContext("2d");
+  if (!ctx) return false;
+  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  ctx.clearRect(0, 0, targetWidth, targetHeight);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
+  const sourceAspect = sourceWidth / sourceHeight;
+  const targetAspect = targetWidth / targetHeight;
+  let sx = 0;
+  let sy = 0;
+  let sw = sourceWidth;
+  let sh = sourceHeight;
+
+  if (sourceAspect > targetAspect) {
+    sw = Math.round(sourceHeight * targetAspect);
+    sx = Math.round((sourceWidth - sw) / 2);
+  } else {
+    sh = Math.round(sourceWidth / targetAspect);
+    sy = Math.round((sourceHeight - sh) * 0.18);
+    sy = Math.max(0, Math.min(sy, sourceHeight - sh));
+  }
+
+  ctx.drawImage(videoElement, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+  return true;
+}
+
+function openCreativePreview(mediaUrl, mediaType = "image", creativeName = "") {
+  if (!mediaUrl) return;
   const modal = document.getElementById("creative-preview-modal");
   const image = document.getElementById("creative-preview-image");
+  const video = document.getElementById("creative-preview-video");
   const title = document.getElementById("creative-preview-title");
-  if (!modal || !image || !title) return;
+  if (!modal || !image || !video || !title) return;
 
-  image.src = imageUrl;
+  if (mediaType === "video") {
+    image.style.display = "none";
+    video.style.display = "block";
+    video.src = mediaUrl;
+    video.load();
+  } else {
+    video.pause();
+    video.style.display = "none";
+    video.removeAttribute("src");
+    image.style.display = "block";
+    image.src = mediaUrl;
+  }
   image.alt = creativeName || "Criativo";
+  video.setAttribute("aria-label", creativeName || "Criativo");
   title.textContent = creativeName || "Preview do criativo";
   modal.style.display = "flex";
 }
@@ -2472,10 +2391,19 @@ function openCreativePreview(imageUrl, creativeName = "") {
 function closeCreativePreview() {
   const modal = document.getElementById("creative-preview-modal");
   const image = document.getElementById("creative-preview-image");
+  const video = document.getElementById("creative-preview-video");
   if (modal) modal.style.display = "none";
   if (image) {
-    image.removeAttribute("src");
+    image.src = EMPTY_IMAGE_SRC;
     image.alt = "";
+    image.style.display = "";
+  }
+  if (video) {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    video.style.display = "none";
+    video.removeAttribute("aria-label");
   }
 }
 
@@ -2651,11 +2579,6 @@ async function generateClientLink() {
 
   if (!accountId) {
     showToast("Selecione uma conta de anuncio.");
-    return;
-  }
-
-  if (isDemoAccount(accountId)) {
-    showToast("A conta demo serve apenas para visualizacao interna do dashboard.");
     return;
   }
 
