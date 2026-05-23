@@ -1,6 +1,6 @@
 const CONFIG = {
   BACKEND_BASE_URL: "https://adsdash-worker.adsdash.workers.dev",
-  DASHBOARD_REFRESH_MS: 30000
+  DASHBOARD_REFRESH_MS: 180000
 };
 
 const STORAGE_KEYS = {
@@ -9,40 +9,196 @@ const STORAGE_KEYS = {
   sessionToken: "adsdash_session_token"
 };
 
-const DEMO_DATA = {
-  overview: {
-    impressions: 38000,
-    reach: 18000,
-    spend: 1115.58,
-    purchases: 17,
-    addToCart: 31,
-    convValue: 10582.4,
-    roas: 9.48,
-    cpm: 29.36,
-    thruplays: 382,
-    video50: 1124,
-    video75: 648,
-    pageView: 247,
-    ctr: 0.65
+const DEMO_ACCOUNT_ID = "demo-account-aurora";
+const DEMO_ACCOUNT = {
+  id: DEMO_ACCOUNT_ID,
+  account_id: "DEMO-001",
+  name: "Demo | Aurora Forneria",
+  amount_spent: String(Math.round(2489.3 * 100)),
+  primaryView: "purchase",
+  supportedViews: ["purchase", "message", "lead"],
+  isDemo: true
+};
+
+function svgToDataUri(svg) {
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)
+    .replace(/%0A/g, "")
+    .replace(/%20/g, " ")}`;
+}
+
+function createDemoCreativeThumb({ title, subtitle, accent, secondary, tag, mode = "image" }) {
+  const playBadge = mode === "video"
+    ? `
+      <circle cx="122" cy="34" r="18" fill="rgba(8,10,11,0.55)" stroke="rgba(255,255,255,0.2)" />
+      <polygon points="116,24 116,44 132,34" fill="#ffffff" />
+    `
+    : "";
+
+  return svgToDataUri(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 210">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${accent}" />
+          <stop offset="100%" stop-color="${secondary}" />
+        </linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.24)" />
+          <stop offset="100%" stop-color="rgba(255,255,255,0.02)" />
+        </linearGradient>
+      </defs>
+      <rect width="160" height="210" rx="20" fill="url(#bg)" />
+      <rect x="8" y="8" width="144" height="194" rx="16" fill="rgba(10,12,14,0.16)" stroke="rgba(255,255,255,0.12)" />
+      <circle cx="32" cy="38" r="26" fill="rgba(255,255,255,0.14)" />
+      <circle cx="128" cy="158" r="40" fill="rgba(255,255,255,0.12)" />
+      <rect x="20" y="20" width="70" height="20" rx="10" fill="rgba(8,10,11,0.38)" />
+      <text x="55" y="34" fill="#f7fafc" font-family="Montserrat, Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle">${tag}</text>
+      <rect x="20" y="58" width="120" height="68" rx="18" fill="rgba(8,10,11,0.18)" />
+      <rect x="28" y="66" width="104" height="18" rx="9" fill="rgba(255,255,255,0.18)" />
+      <rect x="28" y="92" width="76" height="10" rx="5" fill="rgba(255,255,255,0.16)" />
+      <rect x="28" y="108" width="92" height="10" rx="5" fill="rgba(255,255,255,0.12)" />
+      <rect x="20" y="140" width="120" height="44" rx="16" fill="rgba(8,10,11,0.38)" />
+      <text x="28" y="158" fill="#ffffff" font-family="Montserrat, Arial, sans-serif" font-size="13" font-weight="800">${title}</text>
+      <text x="28" y="174" fill="rgba(255,255,255,0.78)" font-family="IBM Plex Mono, monospace" font-size="8" letter-spacing="1">${subtitle}</text>
+      ${playBadge}
+      <rect x="20" y="188" width="58" height="10" rx="5" fill="url(#glass)" />
+    </svg>
+  `);
+}
+
+const DEMO_CREATIVE_THUMBS = {
+  auroraCombo: createDemoCreativeThumb({ title: "PIZZA NOBRE", subtitle: "edicao de inverno", accent: "#cf7c2a", secondary: "#5a2e17", tag: "COMBO" }),
+  cupomVip: createDemoCreativeThumb({ title: "CUPOM VIP", subtitle: "campanha de remarketing", accent: "#6f4df4", secondary: "#1d2344", tag: "RMKT" }),
+  burgerLaunch: createDemoCreativeThumb({ title: "BURGER PRIME", subtitle: "criativo de lancamento", accent: "#cc5630", secondary: "#31131a", tag: "NOVO" }),
+  videoChef: createDemoCreativeThumb({ title: "VIDEO CHEF", subtitle: "roteiro com oferta", accent: "#3c7cff", secondary: "#0d182b", tag: "VIDEO", mode: "video" }),
+  videoDelivery: createDemoCreativeThumb({ title: "ENTREGA EXPRESS", subtitle: "anuncio vertical", accent: "#16a085", secondary: "#0f3443", tag: "VIDEO", mode: "video" }),
+  leadMenu: createDemoCreativeThumb({ title: "MENU DIGITAL", subtitle: "captacao local", accent: "#97b63a", secondary: "#203014", tag: "LEAD" })
+};
+
+const DEMO_DASHBOARDS = {
+  purchase: {
+    overview: {
+      impressions: 48210,
+      reach: 21470,
+      spend: 2489.3,
+      purchases: 61,
+      addToCart: 143,
+      convValue: 16842.15,
+      roas: 6.77,
+      cpp: 40.81,
+      cpm: 51.63,
+      thruplays: 1890,
+      video50: 1328,
+      video75: 884,
+      pageView: 649,
+      ctr: 2.84,
+      clicks: 1369,
+      messages: 0,
+      leads: 0,
+      cpmessage: 0,
+      cpl: 0
+    },
+    campaigns: [
+      { name: "[VENDAS] Combo Aurora | Feed", reach: 7040, impressions: 12940, clicks: 336, addToCart: 39, purchases: 21, messages: 0, leads: 0, spend: 684.25, roas: 7.48, cpmessage: 0, cpl: 0 },
+      { name: "[RMKT] Cupom VIP | Stories", reach: 5210, impressions: 10180, clicks: 274, addToCart: 34, purchases: 18, messages: 0, leads: 0, spend: 521.6, roas: 8.14, cpmessage: 0, cpl: 0 },
+      { name: "[VIDEO] Chef Signature | Reels", reach: 5980, impressions: 11860, clicks: 298, addToCart: 28, purchases: 12, messages: 0, leads: 0, spend: 703.4, roas: 5.12, cpmessage: 0, cpl: 0 },
+      { name: "[LANCAMENTO] Burger Prime | Feed", reach: 3240, impressions: 7230, clicks: 201, addToCart: 22, purchases: 10, messages: 0, leads: 0, spend: 580.05, roas: 5.93, cpmessage: 0, cpl: 0 }
+    ],
+    creatives: [
+      { name: "Aurora Combo", thumbnailUrl: DEMO_CREATIVE_THUMBS.auroraCombo, mediaType: "image", impressions: 14620, addToCart: 45, purchases: 20, clicks: 388, messages: 0, leads: 0, spend: 729.3 },
+      { name: "Cupom VIP", thumbnailUrl: DEMO_CREATIVE_THUMBS.cupomVip, mediaType: "image", impressions: 10840, addToCart: 33, purchases: 16, clicks: 275, messages: 0, leads: 0, spend: 496.15 },
+      { name: "Burger Prime", thumbnailUrl: DEMO_CREATIVE_THUMBS.burgerLaunch, mediaType: "image", impressions: 7130, addToCart: 20, purchases: 9, clicks: 162, messages: 0, leads: 0, spend: 364.7 },
+      { name: "Video Chef", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoChef, mediaType: "video", impressions: 9020, addToCart: 24, purchases: 11, clicks: 301, messages: 0, leads: 0, spend: 533.85 },
+      { name: "Video Delivery", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoDelivery, mediaType: "video", impressions: 6600, addToCart: 21, purchases: 5, clicks: 243, messages: 0, leads: 0, spend: 365.3 },
+      { name: "Menu Lead", thumbnailUrl: DEMO_CREATIVE_THUMBS.leadMenu, mediaType: "image", impressions: 0, addToCart: 0, purchases: 0, clicks: 0, messages: 0, leads: 0, spend: 0 }
+    ],
+    daily: {
+      labels: ["2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"],
+      addToCart: [17, 15, 18, 22, 19, 25, 27],
+      purchases: [6, 7, 8, 9, 8, 11, 12],
+      impressions: [5930, 6210, 6480, 6670, 7040, 7330, 8550]
+    }
   },
-  campaigns: [
-    { name: "[RMKT] VENDAS | CARDAPIO 20/04", reach: 5400, impressions: 10200, clicks: 88, addToCart: 9, purchases: 5, spend: 315.4, roas: 9.18 },
-    { name: "[RMKT] +ALCANCE | CARDAPIO 27/04", reach: 4600, impressions: 8400, clicks: 61, addToCart: 5, purchases: 3, spend: 221.77, roas: 8.98 },
-    { name: "[MJ] +ALCANCE | CARDAPIO 20/04", reach: 6200, impressions: 11300, clicks: 54, addToCart: 3, purchases: 0, spend: 301.27, roas: 0 },
-    { name: "[MJ] VENDAS | CARDAPIO | 27/04", reach: 3900, impressions: 8100, clicks: 45, addToCart: 14, purchases: 9, spend: 277.14, roas: 23.61 }
-  ],
-  creatives: [
-    { name: "03", thumbnailUrl: null, impressions: 9200, addToCart: 8, purchases: 6, clicks: 61, spend: 256.8 },
-    { name: "02", thumbnailUrl: null, impressions: 7100, addToCart: 6, purchases: 0, clicks: 48, spend: 193.22 },
-    { name: "01 - ALEXIA", thumbnailUrl: null, impressions: 5800, addToCart: 4, purchases: 0, clicks: 31, spend: 147.18 },
-    { name: "ESTATICO - RMKT", thumbnailUrl: null, impressions: 7600, addToCart: 5, purchases: 4, clicks: 42, spend: 214.53 },
-    { name: "VIDEO - RMKT", thumbnailUrl: null, impressions: 8300, addToCart: 8, purchases: 7, clicks: 66, spend: 303.85 }
-  ],
-  daily: {
-    labels: ["2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01"],
-    addToCart: [2, 5, 3, 4, 5, 7, 5],
-    purchases: [1, 2, 1, 1, 2, 6, 4],
-    impressions: [4100, 4700, 4900, 5200, 5600, 7300, 6200]
+  message: {
+    overview: {
+      impressions: 35620,
+      reach: 18430,
+      spend: 1428.45,
+      purchases: 0,
+      addToCart: 0,
+      convValue: 0,
+      roas: 0,
+      cpp: 0,
+      cpm: 40.1,
+      thruplays: 1342,
+      video50: 980,
+      video75: 622,
+      pageView: 412,
+      ctr: 3.12,
+      clicks: 1111,
+      messages: 84,
+      leads: 0,
+      cpmessage: 17.01,
+      cpl: 0
+    },
+    campaigns: [
+      { name: "[MSG] Delivery Express | Stories", reach: 4920, impressions: 10030, clicks: 351, addToCart: 0, purchases: 0, messages: 28, leads: 0, spend: 411.3, roas: 0, cpmessage: 14.69, cpl: 0 },
+      { name: "[MSG] Cupom VIP | Reels", reach: 4510, impressions: 9280, clicks: 306, addToCart: 0, purchases: 0, messages: 22, leads: 0, spend: 352.45, roas: 0, cpmessage: 16.02, cpl: 0 },
+      { name: "[MSG] Video Chef | Feed", reach: 5150, impressions: 10140, clicks: 287, addToCart: 0, purchases: 0, messages: 19, leads: 0, spend: 372.1, roas: 0, cpmessage: 19.58, cpl: 0 },
+      { name: "[MSG] Menu Noturno | Feed", reach: 3850, impressions: 6170, clicks: 167, addToCart: 0, purchases: 0, messages: 15, leads: 0, spend: 292.6, roas: 0, cpmessage: 19.51, cpl: 0 }
+    ],
+    creatives: [
+      { name: "Delivery Express", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoDelivery, mediaType: "video", impressions: 9960, addToCart: 0, purchases: 0, clicks: 332, messages: 25, leads: 0, spend: 394.35 },
+      { name: "Cupom VIP Stories", thumbnailUrl: DEMO_CREATIVE_THUMBS.cupomVip, mediaType: "image", impressions: 8830, addToCart: 0, purchases: 0, clicks: 276, messages: 20, leads: 0, spend: 328.2 },
+      { name: "Chef em Video", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoChef, mediaType: "video", impressions: 7920, addToCart: 0, purchases: 0, clicks: 244, messages: 18, leads: 0, spend: 301.4 },
+      { name: "Menu Digital", thumbnailUrl: DEMO_CREATIVE_THUMBS.leadMenu, mediaType: "image", impressions: 5860, addToCart: 0, purchases: 0, clicks: 149, messages: 11, leads: 0, spend: 214.5 }
+    ],
+    daily: {
+      labels: ["2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"],
+      clicks: [122, 135, 144, 153, 167, 182, 208],
+      messages: [9, 11, 10, 13, 12, 14, 15],
+      impressions: [4310, 4620, 4790, 4930, 5210, 5590, 6170]
+    }
+  },
+  lead: {
+    overview: {
+      impressions: 28940,
+      reach: 16120,
+      spend: 1196.2,
+      purchases: 0,
+      addToCart: 0,
+      convValue: 0,
+      roas: 0,
+      cpp: 0,
+      cpm: 41.33,
+      thruplays: 954,
+      video50: 711,
+      video75: 403,
+      pageView: 368,
+      ctr: 2.46,
+      clicks: 711,
+      messages: 0,
+      leads: 47,
+      cpmessage: 0,
+      cpl: 25.45
+    },
+    campaigns: [
+      { name: "[LEAD] Menu Corporativo | Form", reach: 4880, impressions: 9010, clicks: 214, addToCart: 0, purchases: 0, messages: 0, leads: 17, spend: 384.8, roas: 0, cpmessage: 0, cpl: 22.64 },
+      { name: "[LEAD] Combo Aurora | Form", reach: 4120, impressions: 7840, clicks: 189, addToCart: 0, purchases: 0, messages: 0, leads: 13, spend: 311.5, roas: 0, cpmessage: 0, cpl: 23.96 },
+      { name: "[LEAD] Chef Signature | Reels", reach: 3910, impressions: 7020, clicks: 163, addToCart: 0, purchases: 0, messages: 0, leads: 9, spend: 256.2, roas: 0, cpmessage: 0, cpl: 28.47 },
+      { name: "[LEAD] Cardapio Executivo | Feed", reach: 3210, impressions: 5070, clicks: 145, addToCart: 0, purchases: 0, messages: 0, leads: 8, spend: 243.7, roas: 0, cpmessage: 0, cpl: 30.46 }
+    ],
+    creatives: [
+      { name: "Lead Menu", thumbnailUrl: DEMO_CREATIVE_THUMBS.leadMenu, mediaType: "image", impressions: 8920, addToCart: 0, purchases: 0, clicks: 208, messages: 0, leads: 16, spend: 364.8 },
+      { name: "Aurora Combo Form", thumbnailUrl: DEMO_CREATIVE_THUMBS.auroraCombo, mediaType: "image", impressions: 7740, addToCart: 0, purchases: 0, clicks: 181, messages: 0, leads: 12, spend: 286.1 },
+      { name: "Chef Signature Lead", thumbnailUrl: DEMO_CREATIVE_THUMBS.videoChef, mediaType: "video", impressions: 6240, addToCart: 0, purchases: 0, clicks: 152, messages: 0, leads: 10, spend: 271.4 },
+      { name: "Burger Prime Form", thumbnailUrl: DEMO_CREATIVE_THUMBS.burgerLaunch, mediaType: "image", impressions: 4970, addToCart: 0, purchases: 0, clicks: 119, messages: 0, leads: 9, spend: 214.7 }
+    ],
+    daily: {
+      labels: ["2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"],
+      clicks: [84, 91, 96, 101, 109, 114, 116],
+      leads: [4, 6, 5, 7, 8, 8, 9],
+      impressions: [3290, 3580, 3810, 4040, 4170, 4460, 5590]
+    }
   }
 };
 
@@ -723,6 +879,20 @@ function getSelectedObjectiveConfig() {
   return OBJECTIVE_CONFIGS[state.selectedObjectiveType] || OBJECTIVE_CONFIGS.purchase;
 }
 
+function isDemoAccount(accountId = "") {
+  return accountId === DEMO_ACCOUNT_ID;
+}
+
+function withDemoAccount(accounts = []) {
+  const sanitizedAccounts = Array.isArray(accounts) ? accounts.filter(Boolean) : [];
+  return [...sanitizedAccounts.filter(account => account.id !== DEMO_ACCOUNT_ID), DEMO_ACCOUNT];
+}
+
+function getDemoDashboard() {
+  const source = DEMO_DASHBOARDS[state.selectedObjectiveType] || DEMO_DASHBOARDS.purchase;
+  return JSON.parse(JSON.stringify(source));
+}
+
 function getFilteredAccounts() {
   if (state.isMasterAdmin && !state.isClientView) return state.adAccounts;
   if (state.isClientView && state.lockedAccountId) {
@@ -811,6 +981,10 @@ function selectObjectiveType(objectiveType, options = {}) {
 
   const filteredAccounts = getFilteredAccounts();
   if (state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount)) {
+    if (isDemoAccount(state.selectedAccount)) {
+      loadData({ silent: true });
+      return;
+    }
     if (state.lastDashboardData) {
       processDashboardData(state.lastDashboardData);
     }
@@ -1814,16 +1988,20 @@ async function fetchAdAccounts() {
   }
 
   if (!activeProfile?.hasToken || activeProfile.tokenInvalid) {
-    state.adAccounts = [];
+    state.adAccounts = withDemoAccount([]);
     populateAccountSelects();
-    selectAccount("");
+    const filteredAccounts = getFilteredAccounts();
+    const fallbackAccountId = filteredAccounts.some(account => account.id === state.selectedAccount)
+      ? state.selectedAccount
+      : (filteredAccounts[0]?.id || "");
+    selectAccount(fallbackAccountId);
     updateMetaStatus(false);
     return;
   }
 
   try {
     const data = await apiRequest(`/meta/adaccounts?profileId=${encodeURIComponent(activeProfile.id)}`);
-    state.adAccounts = Array.isArray(data.accounts) ? data.accounts : [];
+    state.adAccounts = withDemoAccount(Array.isArray(data.accounts) ? data.accounts : []);
     populateAccountSelects();
     const filteredAccounts = getFilteredAccounts();
     const hasSelected = state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount);
@@ -1843,12 +2021,16 @@ function populateAccountSelects() {
   const shareSelect = document.getElementById("share-account-select");
   if (!accountSelect || !shareSelect) return;
   const filteredAccounts = getFilteredAccounts();
+  const shareableAccounts = filteredAccounts.filter(account => !isDemoAccount(account.id));
 
   accountSelect.innerHTML = '<option value="">Selecione...</option>';
   shareSelect.innerHTML = '<option value="">Selecione...</option>';
 
   filteredAccounts.forEach(account => {
     accountSelect.add(new Option(account.name, account.id));
+  });
+
+  shareableAccounts.forEach(account => {
     shareSelect.add(new Option(account.name, account.id));
   });
 
@@ -1959,6 +2141,15 @@ async function loadData(options = {}) {
     return;
   }
 
+  if (isDemoAccount(state.selectedAccount)) {
+    isLoadInProgress = false;
+    skipChartAnimationOnNextRender = silent;
+    loadDemoData();
+    restartDashboardAutoRefresh();
+    if (!silent) skipChartAnimationOnNextRender = false;
+    return;
+  }
+
   const activeProfile = getActiveProfile();
   if (!state.isClientView && (!activeProfile?.hasToken || activeProfile.tokenInvalid)) {
     stopDashboardAutoRefresh();
@@ -2028,13 +2219,7 @@ function processDashboardData(dashboard) {
 }
 
 function loadDemoData() {
-  updateKPIs(DEMO_DATA.overview);
-  state.campaigns = DEMO_DATA.campaigns.map(item => ({ ...item }));
-  state.creatives = DEMO_DATA.creatives.map(item => ({ ...item }));
-  renderCampaignsTable();
-  renderLineChart(DEMO_DATA.daily);
-  renderCreatives();
-  renderDonutChart();
+  processDashboardData(getDemoDashboard());
 }
 
 function showLoadingState() {
@@ -2065,8 +2250,6 @@ function renderEmptyState() {
     const element = document.getElementById(id);
     if (element) element.textContent = "";
   });
-  document.getElementById("roas-fill").style.width = "0%";
-  document.getElementById("roas-bar").style.display = "";
   updateDashboardLabels();
 
   renderLineChart({});
@@ -2084,6 +2267,25 @@ function showApiError(message) {
   renderEmptyState();
   if (!state.isClientView) updateMetaStatus(false);
   showToast(message || "Erro ao conectar ao backend.");
+}
+
+function setElementColor(id, color = "") {
+  const element = document.getElementById(id);
+  if (element) element.style.color = color;
+}
+
+function applyDashboardMetricColors() {
+  setElementColor("kpi-gasto", "var(--red)");
+  setElementColor("kpi-compras", "var(--blue)");
+  setElementColor("kpi-cpp", "var(--red)");
+
+  if (state.selectedObjectiveType === "purchase") {
+    setElementColor("mm-roas", "var(--blue)");
+    setElementColor("mm-conv", "var(--green)");
+  } else {
+    setElementColor("mm-roas", "");
+    setElementColor("mm-conv", "");
+  }
 }
 
 async function maybeHandleMetaTokenInvalid(error) {
@@ -2139,9 +2341,8 @@ function updateKPIs(data) {
   renderOverviewMetricCard();
   setText("mm-roas", config.metricPrimaryValue(data));
   document.getElementById("mm-roas").style.color = config.metricPrimaryColor;
-  document.getElementById("roas-fill").style.width = config.metricPrimaryBar(data);
-  document.getElementById("roas-bar").style.display = state.selectedObjectiveType === "purchase" ? "" : "none";
   setText("mm-conv", config.metricSecondaryValue(data));
+  applyDashboardMetricColors();
 }
 
 function renderOverviewMetricCard() {
@@ -2224,12 +2425,13 @@ function renderCreatives() {
 
   const placeholders = ["AD", "VT", "RM", "CR", "MX"];
   grid.innerHTML = state.creatives.map((creative, index) => `
-    <div class="creative-card">
-      <div class="creative-thumb">
+    <div class="creative-card" ${creative.thumbnailUrl ? `onclick="openCreativePreview('${escapeAttribute(creative.thumbnailUrl)}', '${escapeAttribute(creative.name)}')"` : ""}>
+      <div class="creative-thumb ${creative.thumbnailUrl ? "has-image" : ""} ${creative.mediaType === "video" ? "is-video" : "is-image"}">
         ${creative.thumbnailUrl
-          ? `<img src="${escapeAttribute(creative.thumbnailUrl)}" alt="${escapeAttribute(creative.name)}" loading="lazy" onerror="this.style.display='none'">`
-          : `<div class="placeholder-icon">${placeholders[index % placeholders.length]}</div>`
+          ? `<img src="${escapeAttribute(creative.thumbnailUrl)}" alt="${escapeAttribute(creative.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="handleCreativeImageLoad(this)" onerror="handleCreativeImageError(this)">`
+          : ""
         }
+        <div class="placeholder-icon">${placeholders[index % placeholders.length]}</div>
       </div>
       <div class="creative-info">
         <div class="creative-name">${escapeHtml(creative.name)}</div>
@@ -2242,6 +2444,39 @@ function renderCreatives() {
       </div>
     </div>
   `).join("");
+}
+
+function handleCreativeImageLoad(imageElement) {
+  imageElement.closest(".creative-thumb")?.classList.add("is-loaded");
+}
+
+function handleCreativeImageError(imageElement) {
+  const thumb = imageElement.closest(".creative-thumb");
+  if (thumb) thumb.classList.remove("is-loaded");
+  imageElement.remove();
+}
+
+function openCreativePreview(imageUrl, creativeName = "") {
+  if (!imageUrl) return;
+  const modal = document.getElementById("creative-preview-modal");
+  const image = document.getElementById("creative-preview-image");
+  const title = document.getElementById("creative-preview-title");
+  if (!modal || !image || !title) return;
+
+  image.src = imageUrl;
+  image.alt = creativeName || "Criativo";
+  title.textContent = creativeName || "Preview do criativo";
+  modal.style.display = "flex";
+}
+
+function closeCreativePreview() {
+  const modal = document.getElementById("creative-preview-modal");
+  const image = document.getElementById("creative-preview-image");
+  if (modal) modal.style.display = "none";
+  if (image) {
+    image.removeAttribute("src");
+    image.alt = "";
+  }
 }
 
 function destroyChart(id) {
@@ -2416,6 +2651,11 @@ async function generateClientLink() {
 
   if (!accountId) {
     showToast("Selecione uma conta de anuncio.");
+    return;
+  }
+
+  if (isDemoAccount(accountId)) {
+    showToast("A conta demo serve apenas para visualizacao interna do dashboard.");
     return;
   }
 
@@ -2638,6 +2878,10 @@ document.getElementById("share-modal").addEventListener("click", function(event)
 
 document.getElementById("reconnect-modal").addEventListener("click", function(event) {
   if (event.target === this) closeReconnectModal();
+});
+
+document.getElementById("creative-preview-modal").addEventListener("click", function(event) {
+  if (event.target === this) closeCreativePreview();
 });
 
 document.getElementById("date-range-picker")?.addEventListener("click", event => {
