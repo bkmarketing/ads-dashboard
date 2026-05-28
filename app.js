@@ -11,51 +11,6 @@ const STORAGE_KEYS = {
 
 const EMPTY_IMAGE_SRC = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
 
-function svgToDataUri(svg) {
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)
-    .replace(/%0A/g, "")
-    .replace(/%20/g, " ")}`;
-}
-
-function createDemoCreativeThumb({ title, subtitle, accent, secondary, tag, mode = "image" }) {
-  const playBadge = mode === "video"
-    ? `
-      <circle cx="122" cy="34" r="18" fill="rgba(8,10,11,0.55)" stroke="rgba(255,255,255,0.2)" />
-      <polygon points="116,24 116,44 132,34" fill="#ffffff" />
-    `
-    : "";
-
-  return svgToDataUri(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 210">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="${accent}" />
-          <stop offset="100%" stop-color="${secondary}" />
-        </linearGradient>
-        <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.24)" />
-          <stop offset="100%" stop-color="rgba(255,255,255,0.02)" />
-        </linearGradient>
-      </defs>
-      <rect width="160" height="210" rx="20" fill="url(#bg)" />
-      <rect x="8" y="8" width="144" height="194" rx="16" fill="rgba(10,12,14,0.16)" stroke="rgba(255,255,255,0.12)" />
-      <circle cx="32" cy="38" r="26" fill="rgba(255,255,255,0.14)" />
-      <circle cx="128" cy="158" r="40" fill="rgba(255,255,255,0.12)" />
-      <rect x="20" y="20" width="70" height="20" rx="10" fill="rgba(8,10,11,0.38)" />
-      <text x="55" y="34" fill="#f7fafc" font-family="Montserrat, Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle">${tag}</text>
-      <rect x="20" y="58" width="120" height="68" rx="18" fill="rgba(8,10,11,0.18)" />
-      <rect x="28" y="66" width="104" height="18" rx="9" fill="rgba(255,255,255,0.18)" />
-      <rect x="28" y="92" width="76" height="10" rx="5" fill="rgba(255,255,255,0.16)" />
-      <rect x="28" y="108" width="92" height="10" rx="5" fill="rgba(255,255,255,0.12)" />
-      <rect x="20" y="140" width="120" height="44" rx="16" fill="rgba(8,10,11,0.38)" />
-      <text x="28" y="158" fill="#ffffff" font-family="Montserrat, Arial, sans-serif" font-size="13" font-weight="800">${title}</text>
-      <text x="28" y="174" fill="rgba(255,255,255,0.78)" font-family="IBM Plex Mono, monospace" font-size="8" letter-spacing="1">${subtitle}</text>
-      ${playBadge}
-      <rect x="20" y="188" width="58" height="10" rx="5" fill="url(#glass)" />
-    </svg>
-  `);
-}
-
 const COLORS = ["#a8c441", "#c8e05a", "#7fa832", "#e8f091", "#5a7820"];
 const MONTH_NAMES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const WEEKDAY_NAMES = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"];
@@ -244,9 +199,11 @@ function createInitialState() {
 
 let state = createInitialState();
 let lastMobileScrollY = 0;
+let mobileBannerFrameId = 0;
 let dashboardRefreshTimer = null;
 let currentLoadRequestId = 0;
 let isLoadInProgress = false;
+let currentDashboardAbortController = null;
 let skipChartAnimationOnNextRender = false;
 
 function getBackendBaseUrl() {
@@ -306,7 +263,8 @@ async function apiRequest(path, options = {}) {
     method,
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
-    credentials: "include"
+    credentials: "include",
+    signal: options.signal
   });
 
   const contentType = response.headers.get("Content-Type") || "";
@@ -461,7 +419,6 @@ function handleManualShareDateChange() {
 }
 
 function handleShareObjectiveChange(objectiveType) {
-  const selectedObjective = OBJECTIVE_CONFIGS[objectiveType] ? objectiveType : state.selectedObjectiveType;
   const shareSelect = document.getElementById("share-account-select");
   if (!shareSelect) return;
   const currentValue = shareSelect.value;
@@ -818,6 +775,7 @@ function selectObjectiveType(objectiveType, options = {}) {
   updateObjectiveUI();
   closeObjectiveMenu();
   populateAccountSelects();
+  populateAccountCards();
 
   const filteredAccounts = getFilteredAccounts();
   if (state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount)) {
@@ -1602,6 +1560,14 @@ function showLoginScreen() {
 
 function resetAdminState() {
   stopDashboardAutoRefresh();
+  if (currentDashboardAbortController) {
+    currentDashboardAbortController.abort();
+    currentDashboardAbortController = null;
+  }
+  if (mobileBannerFrameId) {
+    cancelAnimationFrame(mobileBannerFrameId);
+    mobileBannerFrameId = 0;
+  }
   currentLoadRequestId = 0;
   isLoadInProgress = false;
   state = createInitialState();
@@ -1631,7 +1597,6 @@ function returnToLoginScreen() {
   try {
     if (shareModal) shareModal.style.display = "none";
     if (reconnectModal) reconnectModal.style.display = "none";
-    closeProfileModal();
     resetAdminState();
     try {
       renderEmptyState();
@@ -1870,7 +1835,6 @@ function populateAccountSelects() {
   });
 
   accountSelect.style.display = state.isClientView ? "none" : "block";
-  populateAccountCards();
 }
 
 function populateAccountCards() {
@@ -1985,6 +1949,12 @@ async function loadData(options = {}) {
 
   if (silent && isLoadInProgress) return;
 
+  if (currentDashboardAbortController) {
+    currentDashboardAbortController.abort();
+  }
+  const requestController = new AbortController();
+  currentDashboardAbortController = requestController;
+
   const requestId = ++currentLoadRequestId;
   const accountId = state.selectedAccount;
   isLoadInProgress = true;
@@ -2009,7 +1979,8 @@ async function loadData(options = {}) {
     }
 
     const data = await apiRequest(`/meta/dashboard?${params.toString()}`, {
-      auth: !state.isClientView
+      auth: !state.isClientView,
+      signal: requestController.signal
     });
 
     if (requestId !== currentLoadRequestId || accountId !== state.selectedAccount) return;
@@ -2017,9 +1988,13 @@ async function loadData(options = {}) {
     processDashboardData(data.dashboard);
     restartDashboardAutoRefresh();
   } catch (error) {
+    if (error?.name === "AbortError") return;
     if (!state.isClientView && await maybeHandleMetaTokenInvalid(error)) return;
     showApiError(error.message || "Erro ao buscar dados do dashboard.");
   } finally {
+    if (currentDashboardAbortController === requestController) {
+      currentDashboardAbortController = null;
+    }
     if (requestId === currentLoadRequestId) {
       isLoadInProgress = false;
     }
@@ -2552,10 +2527,6 @@ function openProfileModal() {
   switchTab("perfil");
 }
 
-function closeProfileModal() {
-  return;
-}
-
 async function generateClientLink() {
   const activeProfile = getActiveProfile();
   if (!activeProfile?.id) {
@@ -2647,49 +2618,33 @@ function copyLink() {
   });
 }
 
-function exportData() {
-  const rows = [
-    ["Campanha", "Alcance", "Impressoes", "Add Carrinho", "Compras", "Gasto (R$)", "ROAS"],
-    ...state.campaigns.map(campaign => [
-      campaign.name,
-      campaign.reach,
-      campaign.impressions,
-      campaign.addToCart,
-      campaign.purchases,
-      campaign.spend.toFixed(2),
-      campaign.roas.toFixed(2)
-    ])
-  ];
-  const csv = rows.map(row => row.map(value => `"${value}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `relatorio-meta-ads-${new Date().toISOString().split("T")[0]}.csv`;
-  link.click();
-  showToast("CSV exportado!");
-}
-
 function handleMobileClientBannerVisibility() {
   if (!state.isClientView) return;
-  if (window.innerWidth > 768) {
-    document.body.classList.remove("client-banner-hidden");
-    return;
-  }
+  if (mobileBannerFrameId) return;
 
-  const currentScrollY = window.scrollY || window.pageYOffset || 0;
-  if (currentScrollY <= 8) {
-    document.body.classList.remove("client-banner-hidden");
+  mobileBannerFrameId = requestAnimationFrame(() => {
+    mobileBannerFrameId = 0;
+
+    if (window.innerWidth > 768) {
+      document.body.classList.remove("client-banner-hidden");
+      return;
+    }
+
+    const currentScrollY = window.scrollY || window.pageYOffset || 0;
+    if (currentScrollY <= 8) {
+      document.body.classList.remove("client-banner-hidden");
+      lastMobileScrollY = currentScrollY;
+      return;
+    }
+
+    if (currentScrollY > lastMobileScrollY + 8 && currentScrollY > 40) {
+      document.body.classList.add("client-banner-hidden");
+    } else if (currentScrollY < lastMobileScrollY - 8) {
+      document.body.classList.remove("client-banner-hidden");
+    }
+
     lastMobileScrollY = currentScrollY;
-    return;
-  }
-
-  if (currentScrollY > lastMobileScrollY + 8 && currentScrollY > 40) {
-    document.body.classList.add("client-banner-hidden");
-  } else if (currentScrollY < lastMobileScrollY - 8) {
-    document.body.classList.remove("client-banner-hidden");
-  }
-
-  lastMobileScrollY = currentScrollY;
+  });
 }
 
 function fmtNum(value) {

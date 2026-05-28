@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#060708">
 <title>AdsDash</title>
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -50,9 +54,14 @@
     overflow-x: hidden;
     position: relative;
     isolation: isolate;
+    overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  html {
+    scrollbar-gutter: stable both-edges;
   }
 
   body.client-view {
@@ -1185,6 +1194,15 @@
     box-shadow: var(--shadow-soft), var(--panel-outline);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+  }
+
+  .card,
+  .creative-card,
+  .account-card,
+  .saved-item,
+  .access-row {
+    content-visibility: auto;
+    contain-intrinsic-size: 280px 180px;
   }
 
   .card::before {
