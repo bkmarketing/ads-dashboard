@@ -8,6 +8,8 @@ const STORAGE_KEYS = {
   logoutRequested: "adsdash_logout_requested",
   sessionToken: "adsdash_session_token"
 };
+const REFRESH_ACCOUNTS_OPTION_VALUE = "__refresh_accounts__";
+const ACCOUNT_PLACEHOLDER_VALUE = "";
 
 const EMPTY_IMAGE_SRC = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
 
@@ -15,9 +17,9 @@ const COLORS = ["#a8c441", "#c8e05a", "#7fa832", "#e8f091", "#5a7820"];
 const MONTH_NAMES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const WEEKDAY_NAMES = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"];
 const OBJECTIVE_OPTIONS = [
-  { id: "purchase", label: "Compra no site" },
-  { id: "message", label: "Mensagem direta" },
-  { id: "lead", label: "Leads de formulario" }
+  { id: "purchase", label: "Compras" },
+  { id: "message", label: "WhatsApp" },
+  { id: "lead", label: "Leads" }
 ];
 
 const OBJECTIVE_CONFIGS = {
@@ -205,6 +207,8 @@ let currentLoadRequestId = 0;
 let isLoadInProgress = false;
 let currentDashboardAbortController = null;
 let skipChartAnimationOnNextRender = false;
+let chartLibraryPromise = null;
+let currentChartRenderRequestId = 0;
 
 function getBackendBaseUrl() {
   return String(CONFIG.BACKEND_BASE_URL || "").replace(/\/+$/, "");
@@ -278,6 +282,38 @@ async function apiRequest(path, options = {}) {
   }
 
   return data;
+}
+
+async function ensureChartLibrary() {
+  if (typeof window.Chart === "function") {
+    return window.Chart;
+  }
+
+  if (chartLibraryPromise) {
+    return chartLibraryPromise;
+  }
+
+  chartLibraryPromise = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector('script[data-chartjs="true"]');
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(window.Chart), { once: true });
+      existingScript.addEventListener("error", () => reject(new Error("Nao foi possivel carregar os graficos.")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js";
+    script.defer = true;
+    script.dataset.chartjs = "true";
+    script.onload = () => resolve(window.Chart);
+    script.onerror = () => reject(new Error("Nao foi possivel carregar os graficos."));
+    document.head.appendChild(script);
+  }).catch(error => {
+    chartLibraryPromise = null;
+    throw error;
+  });
+
+  return chartLibraryPromise;
 }
 
 function formatDate(date) {
@@ -1768,12 +1804,17 @@ function reconnectMetaToken() {
   connectMeta();
 }
 
-async function fetchAdAccounts() {
+async function fetchAdAccounts(options = {}) {
+  const { forceRefresh = false } = options;
   const activeProfile = getActiveProfile();
 
   if (state.isClientView && state.currentShareId) {
     try {
-      const data = await apiRequest(`/meta/adaccounts?shareId=${encodeURIComponent(state.currentShareId)}`, {
+      const params = new URLSearchParams({
+        shareId: state.currentShareId
+      });
+      if (forceRefresh) params.set("forceRefresh", "1");
+      const data = await apiRequest(`/meta/adaccounts?${params.toString()}`, {
         auth: false
       });
       state.adAccounts = data.accounts || [];
@@ -1791,22 +1832,22 @@ async function fetchAdAccounts() {
   if (!activeProfile?.hasToken || activeProfile.tokenInvalid) {
     state.adAccounts = [];
     populateAccountSelects();
-    const filteredAccounts = getFilteredAccounts();
-    const fallbackAccountId = filteredAccounts.some(account => account.id === state.selectedAccount)
-      ? state.selectedAccount
-      : (filteredAccounts[0]?.id || "");
-    selectAccount(fallbackAccountId);
+    selectAccount("");
     updateMetaStatus(false);
     return;
   }
 
   try {
-    const data = await apiRequest(`/meta/adaccounts?profileId=${encodeURIComponent(activeProfile.id)}`);
+    const params = new URLSearchParams({
+      profileId: activeProfile.id
+    });
+    if (forceRefresh) params.set("forceRefresh", "1");
+    const data = await apiRequest(`/meta/adaccounts?${params.toString()}`);
     state.adAccounts = Array.isArray(data.accounts) ? data.accounts.filter(Boolean) : [];
     populateAccountSelects();
     const filteredAccounts = getFilteredAccounts();
     const hasSelected = state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount);
-    selectAccount(hasSelected ? state.selectedAccount : (filteredAccounts[0]?.id || ""));
+    selectAccount(hasSelected ? state.selectedAccount : "");
     updateMetaStatus(true);
   } catch (error) {
     if (await maybeHandleMetaTokenInvalid(error)) return;
@@ -1823,7 +1864,12 @@ function populateAccountSelects() {
   if (!accountSelect || !shareSelect) return;
   const filteredAccounts = getFilteredAccounts();
 
-  accountSelect.innerHTML = '<option value="">Selecione...</option>';
+  accountSelect.innerHTML = "";
+  const placeholderOption = new Option("SELECIONE A CONTA", ACCOUNT_PLACEHOLDER_VALUE);
+  placeholderOption.disabled = true;
+  placeholderOption.hidden = true;
+  accountSelect.add(placeholderOption);
+  accountSelect.add(new Option("ATUALIZAR", REFRESH_ACCOUNTS_OPTION_VALUE));
   shareSelect.innerHTML = '<option value="">Selecione...</option>';
 
   filteredAccounts.forEach(account => {
@@ -1835,6 +1881,37 @@ function populateAccountSelects() {
   });
 
   accountSelect.style.display = state.isClientView ? "none" : "block";
+  accountSelect.value = filteredAccounts.some(account => account.id === state.selectedAccount)
+    ? state.selectedAccount
+    : ACCOUNT_PLACEHOLDER_VALUE;
+}
+
+async function refreshAdAccountsFromMeta() {
+  if (state.isClientView) return;
+  const activeProfile = getActiveProfile();
+  const accountSelect = document.getElementById("account-select");
+
+  if (!activeProfile?.hasToken || activeProfile.tokenInvalid) {
+    showToast("Cadastre um perfil Meta valido antes de atualizar as contas.");
+    if (accountSelect) accountSelect.value = state.selectedAccount || "";
+    return;
+  }
+
+  try {
+    showToast("Atualizando contas da Meta...");
+    if (accountSelect) accountSelect.disabled = true;
+    await fetchAdAccounts({ forceRefresh: true });
+    showToast("Contas atualizadas. Recarregando...");
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 250);
+  } catch (error) {
+    if (accountSelect) {
+      accountSelect.disabled = false;
+      accountSelect.value = state.selectedAccount || ACCOUNT_PLACEHOLDER_VALUE;
+    }
+    handleApiError(error, "Nao foi possivel atualizar as contas da Meta.");
+  }
 }
 
 function populateAccountCards() {
@@ -1870,7 +1947,12 @@ function populateAccountCards() {
   `).join("");
 }
 
-function selectAccount(accountId) {
+async function selectAccount(accountId) {
+  if (accountId === REFRESH_ACCOUNTS_OPTION_VALUE) {
+    await refreshAdAccountsFromMeta();
+    return;
+  }
+
   if (state.isClientView && state.lockedAccountId && accountId !== state.lockedAccountId) {
     document.getElementById("account-select").value = state.lockedAccountId;
     showToast("A conta compartilhada esta bloqueada para o cliente.");
@@ -2014,9 +2096,10 @@ function processDashboardData(dashboard) {
   state.campaigns = Array.isArray(dashboard.campaigns) ? dashboard.campaigns : [];
   state.creatives = Array.isArray(dashboard.creatives) ? dashboard.creatives : [];
   renderCampaignsTable();
-  renderLineChart(dashboard.daily || {});
   renderCreatives();
-  renderDonutChart();
+  if (document.getElementById("content-geral")?.classList.contains("active")) {
+    scheduleDashboardCharts(dashboard);
+  }
 }
 
 function showLoadingState() {
@@ -2390,6 +2473,7 @@ function destroyChart(id) {
 }
 
 function renderLineChart(daily = {}) {
+  if (typeof window.Chart !== "function") return;
   const config = getSelectedObjectiveConfig();
   destroyChart("line");
   const canvas = document.getElementById("line-chart");
@@ -2431,6 +2515,7 @@ function renderLineChart(daily = {}) {
 }
 
 function renderDonutChart() {
+  if (typeof window.Chart !== "function") return;
   const config = getSelectedObjectiveConfig();
   destroyChart("donut");
   const canvas = document.getElementById("donut-chart");
@@ -2483,6 +2568,32 @@ function renderDonutChart() {
   `).join("");
 }
 
+function scheduleDashboardCharts(dashboard) {
+  const renderRequestId = ++currentChartRenderRequestId;
+  const run = async () => {
+    try {
+      await ensureChartLibrary();
+      if (renderRequestId !== currentChartRenderRequestId) return;
+      if (dashboard !== state.lastDashboardData) return;
+      renderLineChart(dashboard.daily || {});
+      renderDonutChart();
+    } catch (error) {
+      console.warn("Nao foi possivel carregar os graficos do dashboard.", error);
+    }
+  };
+
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(() => {
+      void run();
+    }, { timeout: 1200 });
+    return;
+  }
+
+  window.setTimeout(() => {
+    void run();
+  }, 0);
+}
+
 function switchTab(tab) {
   ["geral", "criativos", "contas", "perfil"].forEach(name => {
     document.getElementById(`tab-${name}`)?.classList.remove("active");
@@ -2493,6 +2604,9 @@ function switchTab(tab) {
   document.getElementById(`content-${tab}`)?.classList.add("active");
   if (tab === "perfil") {
     document.getElementById("user-avatar")?.classList.add("active");
+  }
+  if (tab === "geral" && state.lastDashboardData) {
+    scheduleDashboardCharts(state.lastDashboardData);
   }
 }
 
