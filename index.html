@@ -290,9 +290,9 @@
 
   /* ===== CLIENT VIEW BANNER ===== */
   #client-banner {
-    background: linear-gradient(90deg, rgba(168,196,65,0.1), rgba(168,196,65,0.05));
-    border-bottom: 1px solid rgba(168,196,65,0.2);
-    padding: 10px 24px;
+    background: transparent;
+    border: none;
+    padding: 0;
     align-items: center;
     justify-content: space-between;
     font-size: 13px;
@@ -305,13 +305,14 @@
   }
 
   body.client-view #client-banner {
-    margin-left: 80px;
-    width: calc(100% - 80px);
-    padding: 10px 24px;
-    position: sticky;
-    top: 0;
+    margin-left: 0;
+    width: auto;
+    padding: 0;
+    position: fixed;
+    top: 12px;
+    right: 24px;
     z-index: 140;
-    min-height: 44px;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -346,7 +347,7 @@
   }
 
   body.client-view .header {
-    top: 44px;
+    top: 0;
   }
 
   #client-banner .client-info {
@@ -355,6 +356,11 @@
     gap: 10px;
     color: var(--accent);
     font-family: 'IBM Plex Mono', monospace;
+    background: rgba(15, 18, 18, 0.86);
+    border: 1px solid rgba(168,196,65,0.18);
+    border-radius: 999px;
+    padding: 8px 14px;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.18);
   }
 
   #client-banner .client-dot {
@@ -705,6 +711,16 @@
   #header-subtitle .subtitle-separator,
   #header-subtitle #header-account {
     display: none;
+  }
+
+  body.client-view #header-subtitle .subtitle-separator,
+  body.client-view #header-subtitle #header-account {
+    display: inline;
+  }
+
+  body.client-view #header-account {
+    color: var(--accent);
+    font-weight: 600;
   }
 
   .header-controls {
@@ -2569,6 +2585,26 @@
       top: 0;
     }
 
+    body.client-view .date-range-picker {
+      flex: 0 1 auto;
+      width: auto;
+    }
+
+    body.client-view .date-range-trigger {
+      width: auto;
+      min-height: 36px;
+      height: 36px;
+      padding: 0 10px;
+    }
+
+    body.client-view .date-range-display {
+      min-width: 112px;
+    }
+
+    body.client-view .date-range-label {
+      font-size: 10px;
+    }
+
     body.client-view .header-title {
       padding-right: 0;
       gap: 4px;
@@ -2612,6 +2648,33 @@
     .sidebar-bottom,
     .profile-hint {
       display: none;
+    }
+
+    body.client-view .sidebar {
+      justify-content: space-between;
+      padding-left: 18px;
+      padding-right: 18px;
+      gap: 14px;
+    }
+
+    body.client-view .nav-item {
+      width: 92px;
+      min-width: 92px;
+      flex-basis: 92px;
+      height: 60px;
+      padding: 8px 6px 6px;
+    }
+
+    body.client-view .objective-selector-wrap {
+      flex: 0 0 110px;
+      min-width: 110px;
+    }
+
+    body.client-view .objective-selector-btn {
+      width: 110px;
+      min-height: 60px;
+      height: 60px;
+      padding: 8px 6px 6px;
     }
 
     .mobile-only-nav {
@@ -3813,6 +3876,12 @@
 
   .connect-banner.profile-footer .profile-actions {
     margin-top: 14px;
+  }
+
+  @media (min-width: 769px) {
+    body.client-view #client-banner {
+      display: none !important;
+    }
   }
 
 </style>

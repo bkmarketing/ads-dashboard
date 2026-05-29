@@ -1753,7 +1753,7 @@ function showClientView(params) {
 
   document.getElementById("client-name-banner").textContent = state.clientName;
   document.getElementById("header-client-name").textContent = state.clientName;
-  document.getElementById("header-account").textContent = params.accountId || "";
+  document.getElementById("header-account").textContent = "VISUALIZAÇÃO";
 
   document.getElementById("range-preset").value = params.rangePreset || "custom";
   updateObjectiveUI();
@@ -1876,7 +1876,7 @@ function populateAccountSelects() {
   placeholderOption.disabled = true;
   placeholderOption.hidden = true;
   accountSelect.add(placeholderOption);
-  accountSelect.add(new Option("ATUALIZAR", REFRESH_ACCOUNTS_OPTION_VALUE));
+  accountSelect.add(new Option("ATUALIZAR...", REFRESH_ACCOUNTS_OPTION_VALUE));
   shareSelect.innerHTML = '<option value="">Selecione...</option>';
 
   filteredAccounts.forEach(account => {
@@ -1992,7 +1992,9 @@ async function selectAccount(accountId) {
   const account = state.adAccounts.find(item => item.id === accountId);
   if (account) {
     document.getElementById("header-client-name").textContent = state.isClientView ? state.clientName : account.name;
-    document.getElementById("header-account").textContent = account.account_id || account.id;
+    document.getElementById("header-account").textContent = state.isClientView
+      ? "VISUALIZAÇÃO"
+      : (account.account_id || account.id);
   }
 
   populateAccountCards();
