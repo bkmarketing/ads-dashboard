@@ -764,7 +764,7 @@
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    width: 620px;
+    width: 360px;
     max-width: calc(100vw - 32px);
     background: rgba(11, 13, 15, 0.95);
     border: 1px solid rgba(255,255,255,0.08);
@@ -833,27 +833,17 @@
 
   .date-range-calendars {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 14px;
     position: relative;
   }
 
   .date-range-calendars::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 50%;
-    width: 1px;
-    background: linear-gradient(
-      180deg,
-      rgba(255,255,255,0),
-      rgba(255,255,255,0.08) 12%,
-      rgba(255,255,255,0.08) 88%,
-      rgba(255,255,255,0)
-    );
-    transform: translateX(-50%);
-    pointer-events: none;
+    display: none;
+  }
+
+  .date-range-calendars .date-calendar:nth-child(2) {
+    display: none;
   }
 
   .date-calendar {
@@ -1026,6 +1016,18 @@
     background: rgba(168,196,65,0.2);
     border-color: rgba(168,196,65,0.3);
     color: var(--accent);
+  }
+
+  .date-range-footer > .date-range-actions:last-child .btn-inline:first-child {
+    border-color: rgba(224,85,85,0.24);
+    background: rgba(224,85,85,0.08);
+    color: #f0b2b2;
+  }
+
+  .date-range-footer > .date-range-actions:last-child .btn-apply {
+    border-color: rgba(168,196,65,0.28);
+    background: rgba(168,196,65,0.10);
+    color: #d9eb8b;
   }
 
   .date-range-hidden-inputs {
@@ -3396,6 +3398,39 @@
       gap: 10px;
     }
 
+    .date-range-calendars .date-calendar:nth-child(2) {
+      display: none;
+    }
+
+    .date-range-actions {
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .date-range-actions .btn-inline {
+      padding: 5px 10px;
+      font-size: 11px;
+      min-width: 0;
+      flex: 1 1 0;
+      text-align: center;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-range-footer > .date-range-actions:last-child .btn-inline:first-child {
+      border-color: rgba(224,85,85,0.24);
+      background: rgba(224,85,85,0.08);
+      color: #f0b2b2;
+    }
+
+    .date-range-footer > .date-range-actions:last-child .btn-apply {
+      border-color: rgba(168,196,65,0.28);
+      background: rgba(168,196,65,0.10);
+      color: #d9eb8b;
+    }
+
     .sidebar {
       height: 78px;
       padding-left: 10px;
@@ -3994,9 +4029,9 @@
               </div>
               <div class="date-range-footer">
                 <div class="date-range-actions">
-                  <button type="button" class="btn-inline" onclick="applyDatePreset('last7', true)">Ultimos 7 dias</button>
-                  <button type="button" class="btn-inline" onclick="applyDatePreset('last30', true)">Ultimos 30 dias</button>
-                  <button type="button" class="btn-inline" onclick="applyDatePreset('thisMonth', true)">Este mes</button>
+                  <button type="button" class="btn-inline" onclick="applyDatePreset('last7', true)">7 DIAS</button>
+                  <button type="button" class="btn-inline" onclick="applyDatePreset('last30', true)">30 DIAS</button>
+                  <button type="button" class="btn-inline" onclick="applyDatePreset('thisMonth', true)">ESTE MÊS</button>
                 </div>
                 <div class="date-range-actions">
                   <button type="button" class="btn-inline" onclick="closeDateRangePicker()">Fechar</button>

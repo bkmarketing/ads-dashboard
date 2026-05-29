@@ -561,21 +561,28 @@ function initializeDateRangePicker() {
 }
 
 function renderDateWeekdays() {
-  ["date-weekdays-left", "date-weekdays-right"].forEach(id => {
+  ["date-weekdays-left"].forEach(id => {
     const container = document.getElementById(id);
     if (!container) return;
     container.innerHTML = WEEKDAY_NAMES.map(day => `<div class="date-weekday">${day}</div>`).join("");
   });
+
+  const rightWeekdays = document.getElementById("date-weekdays-right");
+  if (rightWeekdays) rightWeekdays.innerHTML = "";
 }
 
 function renderDateRangePicker() {
   const leftBase = parseInputDate(state.datePickerBaseMonth) || startOfMonth(new Date());
-  const rightBase = addMonths(leftBase, 1);
-
   renderDateMonthControls("left", leftBase);
-  renderDateMonthControls("right", rightBase);
   renderDateMonthGrid("date-grid-left", leftBase);
-  renderDateMonthGrid("date-grid-right", rightBase);
+  const rightMonth = document.getElementById("date-month-right");
+  const rightYear = document.getElementById("date-year-right");
+  const rightGrid = document.getElementById("date-grid-right");
+  const rightWeekdays = document.getElementById("date-weekdays-right");
+  if (rightMonth) rightMonth.innerHTML = "";
+  if (rightYear) rightYear.innerHTML = "";
+  if (rightGrid) rightGrid.innerHTML = "";
+  if (rightWeekdays) rightWeekdays.innerHTML = "";
 }
 
 function renderDateMonthControls(side, monthDate) {
