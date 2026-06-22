@@ -2215,6 +2215,21 @@
     margin-top: 16px;
   }
 
+  .accounts-diagnostics {
+    margin-top: 14px;
+  }
+
+  .accounts-diagnostics-box {
+    border: 1px solid rgba(168,196,65,0.22);
+    background: rgba(168,196,65,0.07);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
   .access-list {
     display: flex;
     flex-direction: column;
@@ -4324,6 +4339,7 @@
               <button class="btn-copy" onclick="copyAdminInviteToken()">Copiar token</button>
             </div>
           </div>
+          <div class="accounts-diagnostics" id="accounts-diagnostics"></div>
           <div class="accounts-grid" id="accounts-grid">
             <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px">
               Conecte sua conta Meta para ver as contas de anúncio
@@ -4389,6 +4405,11 @@
                 <div class="share-field">
                   <label>System User Token</label>
                   <input type="password" id="profile-system-user-token" placeholder="Cole aqui o token seguro do sistema">
+                </div>
+                <div class="share-field">
+                  <label>IDs da BM</label>
+                  <textarea id="profile-business-ids" rows="4" placeholder="Um ID por linha ou separados por virgula"></textarea>
+                  <div class="profile-note" style="margin-top:8px">Use os IDs das Business Managers que concentram as 100 contas. O app consulta essas BMs diretamente.</div>
                 </div>
                 <div class="profile-actions" id="meta-app-actions">
                   <button class="btn-secondary" onclick="resetProfileForm()">Limpar campos</button>

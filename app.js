@@ -181,6 +181,7 @@ function createInitialState() {
     editingProfileId: "",
     editingClientId: "",
     adAccounts: [],
+    adAccountsDiagnostics: null,
     selectedAccount: "",
     lockedAccountId: "",
     currentShareId: "",
@@ -325,6 +326,11 @@ function formatDate(date) {
 
 function formatBR(dateValue) {
   return new Intl.DateTimeFormat("pt-BR").format(new Date(`${dateValue}T12:00:00`));
+}
+
+function isDisplayPlaceholder(value) {
+  const normalized = String(value || "").trim();
+  return !normalized || normalized === "—" || normalized === "â€”" || normalized === "Ã¢â‚¬â€";
 }
 
 function parseInputDate(dateValue) {
@@ -734,7 +740,7 @@ function getSelectedObjectiveConfig() {
 }
 
 function getFilteredAccounts() {
-  if (state.isMasterAdmin && !state.isClientView) return state.adAccounts;
+  if (!state.isClientView) return state.adAccounts;
   if (state.isClientView && state.lockedAccountId) {
     return state.adAccounts.filter(account => account.id === state.lockedAccountId);
   }
@@ -1126,6 +1132,8 @@ function resetProfileForm() {
   document.getElementById("profile-name").value = "";
   const tokenField = document.getElementById("profile-system-user-token");
   if (tokenField) tokenField.value = "";
+  const businessIdsField = document.getElementById("profile-business-ids");
+  if (businessIdsField) businessIdsField.value = "";
 }
 
 function editProfile(profileId) {
@@ -1136,6 +1144,8 @@ function editProfile(profileId) {
   document.getElementById("profile-name").value = profile.name || "";
   const tokenField = document.getElementById("profile-system-user-token");
   if (tokenField) tokenField.value = "";
+  const businessIdsField = document.getElementById("profile-business-ids");
+  if (businessIdsField) businessIdsField.value = Array.isArray(profile.businessIds) ? profile.businessIds.join("\n") : "";
   switchTab("perfil");
 }
 
@@ -1144,7 +1154,8 @@ async function saveProfileSettings() {
     const body = {
       id: state.editingProfileId || "",
       name: document.getElementById("profile-name").value.trim() || "Perfil Meta",
-      systemUserToken: document.getElementById("profile-system-user-token")?.value.trim() || ""
+      systemUserToken: document.getElementById("profile-system-user-token")?.value.trim() || "",
+      businessIds: document.getElementById("profile-business-ids")?.value.trim() || ""
     };
 
     const creatingProfile = !state.editingProfileId;
@@ -1825,7 +1836,9 @@ async function fetchAdAccounts(options = {}) {
         auth: false
       });
       state.adAccounts = data.accounts || [];
+      state.adAccountsDiagnostics = data.diagnostics || null;
       populateAccountSelects();
+      populateAccountCards();
       if (state.selectedAccount) {
         selectAccount(state.selectedAccount);
       }
@@ -1838,7 +1851,9 @@ async function fetchAdAccounts(options = {}) {
 
   if (!activeProfile?.hasToken || activeProfile.tokenInvalid) {
     state.adAccounts = [];
+    state.adAccountsDiagnostics = null;
     populateAccountSelects();
+    populateAccountCards();
     selectAccount("");
     updateMetaStatus(false);
     return;
@@ -1851,7 +1866,9 @@ async function fetchAdAccounts(options = {}) {
     if (forceRefresh) params.set("forceRefresh", "1");
     const data = await apiRequest(`/meta/adaccounts?${params.toString()}`);
     state.adAccounts = Array.isArray(data.accounts) ? data.accounts.filter(Boolean) : [];
+    state.adAccountsDiagnostics = data.diagnostics || null;
     populateAccountSelects();
+    populateAccountCards();
     const filteredAccounts = getFilteredAccounts();
     const hasSelected = state.selectedAccount && filteredAccounts.some(account => account.id === state.selectedAccount);
     selectAccount(hasSelected ? state.selectedAccount : "");
@@ -1859,7 +1876,9 @@ async function fetchAdAccounts(options = {}) {
   } catch (error) {
     if (await maybeHandleMetaTokenInvalid(error)) return;
     state.adAccounts = [];
+    state.adAccountsDiagnostics = null;
     populateAccountSelects();
+    populateAccountCards();
     selectAccount("");
     handleApiError(error, "Nao foi possivel buscar as contas da Meta.");
   }
@@ -1921,9 +1940,44 @@ async function refreshAdAccountsFromMeta() {
   }
 }
 
+function renderAccountsDiagnostics() {
+  const diagnosticsWrap = document.getElementById("accounts-diagnostics");
+  if (!diagnosticsWrap) return;
+
+  if (state.isMasterAdmin && !state.isClientView) {
+    diagnosticsWrap.innerHTML = "";
+    return;
+  }
+
+  const total = Array.isArray(state.adAccounts) ? state.adAccounts.length : 0;
+  const diagnostics = state.adAccountsDiagnostics;
+  if (!diagnostics && !total) {
+    diagnosticsWrap.innerHTML = "";
+    return;
+  }
+
+  if (!diagnostics) {
+    diagnosticsWrap.innerHTML = `<div class="accounts-diagnostics-box">Contas carregadas no painel: <strong>${fmtNum(total)}</strong></div>`;
+    return;
+  }
+
+  const sourceCounts = diagnostics.sourceCounts || {};
+  const consultedBusinessIds = Array.isArray(diagnostics.consultedBusinessIds) ? diagnostics.consultedBusinessIds : [];
+  diagnosticsWrap.innerHTML = `
+    <div class="accounts-diagnostics-box">
+      Painel: <strong>${fmtNum(total)}</strong> contas.
+      <code>me/adaccounts</code>: <strong>${fmtNum(sourceCounts.meAdAccounts || 0)}</strong>.
+      Merge unico: <strong>${fmtNum(diagnostics.mergedUniqueCount || total)}</strong>.
+      Classificadas: <strong>${fmtNum(diagnostics.classifiedCount || total)}</strong>.
+      BMs consultadas: <strong>${fmtNum(consultedBusinessIds.length)}</strong>.
+    </div>
+  `;
+}
+
 function populateAccountCards() {
   const grid = document.getElementById("accounts-grid");
   if (!grid) return;
+  renderAccountsDiagnostics();
   if (state.isMasterAdmin && !state.isClientView) {
     renderAdminUsersList();
     return;
@@ -2808,6 +2862,45 @@ function handleApiError(error, fallbackMessage) {
     return;
   }
   showToast(error?.message || fallbackMessage);
+}
+
+function isDisplayPlaceholder(value) {
+  const normalized = String(value || "").trim();
+  return !normalized || (normalized.length <= 4 && /^[^A-Za-z0-9]+$/.test(normalized));
+}
+
+function copyAdminInviteToken() {
+  const value = state.lastGeneratedInviteToken || document.getElementById("contas-token-value")?.textContent || "";
+  if (isDisplayPlaceholder(value)) {
+    showToast("Gere um token primeiro.");
+    return;
+  }
+
+  navigator.clipboard.writeText(value).then(() => {
+    showToast("Token copiado!");
+  }).catch(() => {
+    showToast("Nao foi possivel copiar o token.");
+  });
+}
+
+function copyLink() {
+  const url = document.getElementById("share-url").textContent;
+  if (isDisplayPlaceholder(url)) {
+    showToast("Gere um link primeiro!");
+    return;
+  }
+
+  navigator.clipboard.writeText(url).then(() => {
+    showToast("Link copiado!");
+  }).catch(() => {
+    const textarea = document.createElement("textarea");
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    showToast("Link copiado!");
+  });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
